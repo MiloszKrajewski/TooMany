@@ -1,0 +1,7 @@
+Microsoft.Extensions.DependencyInjection.Abstractions
+Microsoft.Extensions.Logging.Abstractions
+Microsoft.Extensions.Hosting
+Microsoft.AspNetCore.Hosting
+Microsoft.AspNetCore.Mvc.NewtonsoftJson
+
+Proto.Actor

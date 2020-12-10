@@ -1,0 +1,32 @@
+<Project>
+  <PropertyGroup>
+    <Version>0.0.1</Version>
+    <AssemblyVersion>0.0.1</AssemblyVersion>
+    <FileVersion>0.0.1</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>default</LangVersion>
+    <Product>TooMany</Product>
+    <Authors>...</Authors>
+    <Copyright>...</Copyright>
+    <Description>...</Description>
+    <RepositoryUrl>https://.../TooMany</RepositoryUrl>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--
+    <PackageId>TooMany</PackageId>
+    <PackageTags>...</PackageTags>
+    <PackageLicenseUrl>https://.../LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://.../TooMany</PackageProjectUrl>
+    <PackageIconUrl>https://.../TooMany/icon.png</PackageIconUrl>
+    -->
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="*.?sproj.DotSettings" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,5 @@
+Newtonsoft.Json
+Microsoft.AspNetCore.Mvc.Abstractions
+Microsoft.AspNetCore.Mvc.Core
+Microsoft.Extensions.Logging.Abstractions
+Microsoft.Extensions.DependencyInjection.Abstractions

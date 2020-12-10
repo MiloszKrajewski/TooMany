@@ -1,0 +1,11 @@
+# System.Reactive
+System.Interactive
+
+Microsoft.Extensions.DependencyInjection
+Microsoft.Extensions.Logging
+Microsoft.Extensions.Configuration
+Microsoft.Extensions.Http
+
+CommandLineParser
+Spectre.Console
+K4os.RoutR

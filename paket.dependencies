@@ -1,0 +1,53 @@
+storage none
+framework auto-detect
+source https://www.nuget.org/api/v2
+
+nuget System.Reactive < 5
+nuget System.Interactive < 5
+
+nuget Microsoft.Extensions.DependencyInjection < 5
+nuget Microsoft.Extensions.DependencyInjection.Abstractions < 5
+nuget Microsoft.Extensions.Logging < 5
+nuget Microsoft.Extensions.Logging.Abstractions < 5
+nuget Microsoft.Extensions.Configuration < 5
+nuget Microsoft.Extensions.Configuration.Abstractions < 5
+
+nuget Microsoft.Extensions.Hosting < 5
+nuget Microsoft.Extensions.Http < 5
+
+nuget Microsoft.AspNetCore.Hosting < 5
+nuget Microsoft.AspNetCore.Mvc.Abstractions < 5
+nuget Microsoft.AspNetCore.Mvc.Core < 5
+nuget Microsoft.AspNetCore.Mvc.NewtonsoftJson < 5
+
+nuget Grpc.Tools
+nuget Google.Protobuf 
+
+nuget Microsoft.Data.SQLite
+
+nuget Proto.Actor
+nuget Proto.Persistence
+nuget Proto.Remote
+# nuget Proto.Cluster
+
+nuget Newtonsoft.Json
+nuget K4os.Json.KnownTypes
+nuget RestEase
+nuget K4os.Text.BaseX
+
+nuget K4os.RoutR
+nuget K4os.RoutR.Abstractions
+
+nuget CommandLineParser
+nuget Spectre.Console
+ 
+nuget Serilog
+nuget Serilog.Sinks.File
+nuget Serilog.Sinks.Console
+nuget Serilog.Sinks.Trace
+nuget Serilog.Extensions.Logging
+
+nuget xunit
+nuget xunit.runner.visualstudio
+nuget Microsoft.NET.Test.Sdk
+

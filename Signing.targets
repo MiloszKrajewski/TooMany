@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' and Exists('../../TooMany.snk')">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../TooMany.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+</Project>

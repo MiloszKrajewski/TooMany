@@ -1,0 +1,51 @@
+@server = http://localhost:31337
+
+### Failure endpoint
+
+GET {{server}}/api/v1/fail
+
+### Success endpoint
+
+GET {{server}}/api/v1/now
+
+### Create task
+
+POST {{server}}/api/v1/task/taskX
+Content-Type: application/json
+
+{
+	"executable": "cmd",
+	"arguments": "/c \"dir && pause\"",
+	"environment": {
+		"VAR": "7"
+	},
+}
+
+### Get task
+
+GET {{server}}/api/v1/task/task9
+
+### Get tasks
+
+GET {{server}}/api/v1/task
+
+### Delete task
+
+DELETE {{server}}/api/v1/task/task10
+
+### Start task
+
+PUT {{server}}/api/v1/task/taskP/start
+
+### Restart task
+
+PUT {{server}}/api/v1/task/task9/start?force=true
+
+
+### Stop task
+
+PUT {{server}}/api/v1/task/task8/stop
+
+### Get task logs
+
+GET {{server}}/api/v1/task/taskP/logs
