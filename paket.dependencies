@@ -25,14 +25,13 @@ nuget Google.Protobuf
 
 nuget Microsoft.Data.SQLite
 
-nuget Proto.Actor
-nuget Proto.Persistence
-nuget Proto.Remote
-# nuget Proto.Cluster
+nuget Proto.Actor 0.9
+nuget Proto.Persistence 0.9
+nuget Proto.Remote 0.9
 
 nuget Newtonsoft.Json
 nuget K4os.Json.KnownTypes
-nuget RestEase
+nuget RestEase 1.5.0
 nuget K4os.Text.BaseX
 
 nuget K4os.RoutR

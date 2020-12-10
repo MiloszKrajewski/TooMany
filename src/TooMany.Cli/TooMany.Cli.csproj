@@ -2,9 +2,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>2many</AssemblyName>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <!--<PublishSingleFile>true</PublishSingleFile>-->
+    <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <LangVersion>default</LangVersion>
     <Nullable>enable</Nullable>

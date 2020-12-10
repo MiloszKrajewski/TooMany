@@ -66,7 +66,7 @@ Target.create "Release:GitHub" (fun _ ->
 Target.create "Publish" (fun _ ->
     let outDir = "./.output/app" 
     let publish name = Shell.run "dotnet" (sprintf "publish src/%s --no-self-contained -c Release -o %s" name outDir)
-    outDir |> Directory.delete
+    outDir |> Shell.cleanDir
     publish "TooMany.Cli"
     publish "TooMany.Host"
     !! (outDir @@ "*.pdb") |> Seq.iter File.delete

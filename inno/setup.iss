@@ -29,7 +29,7 @@ OutputDir={#Staging}\..
 OutputBaseFilename=TooMany-{#MyAppVersion}-win64-coreapp31-setup
 Compression=lzma
 SolidCompression=yes
-PrivilegesRequired=lowest
+PrivilegesRequired=admin
 ChangesEnvironment=true
 
 [Languages]
@@ -39,7 +39,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "{#Staging}\2many.host.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Staging}\2many.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Staging}\2many.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Staging}\*.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Staging}\wwwroot\*"; DestDir: "{app}\wwwroot"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
