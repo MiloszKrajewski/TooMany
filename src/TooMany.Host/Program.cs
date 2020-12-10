@@ -1,5 +1,6 @@
 using System;
 using System.Data.Common;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -43,6 +44,12 @@ namespace TooMany.Host
 		private static readonly string AssemblyPath =
 			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule.FileName)!;
 
+		private static string _applicationDataPath = null!;
+
+		private static string ApplicationDataPath =>
+			_applicationDataPath ?? throw new InvalidOperationException(
+				"ApplicationDataPath has not been configured");
+
 		private static readonly CancellationTokenSource Cancel = new CancellationTokenSource();
 
 		[STAThread]
@@ -85,15 +92,26 @@ namespace TooMany.Host
 		}
 
 		private static void ConfigureApp(
-			HostBuilderContext context, IConfigurationBuilder builder) { }
+			HostBuilderContext context, IConfigurationBuilder builder)
+		{
+			// either: "--development true" or "set 2many_development true"
+			var development = context.Configuration.GetValue("Development", false); 
+			var dataPath = development
+				? context.HostingEnvironment.ContentRootPath
+				: Path.Combine(
+					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+					"TooMany");
+			Directory.CreateDirectory(dataPath);
+
+			_applicationDataPath = dataPath;
+		}
 
 		private static void ConfigureLogging(
 			HostBuilderContext context, ILoggingBuilder builder)
 		{
 			const string outputTemplate =
 				"{Timestamp:HH:mm:ss} [{Level:u4}] ({SourceContext:l}) {Message:lj}{NewLine}{Exception}";
-			var rootPath = context.HostingEnvironment.ContentRootPath;
-			var outputFilename = Path.Combine(rootPath, $"{ExeName}.log");
+			var outputFilename = Path.Combine(ApplicationDataPath, $"{ExeName}.log");
 			var logger = new LoggerConfiguration()
 				.MinimumLevel.Warning()
 				.MinimumLevel.Override(nameof(TooMany), LogEventLevel.Verbose)
@@ -111,7 +129,7 @@ namespace TooMany.Host
 			HostBuilderContext context, IServiceCollection services)
 		{
 			var connectionString = new SqliteConnectionStringBuilder {
-				DataSource = Path.Combine(AssemblyPath, $"{AppName}.sqlite3"),
+				DataSource = Path.Combine(ApplicationDataPath, $"{AppName}.sqlite3"),
 			}.ToString();
 
 			services.AddSingleton(Cancel);
@@ -182,7 +200,7 @@ namespace TooMany.Host
 			builder.ConfigureKestrel(ConfigureKestrel);
 			builder.UseStartup<Startup>();
 		}
-		
+
 		private static void ReportSingleInstance()
 		{
 			MessageBox.Show(

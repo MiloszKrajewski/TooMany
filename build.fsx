@@ -70,11 +70,14 @@ Target.create "Publish" (fun _ ->
     publish "TooMany.Cli"
     publish "TooMany.Host"
     !! (outDir @@ "*.pdb") |> Seq.iter File.delete
-    
-
 )
 
 Target.create "Publish:Inno" (fun _ ->
+    "./inno/setup.iss" |> File.update (fun filename ->
+        File.loadText filename 
+        |> Regex.replace "#define MyAppVersion \".*\"" (sprintf "#define MyAppVersion \"%s\"" Proj.productVersion)
+        |> File.saveText filename
+    )
     let inno = !! "C:/Program Files*/Inno Setup*/ISCC.exe" |> Seq.head
     Shell.runAt "./inno" inno "setup.iss"
 )
