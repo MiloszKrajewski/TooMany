@@ -28,6 +28,9 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\TooMany.WebServer\wwwroot\**" LinkBase="wwwroot" CopyToOutputDirectory="Always" />
+  </ItemGroup>
   <Import Project="..\..\Common.targets" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
