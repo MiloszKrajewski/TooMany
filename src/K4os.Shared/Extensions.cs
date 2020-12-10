@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 
 // ReSharper disable CheckNamespace
 
@@ -82,5 +83,7 @@ namespace System
 
 		public static IEnumerable<(int Index, T Value)> WithIndex<T>(
 			this IEnumerable<T> sequence) => sequence.Select((v, i) => (i, v));
+		
+		public static void Forget(this Task task) => task.ContinueWith(t => t.Exception);
 	}
 }

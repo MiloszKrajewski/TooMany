@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
   <PropertyGroup>
+    <AssemblyName>2many.host</AssemblyName>
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
-    <PublishSingleFile>true</PublishSingleFile>
+    <!--<PublishSingleFile>true</PublishSingleFile>-->
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <LangVersion>default</LangVersion>
     <Nullable>enable</Nullable>
@@ -22,8 +23,9 @@
     <ProjectReference Include="..\TooMany.WebServer\TooMany.WebServer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="TooMany.Host.json">
+    <None Update="2many.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </None>
   </ItemGroup>
   <Import Project="..\..\Common.targets" />

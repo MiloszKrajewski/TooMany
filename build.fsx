@@ -64,15 +64,25 @@ Target.create "Release:GitHub" (fun _ ->
 )
 
 Target.create "Publish" (fun _ ->
-    let publish name = Shell.run "dotnet" (sprintf "publish src/%s --no-self-contained -c Release -o .output/app" name)
+    let outDir = "./.output/app" 
+    let publish name = Shell.run "dotnet" (sprintf "publish src/%s --no-self-contained -c Release -o %s" name outDir)
+    outDir |> Directory.delete
     publish "TooMany.Cli"
     publish "TooMany.Host"
+    !! (outDir @@ "*.pdb") |> Seq.iter File.delete
+    
+
+)
+
+Target.create "Publish:Inno" (fun _ ->
+    let inno = !! "C:/Program Files*/Inno Setup*/ISCC.exe" |> Seq.head
+    Shell.runAt "./inno" inno "setup.iss"
 )
 
 open Fake.Core.TargetOperators
 
 "Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Test" ==> "Release"
-"Release" ==> "Publish"
+"Release" ==> "Publish" ==> "Publish:Inno"
 "Release" ==> "Release:GitHub" ==> "Release:Nuget"
 "Clean" ==> "Rebuild"
 

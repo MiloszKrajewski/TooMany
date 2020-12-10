@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
@@ -27,6 +26,7 @@ using TooMany.Actors.Catalog;
 using TooMany.Actors.Tools;
 using TooMany.Actors.Worker;
 using TooMany.Host.Frontend;
+using TooMany.Host.Utilities;
 using TooMany.WebServer;
 using Log = Serilog.Log;
 using SystemProcess = System.Diagnostics.Process;
@@ -36,6 +36,9 @@ namespace TooMany.Host
 	internal static class Program
 	{
 		private static readonly Type ThisType = typeof(Program);
+		private static readonly string AppName = "2many";
+		private static readonly string ExeName = "2many.host";
+		private static readonly Guid AppGuid = Guid.Parse("e7e29a39-f7c8-4eec-b080-808495092a49");
 
 		private static readonly string AssemblyPath =
 			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule.FileName)!;
@@ -43,10 +46,12 @@ namespace TooMany.Host
 		private static readonly CancellationTokenSource Cancel = new CancellationTokenSource();
 
 		[STAThread]
-		private static async Task Main()
+		private static void Main()
 		{
 			try
 			{
+				using var systemLock = new SystemLock(
+					ThisType.Namespace!, AppGuid, TimeSpan.FromSeconds(3));
 				var host = new HostBuilder()
 					.UseContentRoot(AssemblyPath)
 					.ConfigureHostConfiguration(ConfigureHost)
@@ -57,7 +62,13 @@ namespace TooMany.Host
 					.ConfigureServices(ConfigureServices)
 					.Build();
 				var token = Cancel.Token;
-				await host.RunAsync(token);
+				// because of the named mutex it cannot be async
+				// mutex needs to be release from the same thread
+				host.RunAsync(token).GetAwaiter().GetResult();
+			}
+			catch (SystemLockException e) when (e.Guid == AppGuid)
+			{
+				ReportSingleInstance();
 			}
 			catch (Exception e)
 			{
@@ -68,9 +79,9 @@ namespace TooMany.Host
 		private static void ConfigureHost(IConfigurationBuilder builder)
 		{
 			builder.AddCommandLine(Environment.GetCommandLineArgs());
-			builder.AddEnvironmentVariables(@"TooMany_");
-			builder.AddJsonFile("TooMany.json", true);
-			builder.AddJsonFile($"{ThisType.Namespace}.json", true);
+			builder.AddEnvironmentVariables(@"2many_");
+			builder.AddJsonFile($"{AppName}.json", true);
+			builder.AddJsonFile($"{ExeName}.json", true);
 		}
 
 		private static void ConfigureApp(
@@ -82,7 +93,7 @@ namespace TooMany.Host
 			const string outputTemplate =
 				"{Timestamp:HH:mm:ss} [{Level:u4}] ({SourceContext:l}) {Message:lj}{NewLine}{Exception}";
 			var rootPath = context.HostingEnvironment.ContentRootPath;
-			var outputFilename = Path.Combine(rootPath, $"{ThisType.Namespace}.log");
+			var outputFilename = Path.Combine(rootPath, $"{ExeName}.log");
 			var logger = new LoggerConfiguration()
 				.MinimumLevel.Warning()
 				.MinimumLevel.Override(nameof(TooMany), LogEventLevel.Verbose)
@@ -100,7 +111,7 @@ namespace TooMany.Host
 			HostBuilderContext context, IServiceCollection services)
 		{
 			var connectionString = new SqliteConnectionStringBuilder {
-				DataSource = Path.Combine(AssemblyPath, $"{ThisType.Namespace}.sqlite3"),
+				DataSource = Path.Combine(AssemblyPath, $"{AppName}.sqlite3"),
 			}.ToString();
 
 			services.AddSingleton(Cancel);
@@ -170,6 +181,13 @@ namespace TooMany.Host
 
 			builder.ConfigureKestrel(ConfigureKestrel);
 			builder.UseStartup<Startup>();
+		}
+		
+		private static void ReportSingleInstance()
+		{
+			MessageBox.Show(
+				$"{ThisType.Namespace} is already running", "Error",
+				MessageBoxButtons.OK, MessageBoxIcon.Error);
 		}
 
 		private static void ReportException(Exception exception)
