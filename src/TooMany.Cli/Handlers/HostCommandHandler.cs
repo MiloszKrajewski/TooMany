@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using Microsoft.Extensions.Logging;
+using TooMany.Cli.Commands;
 using TooMany.Cli.UserInterface;
 using TooMany.Messages;
 
@@ -16,20 +17,26 @@ namespace TooMany.Cli.Handlers
 		protected IHostInterface Host { get; set; }
 
 		protected HostCommandHandler(
-			ILoggerFactory loggerFactory, 
+			ILoggerFactory loggerFactory,
 			IHostInterface hostInterface)
 		{
 			Log = loggerFactory.CreateLogger(GetType());
 			Host = hostInterface;
 		}
 
-		protected async Task<TaskResponse[]> GetTasks(string[] names)
+		protected async Task<TaskResponse[]> GetTasks(IManyTasksOptions command)
 		{
-			var many = names.Length != 1 || names.Any(Wildcard.IsWildcard);
+			var names = command.Names.ToArray();
+			var tags = command.Tags;
+
+			var many =
+				names.Length != 1 ||
+				names.Any(Wildcard.IsWildcard) ||
+				!string.IsNullOrWhiteSpace(tags);
 
 			if (many)
 			{
-				return ValidateTasks(names, await Host.GetTasks());
+				return FilterTasks(names, tags, await Host.GetTasks());
 			}
 			else
 			{
@@ -46,28 +53,59 @@ namespace TooMany.Cli.Handlers
 				}
 			}
 		}
-		
-		private TaskResponse[] ValidateTasks(string[] names, TaskResponse[] tasks)
+
+		protected async Task<TaskResponse[]> GetNamedTasks(string[] names)
 		{
+			if (names.Length == 0)
+				return Array.Empty<TaskResponse>();
+
+			var many = names.Length > 1;
+
+			if (many)
+			{
+				var filter = names.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+				return (await Host.GetTasks()).Where(t => filter.Contains(t.Name)).ToArray();
+			}
+
+			var name = names.Single();
+
+			try
+			{
+				return new[] { await Host.GetTask(name) };
+			}
+			catch (HttpRemotingException e) when (e.StatusCode == HttpStatusCode.NotFound)
+			{
+				Log.LogError("Tasks '{0}' not found", name);
+				return Array.Empty<TaskResponse>();
+			}
+		}
+
+		private TaskResponse[] FilterTasks(
+			string[] names, string? tags, TaskResponse[] tasks)
+		{
+			var tagsMatch = TagExpression.Matcher(tags);
+			if (tagsMatch is null)
+			{
+				Log.LogWarning($"'{tags}' is not valid tag expression");
+				return Array.Empty<TaskResponse>();
+			}
+
 			var filtered = new HashSet<TaskResponse>();
 			foreach (var name in names)
 			{
-				var matcher = Wildcard.Matcher(name, true);
-				var found = 0;
+				var nameMatch = Wildcard.Matcher(name, true);
 
 				foreach (var task in tasks)
 				{
-					if (!matcher(task.Name)) continue;
+					if (filtered.Contains(task)) continue;
+					if (!nameMatch(task.Name)) continue;
+					if (!tagsMatch(task.Tags)) continue;
 
 					filtered.Add(task);
-					found++;
 				}
-
-				if (found <= 0) Log.LogWarning("No tasks found for '{0}'", name);
 			}
 
 			return filtered.OrderBy(t => t.Name).ToArray();
 		}
-
 	}
 }

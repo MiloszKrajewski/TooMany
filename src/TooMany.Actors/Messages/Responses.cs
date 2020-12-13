@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using K4os.Json.KnownTypes;
 using K4os.Json.Messages;
@@ -35,14 +36,18 @@ namespace TooMany.Actors.Messages
 		public DateTime? StartedTime { get; set; }
 
 		[JsonProperty("environment")]
-		public Dictionary<string, string?> Environment { get; set; } =
-			new Dictionary<string, string?>();
+		public ImmutableDictionary<string, string?> Environment { get; set; } =
+			ImmutableDictionary<string, string?>.Empty;
+
+		[JsonProperty("tags")]
+		public ImmutableArray<string> Tags { get; set; } =
+			ImmutableArray<string>.Empty;
 
 		[Newtonsoft.Json.JsonConstructor, Obsolete("Serialization only")]
 		protected TaskSnapshot() { }
 
 		public TaskSnapshot(
-			IRequest request, 
+			IRequest request,
 			TaskDefinition task, TaskState actualState, DateTime? startedTime):
 			base(request)
 		{
@@ -53,7 +58,8 @@ namespace TooMany.Actors.Messages
 			ExpectedState = task.ExpectedState;
 			ActualState = actualState;
 			StartedTime = startedTime;
-			Environment = task.Environment.ToDictionary();
+			Environment = task.Environment.ToImmutableDictionary();
+			Tags = task.Tags.ToImmutableArray();
 		}
 	}
 

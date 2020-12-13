@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using K4os.Json.Messages.Interfaces;
 using RestEase;
 using TooMany.Messages;
 
@@ -37,5 +36,8 @@ namespace TooMany.Cli
 
 		[Get("api/v1/task/{name}/logs")]
 		Task<LogEntryResponse[]> GetTaskLog([Path] string name);
+
+		[Put("api/v1/task/{name}/tags")]
+		Task<TaskResponse> SetTags([Path] string name, [Body] TagsRequest request);
 	}
 }

@@ -38,10 +38,11 @@ namespace TooMany.Actors.Catalog
 				StartTask m => Forward(context, m),
 				StopTask m => Forward(context, m),
 				RemoveTask m => Forward(context, m),
+				SetTags m => Forward(context, m),
+				GetLog m => Forward(context, m),
 				//
 				DefineTask m => OnDefineTask(context, m),
 				GetTasks m => OnGetTasks(context, m),
-				GetLog m => Forward(context, m),
 				//
 				TaskCreated m => Persist(m),
 				TaskRemoved m => Persist(m),

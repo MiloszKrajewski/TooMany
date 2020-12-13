@@ -79,6 +79,7 @@ namespace TooMany.Cli
 			services.AddTransient<ICommandHandler<StartTaskCommand>, StartStopTaskHandler>();
 			services.AddTransient<ICommandHandler<StopTaskCommand>, StartStopTaskHandler>();
 			services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
+			services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
 		}
 
 		private static async Task<int> Execute(
@@ -94,7 +95,8 @@ namespace TooMany.Cli
 				DefineTaskCommand,
 				StartTaskCommand,
 				StopTaskCommand,
-				RemoveTaskCommand
+				RemoveTaskCommand,
+				ApplyTagsCommand
 			>(args);
 
 			await parsed

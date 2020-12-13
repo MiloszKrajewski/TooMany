@@ -24,7 +24,7 @@ namespace TooMany.Cli.Handlers
 				return;
 			}
 				
-			var tasks = await GetTasks(names);
+			var tasks = await GetTasks(command);
 			if (tasks.Length <= 0) return;
 
 			Presentation.TaskInfo(tasks);

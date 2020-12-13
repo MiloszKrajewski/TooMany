@@ -18,26 +18,24 @@ namespace TooMany.Cli.Handlers
 
 		public async Task Handle(StartTaskCommand command, CancellationToken token)
 		{
-			var names = command.Names.ToArray();
-			var tasks = await GetTasks(names);
+			var tasks = await GetTasks(command);
 			if (tasks.Length <= 0) return;
 
 			var found = tasks.Select(t => t.Name).ToArray();
 			
 			await Task.WhenAll(tasks.Select(t => Host.StartTask(t.Name, command.Force)));
-			Presentation.TaskInfo(await GetTasks(found));
+			Presentation.TaskInfo(await GetNamedTasks(found));
 		}
 		
 		public async Task Handle(StopTaskCommand command, CancellationToken token)
 		{
-			var names = command.Names.ToArray();
-			var tasks = await GetTasks(names);
+			var tasks = await GetTasks(command);
 			if (tasks.Length <= 0) return;
 
 			var found = tasks.Select(t => t.Name).ToArray();
 			
 			await Task.WhenAll(tasks.Select(t => Host.StopTask(t.Name)));
-			Presentation.TaskInfo(await GetTasks(found));
+			Presentation.TaskInfo(await GetNamedTasks(found));
 		}
 
 	}

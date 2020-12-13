@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using K4os.Json.KnownTypes;
 using K4os.Json.Messages;
 using Newtonsoft.Json;
@@ -11,7 +11,7 @@ namespace TooMany.Actors.Messages
 		[JsonProperty("name")]
 		public string Name { get; set; } = string.Empty;
 	}
-
+	
 	[JsonKnownType("DefineTask.v1")]
 	public class DefineTask: TaskRef
 	{
@@ -25,8 +25,12 @@ namespace TooMany.Actors.Messages
 		public string Directory { get; set; } = string.Empty;
 
 		[JsonProperty("environment")]
-		public Dictionary<string, string?> Environment { get; set; } =
-			new Dictionary<string, string?>();
+		public ImmutableDictionary<string, string?> Environment { get; set; } =
+			ImmutableDictionary<string, string?>.Empty;
+		
+		[JsonProperty("tags")]
+		public ImmutableArray<string> Tags { get; set; } =
+			ImmutableArray<string>.Empty;
 	}
 
 	[JsonKnownType("RemoveTask.v1")]
@@ -50,4 +54,12 @@ namespace TooMany.Actors.Messages
 
 	[JsonKnownType("GetTasks.v1")]
 	public class GetTasks: GenericRequest { }
+
+	[JsonKnownType("SetTags.v1")]
+	public class SetTags: TaskRef
+	{
+		[JsonProperty("tags")]
+		public ImmutableArray<string> Tags { get; set; } =
+			ImmutableArray<string>.Empty;
+	}
 }

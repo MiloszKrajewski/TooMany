@@ -23,7 +23,7 @@ namespace TooMany.Cli.Handlers
 		{
 			var names = command.Names.ToArray();
 			if (names.Length <= 0) names = new[] { "*" };
-			var tasks = await GetTasks(names);
+			var tasks = await GetTasks(command);
 
 			if (tasks.Length <= 0) return;
 
@@ -32,7 +32,7 @@ namespace TooMany.Cli.Handlers
 
 		public async Task Handle(TaskInfoCommand command, CancellationToken token)
 		{
-			var tasks = await GetTasks(command.Names.ToArray());
+			var tasks = await GetTasks(command);
 
 			if (tasks.Length <= 0) return;
 

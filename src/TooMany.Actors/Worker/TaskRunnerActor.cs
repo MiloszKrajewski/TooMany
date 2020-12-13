@@ -16,6 +16,9 @@ namespace TooMany.Actors.Worker
 	{
 		public const string ActorName = "TaskRunner";
 		private const int LogHistorySize = 1000;
+		
+		private static readonly StringComparer? StringComparer = 
+			StringComparer.InvariantCultureIgnoreCase;
 
 		private static readonly int MaxLogHistorySize =
 			LogHistorySize + Math.Max(1, LogHistorySize >> 1);
@@ -43,6 +46,7 @@ namespace TooMany.Actors.Worker
 				// ----
 				DefineTask m => OnDefineTask(context, m),
 				RemoveTask m => OnRemoveTask(context, m),
+				SetTags m => OnSetTags(context, m),
 				// ----
 				GetTask m => OnGetTask(context, m),
 				StartTask m => OnStartTask(context, m),
@@ -205,8 +209,43 @@ namespace TooMany.Actors.Worker
 			ScheduleSync(context, true);
 		}
 
-		private static TaskNotFound ToTaskNotFound(GetTask request) =>
+		private async Task OnSetTags(IContext context, SetTags request)
+		{
+			var error = Validate(request);
+			if (error != null)
+			{
+				context.Respond(error);
+				return;
+			}
+
+			_definition!.Tags = request.Tags
+				.Distinct(StringComparer)
+				.OrderBy(x => x, StringComparer)
+				.ToList();
+
+			await Persist();
+
+			context.Respond(ToTaskSnapshot(request));
+		}
+
+		private IError? Validate(SetTags request)
+		{
+			if (_definition is null)
+				return new TaskNotFound(request, request.Name);
+
+			var invalidTags = Tags.InvalidTags(request.Tags);
+			if (invalidTags != null)
+				return ToBadRequest(request, invalidTags);
+
+			return null;
+		}
+
+		private static TaskNotFound ToTaskNotFound(TaskRef request) =>
 			new TaskNotFound(request, request.Name);
+		
+		private static BadRequest ToBadRequest(SetTags request, string[] invalidTags) =>
+			new BadRequest(
+				request, request.Name, $"Tags '{invalidTags.Join(",")}' is invalid");
 
 		private TaskCreated ToTaskCreated(IRequest request, string id) =>
 			new TaskCreated(request, id, _definition!, _actualState, _startedTime);
@@ -214,7 +253,8 @@ namespace TooMany.Actors.Worker
 		private TaskUpdated ToTaskUpdated(IRequest request, string id) =>
 			new TaskUpdated(request, id, _definition!, _actualState, _startedTime);
 
-		private TaskRemoved ToTaskRemoved(IRequest request, string id, TaskDefinition definition) =>
+		private TaskRemoved ToTaskRemoved(
+			IRequest request, string id, TaskDefinition definition) =>
 			new TaskRemoved(request, id, definition, _actualState, _startedTime);
 
 		private TaskSnapshot ToTaskSnapshot(IRequest request) =>
@@ -247,6 +287,7 @@ namespace TooMany.Actors.Worker
 				Arguments = request.Arguments,
 				Directory = request.Directory,
 				Environment = request.Environment.ToDictionary(),
+				Tags = request.Tags.ToList(),
 				ExpectedState = _definition?.ExpectedState ?? TaskState.Stopped
 			};
 

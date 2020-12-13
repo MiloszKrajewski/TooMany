@@ -32,6 +32,10 @@ namespace TooMany.Actors.Worker
 		public Dictionary<string, string?> Environment { get; set; } =
 			new Dictionary<string, string?>();
 
+		[JsonProperty("tags")]
+		public List<string> Tags { get; set; }
+			= new List<string>();
+
 		public TaskDefinition() { }
 
 		public TaskDefinition(TaskDefinition other)
@@ -42,6 +46,7 @@ namespace TooMany.Actors.Worker
 			Arguments = other.Arguments;
 			ExpectedState = other.ExpectedState;
 			Environment = other.Environment.ToDictionary();
+			Tags = other.Tags.ToList();
 		}
 
 		public virtual object Clone() => new TaskDefinition(this);

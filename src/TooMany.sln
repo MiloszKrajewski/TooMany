@@ -56,6 +56,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TooMany.WebServer", "TooMan
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TooMany.Messages", "TooMany.Messages\TooMany.Messages.csproj", "{006CC358-289D-42E3-96A3-269518D3FB57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Playground", "Playground\Playground.csproj", "{FDDC1573-594A-4192-A360-1C0F0595C776}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -118,6 +120,10 @@ Global
 		{006CC358-289D-42E3-96A3-269518D3FB57}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{006CC358-289D-42E3-96A3-269518D3FB57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{006CC358-289D-42E3-96A3-269518D3FB57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDC1573-594A-4192-A360-1C0F0595C776}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDDC1573-594A-4192-A360-1C0F0595C776}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDDC1573-594A-4192-A360-1C0F0595C776}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDDC1573-594A-4192-A360-1C0F0595C776}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

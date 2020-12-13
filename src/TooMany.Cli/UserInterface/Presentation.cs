@@ -18,6 +18,7 @@ namespace TooMany.Cli.UserInterface
 			table.AddColumn("[white]Directory[/]");
 			table.AddColumn("[white]State[/]");
 			table.AddColumn("[white]Uptime[/]");
+			table.AddColumn("[white]Tags[/]");
 
 			foreach (var task in tasks)
 			{
@@ -35,7 +36,8 @@ namespace TooMany.Cli.UserInterface
 				$"[white]{task.Arguments.EscapeMarkup()}[/]",
 				$"[white]{task.Directory.EscapeMarkup()}[/]",
 				StateToAnsi(task),
-				$"[white]{RunningTime(task)}[/]"
+				$"[white]{RunningTime(task)}[/]",
+				$"[white]{task.Tags.Join(",").EscapeMarkup()}[/]"
 			);
 		}
 
@@ -85,6 +87,12 @@ namespace TooMany.Cli.UserInterface
 			{
 				var environmentTable = EnvironmentInfo(task.Environment);
 				table.AddRow(new Markup("[silver]Variables[/]"), environmentTable);
+			}
+
+			if (task.Tags.Count > 0)
+			{
+				var tags = task.Tags.Join(",");
+				table.AddRow("[silver]Tags[/]", $"[white]{tags.EscapeMarkup()}[/]");
 			}
 		}
 

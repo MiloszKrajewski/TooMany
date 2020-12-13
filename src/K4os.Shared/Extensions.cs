@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.ExceptionServices;
@@ -62,14 +63,17 @@ namespace System
 		public static IEnumerable<T> NoNulls<T>(this IEnumerable<T?> sequence) where T: class =>
 			sequence.Where(s => s != null).Select(s => s!);
 
-		public static IEnumerable<T> NotNull<T>(this IEnumerable<T>? sequence) =>
+		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? sequence) =>
 			sequence ?? Array.Empty<T>();
 
-		public static ICollection<T> NotNull<T>(this ICollection<T>? sequence) =>
+		public static ICollection<T> EmptyIfNull<T>(this ICollection<T>? sequence) =>
 			sequence ?? Array.Empty<T>();
 
-		public static T[] NotNull<T>(this T[]? sequence) =>
+		public static T[] EmptyIfNull<T>(this T[]? sequence) =>
 			sequence ?? Array.Empty<T>();
+
+		public static T? NullIfEmpty<T>(this T? sequence) where T: class, ICollection => 
+			sequence is null || sequence.Count <= 0 ? default : sequence;
 
 		public static Dictionary<K, V> ToDictionary<K, V>(
 			this IEnumerable<KeyValuePair<K, V>> dictionary,
@@ -85,5 +89,8 @@ namespace System
 			this IEnumerable<T> sequence) => sequence.Select((v, i) => (i, v));
 		
 		public static void Forget(this Task task) => task.ContinueWith(t => t.Exception);
+
+		public static string Join(this IEnumerable<string> sequence, string separator) =>
+			string.Join(separator, sequence);
 	}
 }

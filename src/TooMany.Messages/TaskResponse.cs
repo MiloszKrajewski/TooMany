@@ -31,5 +31,10 @@ namespace TooMany.Messages
 		[JsonProperty("environment")]
 		public Dictionary<string, string?> Environment { get; set; } =
 			new Dictionary<string, string?>();
+		
+		[JsonProperty("tags")]
+		public List<string> Tags { get; set; } =
+			new List<string>();
+
 	}
 }

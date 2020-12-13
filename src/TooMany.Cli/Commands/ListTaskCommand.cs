@@ -12,5 +12,7 @@ namespace TooMany.Cli.Commands
 			0, Required = false, MetaName = "name",
 			HelpText = "Names of tasks (wildcards are allowed)")]
 		public IEnumerable<string> Names { get; set; } = Array.Empty<string>();
+		
+		public string? Tags { get; set; } = null;
 	}
 }

@@ -40,6 +40,20 @@ namespace TooMany.WebServer
 				{} m => Unexpected(m),
 			};
 		}
+		
+		[HttpPut("task/{name}/tags")]
+		public async Task<IJsonResponse<TaskResponse>> UpdateTags(
+			[FromRoute] string name, [FromBody] TagsRequest request)
+		{
+			var command = request.ToCommand(name);
+			var response = await RequestAsync(command);
+			return response switch {
+				TaskSnapshot r => Result(r.ToResponse()),
+				TaskNotFound e => NotFound(e),
+				IError e => BadRequest(e),
+				{} m => Unexpected(m),
+			};
+		}
 
 		[HttpGet("task")]
 		public async Task<IJsonResponse<TaskResponse[]>> GetTasks()

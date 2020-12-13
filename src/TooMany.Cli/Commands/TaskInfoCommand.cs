@@ -8,5 +8,7 @@ namespace TooMany.Cli.Commands
 	public class TaskInfoCommand: IManyTasksOptions
 	{
 		public IEnumerable<string> Names { get; set; } = Array.Empty<string>();
+		
+		public string? Tags { get; set; } = null;
 	}
 }

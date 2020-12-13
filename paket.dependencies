@@ -37,6 +37,9 @@ nuget K4os.Text.BaseX
 nuget K4os.RoutR
 nuget K4os.RoutR.Abstractions
 
+nuget K4os.BoolEx
+nuget K4os.BoolEx.Parsing
+
 nuget CommandLineParser
 nuget Spectre.Console
  

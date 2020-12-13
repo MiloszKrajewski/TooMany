@@ -8,4 +8,6 @@ Microsoft.Extensions.Http
 
 CommandLineParser
 Spectre.Console
+
 K4os.RoutR
+K4os.BoolEx.Parsing

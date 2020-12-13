@@ -9,6 +9,8 @@ namespace TooMany.Cli.Commands
 	{
 		public IEnumerable<string> Names { get; set; } = Array.Empty<string>();
 		
+		public string? Tags { get; set; } = null;
+		
 		[Option('f', "force", HelpText = "Forces reboot, it task in already running")]
 		public bool Force { get; set; }
 	}
@@ -17,6 +19,8 @@ namespace TooMany.Cli.Commands
 	public class StopTaskCommand: IManyTasksOptions
 	{
 		public IEnumerable<string> Names { get; set; } = Array.Empty<string>();
+		
+		public string? Tags { get; set; } = null;
 	}
 
 }
