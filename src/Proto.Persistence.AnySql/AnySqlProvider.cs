@@ -16,7 +16,7 @@ namespace Proto.Persistence.AnySql
 		private readonly Func<string, object> _deserialize;
 		private readonly IAnySqlDialect _dialect;
 
-		private readonly string _schemaName;
+		private readonly string? _schemaName;
 		private readonly string _eventsTable;
 		private readonly string _snapshotsTable;
 		private readonly Task _ready;
@@ -30,7 +30,7 @@ namespace Proto.Persistence.AnySql
 		/// <param name="dialect">The SQL dialect.</param>
 		public AnySqlProvider(
 			Func<DbConnection> connect,
-			string schema, string table,
+			string? schema, string table,
 			Func<object, string> serialize,
 			Func<string, object> deserialize,
 			IAnySqlDialect dialect)

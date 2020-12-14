@@ -1,6 +1,5 @@
 using System;
 using System.Data.Common;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -42,7 +41,7 @@ namespace TooMany.Host
 		private static readonly Guid AppGuid = Guid.Parse("e7e29a39-f7c8-4eec-b080-808495092a49");
 
 		private static readonly string AssemblyPath =
-			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule.FileName)!;
+			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule!.FileName)!;
 
 		private static string _applicationDataPath = null!;
 
@@ -148,7 +147,7 @@ namespace TooMany.Host
 					NullValueHandling = NullValueHandling.Ignore,
 					SerializationBinder = binder,
 				});
-			services.AddTransient(p => CreateConnection(connectionString));
+			services.AddTransient(_ => CreateConnection(connectionString));
 			services.AddSingleton<IAnySqlDialect>(new SqLiteDialect());
 			services.AddSingleton(CreatePersistence);
 			services.AddSingleton(typeof(ITypedProps<>), typeof(TypedProps<>));
@@ -172,8 +171,8 @@ namespace TooMany.Host
 			string Serialize(object o) =>
 				JsonConvert.SerializeObject(o, typeof(object), settings);
 
-			object? Deserialize(string s) =>
-				JsonConvert.DeserializeObject(s, typeof(object), settings);
+			object Deserialize(string s) =>
+				JsonConvert.DeserializeObject(s, typeof(object), settings)!;
 
 			return new AnySqlProvider(
 				Connect, null, "TooMany", Serialize, Deserialize, dialect);

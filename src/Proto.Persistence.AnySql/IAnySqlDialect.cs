@@ -14,13 +14,13 @@ namespace Proto.Persistence.AnySql
 		/// <param name="schemaName">Schema (may be <c>null</c>).</param>
 		/// <param name="tableName">Name of the table.</param>
 		/// <returns>Name of events table.</returns>
-		string EventsTable(string schemaName, string tableName);
+		string EventsTable(string? schemaName, string tableName);
 
 		/// <summary>Name of snapshots table.</summary>
 		/// <param name="schemaName">Schema (may be <c>null</c>).</param>
 		/// <param name="tableName">Name of the table.</param>
 		/// <returns>Name of snapshots table.</returns>
-		string SnapshotsTable(string schemaName, string tableName);
+		string SnapshotsTable(string? schemaName, string tableName);
 		
 		/// <summary>SQL to create the schema.</summary>
 		/// <param name="schemaName">Name of the schema.</param>
