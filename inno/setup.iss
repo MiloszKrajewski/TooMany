@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TooMany"
-#define MyAppVersion "0.3.0-beta"
+#define MyAppVersion "0.3.1-beta"
 #define MyAppPublisher "Milosz Krajewski"
 #define MyAppURL "https://github.com/MiloszKrajewski/TooMany"
 #define MyAppExeName "2many.host.exe"
@@ -26,7 +26,7 @@ DefaultDirName={commonpf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile={#Root}\LICENSE
 OutputDir={#Staging}\..
-OutputBaseFilename=TooMany-{#MyAppVersion}-win64-coreapp31-setup
+OutputBaseFilename=TooMany-{#MyAppVersion}-net5-win-setup
 Compression=lzma
 SolidCompression=yes
 PrivilegesRequired=admin

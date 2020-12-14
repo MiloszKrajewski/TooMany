@@ -1,3 +1,6 @@
+## 0.3.1-beta (2020/12/14)
+* ported to .NET 5
+
 ## 0.3.0-beta (2020/12/13)
 * added tags to tasks
 
