@@ -26,7 +26,7 @@ namespace TooMany.Cli
 			ThisAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product!;
 
 		private static readonly string AssemblyPath =
-			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule.FileName)!;
+			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule!.FileName)!;
 
 		static async Task<int> Main(string[] args)
 		{

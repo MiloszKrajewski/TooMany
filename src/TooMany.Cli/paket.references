@@ -4,6 +4,7 @@ System.Interactive
 Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Configuration
+Microsoft.Extensions.Configuration.Binder
 Microsoft.Extensions.Http
 
 CommandLineParser
