@@ -101,7 +101,7 @@ namespace TooMany.Host
 					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 					"TooMany");
 			Directory.CreateDirectory(dataPath);
-
+			
 			_applicationDataPath = dataPath;
 		}
 
@@ -120,7 +120,7 @@ namespace TooMany.Host
 			builder.AddSerilog(logger);
 		}
 
-		private static DefaultServiceProviderFactory ConfigureContainer(
+		private static IServiceProviderFactory<IServiceCollection> ConfigureContainer(
 			HostBuilderContext context) =>
 			new DefaultServiceProviderFactory();
 

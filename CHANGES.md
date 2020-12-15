@@ -1,3 +1,6 @@
+## 0.3.2-beta (2020/12/15)
+* fixes to installer
+
 ## 0.3.1-beta (2020/12/14)
 * ported to .NET 5
 
