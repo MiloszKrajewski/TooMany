@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using K4os.Json.KnownTypes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -37,18 +40,18 @@ namespace TooMany.WebServer
 			app.UseDeveloperExceptionPage();
 			app.UseRouting();
 			app.UseStaticFiles();
-			app.UseCors(policy => {
-				policy
-					.SetIsOriginAllowedToAllowWildcardSubdomains()
-					.WithOrigins("http://localhost:*", "http://127.0.0.1:*")
-					.AllowAnyMethod()
-					.AllowCredentials()
-					.AllowAnyHeader();
-			});
-			app.UseEndpoints(endpoints => {
-				endpoints.MapControllers();
-				endpoints.MapHub<MonitorHub>("/monitor");
-			});
+			app.UseCors(policy => policy.SetIsOriginAllowed(CheckOrigin));
+			app.UseEndpoints(
+				endpoints => {
+					endpoints.MapControllers();
+					endpoints.MapHub<MonitorHub>("/monitor");
+				});
 		}
+
+		private static readonly IEnumerable<string> AllowedOrigins =
+			new[] { "localhost", "127.0.0.1" };
+
+		private static bool CheckOrigin(string origin) =>
+			AllowedOrigins.Any(o => o.Equals(origin, StringComparison.InvariantCultureIgnoreCase));
 	}
 }
