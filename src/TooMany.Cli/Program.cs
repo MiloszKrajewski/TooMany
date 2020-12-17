@@ -7,6 +7,7 @@ using CommandLine;
 using HttpRemoting.Client;
 using K4os.RoutR;
 using K4os.RoutR.Abstractions;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -72,6 +73,14 @@ namespace TooMany.Cli
 					client.BaseAddress = new Uri($"http://127.0.0.1:{port}");
 					return HttpRemotingFactory.Create<IHostInterface>(client);
 				});
+
+			services.AddTransient<HubConnection>(
+				p => {
+					var port = configuration.GetValue("Host:Server:Port", 31337);
+					var uri = new Uri($"http://127.0.0.1:{port}/monitor");
+					return new HubConnectionBuilder() .WithUrl(uri).Build();
+				});
+			
 			services.AddTransient<ICommandHandler<GetLogsCommand>, GetLogsHandler>();
 			services.AddTransient<ICommandHandler<ListTaskCommand>, TaskInfoHandler>();
 			services.AddTransient<ICommandHandler<TaskInfoCommand>, TaskInfoHandler>();
@@ -80,6 +89,7 @@ namespace TooMany.Cli
 			services.AddTransient<ICommandHandler<StopTaskCommand>, StartStopTaskHandler>();
 			services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
 			services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
+			services.AddTransient<ICommandHandler<MonitorCommand>, MonitorHandler>();
 		}
 
 		private static async Task<int> Execute(
@@ -96,7 +106,8 @@ namespace TooMany.Cli
 				StartTaskCommand,
 				StopTaskCommand,
 				RemoveTaskCommand,
-				ApplyTagsCommand
+				ApplyTagsCommand,
+				MonitorCommand
 			>(args);
 
 			await parsed

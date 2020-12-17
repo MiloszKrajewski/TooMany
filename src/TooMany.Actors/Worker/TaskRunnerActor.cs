@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using K4os.Json.Messages.Interfaces;
@@ -14,14 +13,12 @@ namespace TooMany.Actors.Worker
 {
 	public class TaskRunnerActor: PersistentActor<TaskDefinition>, IActor
 	{
+		private readonly IRealtimeService _realtimeService;
 		public const string ActorName = "TaskRunner";
-		private const int LogHistorySize = 1000;
-		
-		private static readonly StringComparer? StringComparer = 
-			StringComparer.InvariantCultureIgnoreCase;
+		private readonly SlidingLog _slidingLog;
 
-		private static readonly int MaxLogHistorySize =
-			LogHistorySize + Math.Max(1, LogHistorySize >> 1);
+		private static readonly StringComparer? StringComparer =
+			StringComparer.InvariantCultureIgnoreCase;
 
 		private TaskDefinition? _definition;
 
@@ -30,14 +27,18 @@ namespace TooMany.Actors.Worker
 		private bool _rebootRequired;
 
 		private Executor? _executor;
-		private readonly Queue<LogEntry> _logHistory = new Queue<LogEntry>();
 
 		private string TaskId => _definition?.Name ?? "<unknown>";
 
 		public TaskRunnerActor(
 			ILoggerFactory loggerFactory,
-			IProvider persistenceProvider):
-			base(loggerFactory, persistenceProvider) { }
+			IProvider persistenceProvider,
+			IRealtimeService realtimeService):
+			base(loggerFactory, persistenceProvider)
+		{
+			_realtimeService = realtimeService;
+			_slidingLog = new SlidingLog(1000);
+		}
 
 		public Task ReceiveAsync(IContext context) =>
 			context.Message switch {
@@ -58,25 +59,15 @@ namespace TooMany.Actors.Worker
 				_ => Task.CompletedTask
 			};
 
-		private Task OnLogAdded(LogEntry entry)
+		private async Task OnLogAdded(LogEntry entry)
 		{
-			_logHistory.Enqueue(entry);
-			TrimLog();
-			return Task.CompletedTask;
-		}
-
-		private void TrimLog()
-		{
-			if (_logHistory.Count <= MaxLogHistorySize)
-				return;
-
-			while (_logHistory.Count > LogHistorySize)
-				_logHistory.Dequeue();
+			_slidingLog.Add(entry);
+			await SendRealtime(entry);
 		}
 
 		private Task OnGetLog(IContext context, GetLog request)
 		{
-			var messages = _logHistory.ToArray();
+			var messages = _slidingLog.Snapshot();
 			context.Respond(new TaskLog(request, messages));
 			return Task.CompletedTask;
 		}
@@ -141,7 +132,7 @@ namespace TooMany.Actors.Worker
 			_actualState = TaskState.Started;
 			_startedTime = DateTime.UtcNow;
 			_executor = executor;
-			return Task.CompletedTask;
+			return Notify2(context, ToTaskSnapshot());
 		}
 
 		private Task OnProcessFailed(IContext context, Exception exception)
@@ -152,7 +143,7 @@ namespace TooMany.Actors.Worker
 			_startedTime = null;
 			_rebootRequired = false;
 			_executor = null;
-			return Task.CompletedTask;
+			return Notify2(context, ToTaskSnapshot());
 		}
 
 		private Task OnProcessStopped(IContext context, int exitCode)
@@ -168,7 +159,7 @@ namespace TooMany.Actors.Worker
 			_startedTime = null;
 			_rebootRequired = false;
 			_executor = null;
-			return Task.CompletedTask;
+			return Notify2(context, ToTaskSnapshot());
 		}
 
 		private static void ScheduleSync(IContext context, bool immediate = false)
@@ -199,11 +190,9 @@ namespace TooMany.Actors.Worker
 			var created = _definition is null;
 			_definition = NewDefinition(request);
 			await Persist();
-			await (
-				created
-					? context.Return(ToTaskCreated(request, id), true)
-					: context.Return(ToTaskUpdated(request, id), true)
-			);
+			await (created
+				? Respond3(context, ToTaskCreated(request, id))
+				: Respond3(context, ToTaskUpdated(request, id)));
 
 			await StopProcess(context);
 			ScheduleSync(context, true);
@@ -225,7 +214,7 @@ namespace TooMany.Actors.Worker
 
 			await Persist();
 
-			context.Respond(ToTaskSnapshot(request));
+			await Respond3(context, ToTaskSnapshot(request));
 		}
 
 		private IError? Validate(SetTags request)
@@ -240,26 +229,6 @@ namespace TooMany.Actors.Worker
 			return null;
 		}
 
-		private static TaskNotFound ToTaskNotFound(TaskRef request) =>
-			new TaskNotFound(request, request.Name);
-		
-		private static BadRequest ToBadRequest(SetTags request, string[] invalidTags) =>
-			new BadRequest(
-				request, request.Name, $"Tags '{invalidTags.Join(",")}' is invalid");
-
-		private TaskCreated ToTaskCreated(IRequest request, string id) =>
-			new TaskCreated(request, id, _definition!, _actualState, _startedTime);
-
-		private TaskUpdated ToTaskUpdated(IRequest request, string id) =>
-			new TaskUpdated(request, id, _definition!, _actualState, _startedTime);
-
-		private TaskRemoved ToTaskRemoved(
-			IRequest request, string id, TaskDefinition definition) =>
-			new TaskRemoved(request, id, definition, _actualState, _startedTime);
-
-		private TaskSnapshot ToTaskSnapshot(IRequest request) =>
-			new TaskSnapshot(request, _definition!, _actualState, _startedTime);
-
 		private async Task UpdateState(IContext context, IRequest request, TaskState state)
 		{
 			if (_definition is null) return;
@@ -268,7 +237,7 @@ namespace TooMany.Actors.Worker
 			await Persist();
 			ScheduleSync(context, true);
 
-			context.Respond(ToTaskSnapshot(request));
+			await Respond3(context, ToTaskSnapshot(request));
 		}
 
 		private Task OnRemoveTask(IContext context, RemoveTask request)
@@ -276,9 +245,38 @@ namespace TooMany.Actors.Worker
 			var id = context.Self!.Id;
 			context.Stop(context.Self!);
 			var definition = _definition ?? NewDefinition(request);
-			context.Return(ToTaskRemoved(request, id, definition), true);
-			return Task.CompletedTask;
+			return Respond3(context, ToTaskRemoved(request, id, definition));
 		}
+
+		private async Task<bool> Respond3<T>(IContext context, T snapshot) where T: TaskSnapshot
+		{
+			await Notify2(context, snapshot);
+			context.Respond(snapshot);
+			return true;
+		}
+		
+		private async Task<bool> Notify2<T>(IContext context, T snapshot) where T: TaskSnapshot
+		{
+			if (context.Parent != null)
+				context.Send(context.Parent, snapshot);
+			await SendRealtime(snapshot);
+			return true;
+		}
+
+		private async Task SendRealtime<T>(T snapshot) where T: TaskSnapshot
+		{
+			if (_definition is null) return;
+
+			await (snapshot switch {
+				TaskRemoved _ => _realtimeService.Task(_definition.Name, null),
+				TaskSnapshot m => _realtimeService.Task(_definition.Name, m)
+			});
+		}
+
+		private Task SendRealtime(LogEntry entry) =>
+			_definition is null
+				? Task.CompletedTask
+				: _realtimeService.Log(_definition.Name, entry);
 
 		private TaskDefinition NewDefinition(DefineTask request) =>
 			new TaskDefinition {
@@ -290,6 +288,29 @@ namespace TooMany.Actors.Worker
 				Tags = request.Tags.ToList(),
 				ExpectedState = _definition?.ExpectedState ?? TaskState.Stopped
 			};
+		
+		private TaskRemoved ToTaskRemoved(
+			IRequest request, string id, TaskDefinition definition) =>
+			new TaskRemoved(request, id, definition, _actualState, _startedTime);
+
+		private TaskSnapshot ToTaskSnapshot(IRequest request) =>
+			new TaskSnapshot(request, _definition!, _actualState, _startedTime);
+		
+		private TaskSnapshot ToTaskSnapshot() =>
+			new TaskSnapshot(_definition!, _actualState, _startedTime);
+		
+		private static TaskNotFound ToTaskNotFound(TaskRef request) =>
+			new TaskNotFound(request, request.Name);
+
+		private static BadRequest ToBadRequest(SetTags request, string[] invalidTags) =>
+			new BadRequest(
+				request, request.Name, $"Tags '{invalidTags.Join(",")}' is invalid");
+
+		private TaskCreated ToTaskCreated(IRequest request, string id) =>
+			new TaskCreated(request, id, _definition!, _actualState, _startedTime);
+
+		private TaskUpdated ToTaskUpdated(IRequest request, string id) =>
+			new TaskUpdated(request, id, _definition!, _actualState, _startedTime);
 
 		private static TaskDefinition NewDefinition(RemoveTask request) =>
 			new TaskDefinition { Name = request.Name };

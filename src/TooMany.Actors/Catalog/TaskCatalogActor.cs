@@ -46,6 +46,7 @@ namespace TooMany.Actors.Catalog
 				//
 				TaskCreated m => Persist(m),
 				TaskRemoved m => Persist(m),
+				TaskSnapshot _ => Task.CompletedTask, // explicitly ignore
 				// 
 				_ => Task.CompletedTask
 			};

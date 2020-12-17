@@ -20,6 +20,7 @@ namespace TooMany.WebServer
 			services
 				.AddControllers()
 				.AddNewtonsoftJson(o => UpdateSerializationSettings(o.SerializerSettings));
+			services.AddSignalR();
 		}
 
 		private static void UpdateSerializationSettings(JsonSerializerSettings settings)
@@ -36,7 +37,10 @@ namespace TooMany.WebServer
 			app.UseDeveloperExceptionPage();
 			app.UseRouting();
 			app.UseStaticFiles();
-			app.UseEndpoints(endpoints => endpoints.MapControllers());
+			app.UseEndpoints(endpoints => {
+				endpoints.MapControllers();
+				endpoints.MapHub<MonitorHub>("/monitor");
+			});
 		}
 	}
 }

@@ -38,7 +38,7 @@ namespace TooMany.WebServer.Messages
 				Tags = snapshot.Tags.ToList()
 			};
 
-		private static LogEntryResponse ToResponse(LogEntry entry) =>
+		public static LogEntryResponse ToResponse(this LogEntry entry) =>
 			new LogEntryResponse {
 				Channel = entry.Error ? LogChannel.StdErr : LogChannel.StdOut,
 				Timestamp = entry.Timestamp,

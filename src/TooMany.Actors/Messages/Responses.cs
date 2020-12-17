@@ -45,11 +45,22 @@ namespace TooMany.Actors.Messages
 
 		[Newtonsoft.Json.JsonConstructor, Obsolete("Serialization only")]
 		protected TaskSnapshot() { }
+		
+		public TaskSnapshot(
+			TaskDefinition task, TaskState actualState, DateTime? startedTime)
+		{
+			InitFields(task, actualState, startedTime);
+		}
 
 		public TaskSnapshot(
 			IRequest request,
 			TaskDefinition task, TaskState actualState, DateTime? startedTime):
 			base(request)
+		{
+			InitFields(task, actualState, startedTime);
+		}
+		
+		private void InitFields(TaskDefinition task, TaskState actualState, DateTime? startedTime)
 		{
 			Name = task.Name;
 			Directory = task.Directory;
