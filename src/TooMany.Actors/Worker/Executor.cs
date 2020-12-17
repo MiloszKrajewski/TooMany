@@ -30,11 +30,17 @@ namespace TooMany.Actors.Worker
 
 		private readonly ProcessStartInfo _info;
 		private Process? _proc;
-		private ISenderContext _context;
-		private PID _parent;
+		private readonly ISenderContext _context;
+		private readonly PID _parent;
+		private IProcessKiller _processKiller;
 
-		public Executor(TaskDefinition definition, ActorSystem system, PID parent)
+		public Executor(
+			IProcessKiller processKiller,
+			TaskDefinition definition,
+			ActorSystem system,
+			PID parent)
 		{
+			_processKiller = processKiller;
 			_info = new ProcessStartInfo {
 				FileName = definition.Executable,
 				Arguments = definition.Arguments,
@@ -66,7 +72,7 @@ namespace TooMany.Actors.Worker
 
 		public Exception? Start()
 		{
-			if (_proc is {})
+			if (_proc is { })
 				throw new InvalidOperationException("Same process cannot be started again");
 
 			try
@@ -111,9 +117,12 @@ namespace TooMany.Actors.Worker
 
 			if (proc is null || proc.HasExited) return true;
 
-			proc.Kill();
+			KillTree(proc);
+
 			return await Wait(proc, WaitTimeout, ShortInterval);
 		}
+
+		private void KillTree(Process proc) => _processKiller.KillTree(proc);
 
 		public async Task<int> Wait()
 		{

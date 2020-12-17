@@ -13,12 +13,13 @@ namespace TooMany.Actors.Worker
 {
 	public class TaskRunnerActor: PersistentActor<TaskDefinition>, IActor
 	{
-		private readonly IRealtimeService _realtimeService;
 		public const string ActorName = "TaskRunner";
-		private readonly SlidingLog _slidingLog;
-
 		private static readonly StringComparer? StringComparer =
 			StringComparer.InvariantCultureIgnoreCase;
+		
+		private readonly SlidingLog _slidingLog;
+		private readonly IRealtimeService _realtimeService;
+		private readonly IProcessKiller _processKiller;
 
 		private TaskDefinition? _definition;
 
@@ -33,10 +34,12 @@ namespace TooMany.Actors.Worker
 		public TaskRunnerActor(
 			ILoggerFactory loggerFactory,
 			IProvider persistenceProvider,
-			IRealtimeService realtimeService):
+			IRealtimeService realtimeService,
+			IProcessKiller processKiller):
 			base(loggerFactory, persistenceProvider)
 		{
 			_realtimeService = realtimeService;
+			_processKiller = processKiller;
 			_slidingLog = new SlidingLog(1000);
 		}
 
@@ -103,7 +106,8 @@ namespace TooMany.Actors.Worker
 		public Task StartProcess(IContext context, TaskDefinition definition)
 		{
 			Log.LogInformation($"Starting '{TaskId}'");
-			var executor = new Executor(definition, context.System, context.Self!);
+			var executor = new Executor(
+				_processKiller, definition, context.System, context.Self!);
 			var exception = executor.Start();
 			return exception is null
 				? OnProcessStarted(context, executor)

@@ -15,16 +15,16 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Frontend\tray.ico"/>
+    <EmbeddedResource Include="Frontend\tray.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HttpRemoting.Data\HttpRemoting.Data.csproj"/>
-    <ProjectReference Include="..\HttpRemoting.Server\HttpRemoting.Server.csproj"/>
-    <ProjectReference Include="..\K4os.Json.Messages\K4os.Json.Messages.csproj"/>
-    <ProjectReference Include="..\K4os.Shared\K4os.Shared.csproj"/>
-    <ProjectReference Include="..\Proto.Persistence.AnySql\Proto.Persistence.AnySql.csproj"/>
-    <ProjectReference Include="..\TooMany.Actors\TooMany.Actors.csproj"/>
-    <ProjectReference Include="..\TooMany.WebServer\TooMany.WebServer.csproj"/>
+    <ProjectReference Include="..\HttpRemoting.Data\HttpRemoting.Data.csproj" />
+    <ProjectReference Include="..\HttpRemoting.Server\HttpRemoting.Server.csproj" />
+    <ProjectReference Include="..\K4os.Json.Messages\K4os.Json.Messages.csproj" />
+    <ProjectReference Include="..\K4os.Shared\K4os.Shared.csproj" />
+    <ProjectReference Include="..\Proto.Persistence.AnySql\Proto.Persistence.AnySql.csproj" />
+    <ProjectReference Include="..\TooMany.Actors\TooMany.Actors.csproj" />
+    <ProjectReference Include="..\TooMany.WebServer\TooMany.WebServer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="2many.json">
@@ -38,6 +38,6 @@
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
     </Content>
   </ItemGroup>
-  <Import Project="..\..\Common.targets"/>
-  <Import Project="..\..\.paket\Paket.Restore.targets"/>
+  <Import Project="..\..\Common.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

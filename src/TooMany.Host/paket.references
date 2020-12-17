@@ -1,5 +1,6 @@
 System.Reactive
 System.Interactive
+System.Management
 
 Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.DependencyInjection.Abstractions

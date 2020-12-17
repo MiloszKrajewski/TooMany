@@ -4,6 +4,7 @@ source https://www.nuget.org/api/v2
 
 nuget System.Reactive
 nuget System.Interactive
+nuget System.Management
 
 nuget Microsoft.Extensions.DependencyInjection
 nuget Microsoft.Extensions.DependencyInjection.Abstractions

@@ -39,7 +39,7 @@ namespace TooMany.Host
 		private static readonly string AppName = "2many";
 		private static readonly string ExeName = "2many.host";
 		private static readonly Guid AppGuid = Guid.Parse("e7e29a39-f7c8-4eec-b080-808495092a49");
-		
+
 		private static readonly string AssemblyPath =
 			#if NET5_0
 			AppContext.BaseDirectory;
@@ -98,14 +98,14 @@ namespace TooMany.Host
 			HostBuilderContext context, IConfigurationBuilder builder)
 		{
 			// either: "--development true" or "set 2many_development true"
-			var development = context.Configuration.GetValue("Development", false); 
+			var development = context.Configuration.GetValue("Development", false);
 			var dataPath = development
 				? context.HostingEnvironment.ContentRootPath
 				: Path.Combine(
 					Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
 					"TooMany");
 			Directory.CreateDirectory(dataPath);
-			
+
 			_applicationDataPath = dataPath;
 		}
 
@@ -157,6 +157,7 @@ namespace TooMany.Host
 			services.AddSingleton(typeof(ITypedProps<>), typeof(TypedProps<>));
 			services.AddSingleton<IReceiverMiddleware, DebugLoggingMiddleware>();
 			services.AddTransient<IRealtimeService, RealtimeService>();
+			services.AddSingleton<IProcessKiller, ProcessKiller>();
 
 			services.AddSingleton<ActorSystem>();
 			services.AddSingleton<RootContext>();
