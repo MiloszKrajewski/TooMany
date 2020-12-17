@@ -1,3 +1,6 @@
+## 0.4.1-beta (2020/12/17)
+* fixed process killing to kill whole tree
+
 ## 0.4.0-beta (2020/12/17)
 * added "monitor" command
 * realtime notifications with SignalR 

@@ -37,6 +37,7 @@ namespace TooMany.WebServer
 			app.UseDeveloperExceptionPage();
 			app.UseRouting();
 			app.UseStaticFiles();
+			// app.UseCors(p => p.WithOrigins("http://localhost:*", "http://127.0.0.1:*"));
 			app.UseEndpoints(endpoints => {
 				endpoints.MapControllers();
 				endpoints.MapHub<MonitorHub>("/monitor");
