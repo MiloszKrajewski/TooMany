@@ -1,3 +1,7 @@
+## 0.4.0-beta (2020/12/17)
+* added "monitor" command
+* realtime notifications with SignalR 
+
 ## 0.3.2-beta (2020/12/15)
 * fixes to installer
 

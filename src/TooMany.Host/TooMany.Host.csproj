@@ -7,8 +7,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+  <!--
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  -->
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
