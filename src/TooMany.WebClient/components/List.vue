@@ -1,28 +1,26 @@
 <template>
 	<ul>
-		tasks
-		<pre>
-					{{ JSON.stringify(tasks, null, 2) }}
-				</pre>
 		<li v-for="task in tasks" :key="task.name">
 			{{ task.name }}
 		</li>
 	</ul>
 </template>
-<script lang="js">
-
+<script lang="ts">
 export default {
-	async fetch(ctx) {
-		console.log(ctx);
+	async fetch() {
 		let tasks;
 		try {
-			const res = await fetch(`${ctx.env.apiUrl}/api/v1/task`);
+			const res = await fetch(`${this.$nuxt.context.env.apiUrl}/api/v1/task`);
 			const data = await res.json();
 			tasks = data?.result || [];
 		} catch (e) {
-			tasks = []
+			const res = await fetch(
+				`${this.$nuxt.context.env.baseUrl}/tasks.dummy.json`,
+			);
+			const data = await res.json();
+			tasks = data?.result || [];
 		}
-		console.log(tasks);
+		this.tasks = tasks;
 	},
 	data() {
 		return {

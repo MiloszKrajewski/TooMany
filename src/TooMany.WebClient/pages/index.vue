@@ -27,9 +27,33 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+interface Context {
+	env: {
+		apiUrl: string;
+		baseUrl: string;
+	};
+}
 
-export default Vue.extend({});
+export default {
+	async asyncData(ctx: Context) {
+		let tasks;
+		try {
+			const res = await fetch(`${ctx.env.apiUrl}/api/v1/task`);
+			const data = await res.json();
+			tasks = data?.result || [];
+		} catch (e) {
+			const res = await fetch(`${ctx.env.baseUrl}/tasks.dummy.json`);
+			const data = await res.json();
+			tasks = data?.result || [];
+		}
+		return { tasks };
+	},
+	data() {
+		return {
+			tasks: [],
+		};
+	},
+};
 </script>
 
 <style>
