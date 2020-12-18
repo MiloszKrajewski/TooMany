@@ -40,9 +40,8 @@ namespace TooMany.Actors.Worker.Processes
 		private static void UpdateEnvironment(
 			IDictionary<string, string> current, IDictionary<string, string?> expected)
 		{
-			foreach (var kv in expected)
+			foreach (var (key, value) in expected)
 			{
-				var (key, value) = (kv.Key, kv.Value);
 				if (value is null)
 					current.Remove(key);
 				else
