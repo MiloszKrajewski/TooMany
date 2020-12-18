@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Management;
-using TooMany.Actors;
+using TooMany.Actors.Worker.Processes;
 
 namespace TooMany.Host
 {

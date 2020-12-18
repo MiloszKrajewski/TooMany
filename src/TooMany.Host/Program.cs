@@ -25,6 +25,7 @@ using TooMany.Actors;
 using TooMany.Actors.Catalog;
 using TooMany.Actors.Tools;
 using TooMany.Actors.Worker;
+using TooMany.Actors.Worker.Processes;
 using TooMany.Host.Frontend;
 using TooMany.Host.Utilities;
 using TooMany.WebServer;
@@ -157,7 +158,9 @@ namespace TooMany.Host
 			services.AddSingleton(typeof(ITypedProps<>), typeof(TypedProps<>));
 			services.AddSingleton<IReceiverMiddleware, DebugLoggingMiddleware>();
 			services.AddTransient<IRealtimeService, RealtimeService>();
+			
 			services.AddSingleton<IProcessKiller, ProcessKiller>();
+			services.AddSingleton<IProcessFactory, ProcessFactory>();
 
 			services.AddSingleton<ActorSystem>();
 			services.AddSingleton<RootContext>();
