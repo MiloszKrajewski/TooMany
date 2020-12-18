@@ -20,18 +20,23 @@ export default {
 	css: [],
 
 	// Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
-	plugins: [],
+	plugins: ['@/plugins/signalR.ts'],
 
 	// Auto import components (https://go.nuxtjs.dev/config-components)
 	components: true,
 
 	// Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
 	buildModules: [
+		'@nuxtjs/composition-api',
 		// https://go.nuxtjs.dev/typescript
 		'@nuxt/typescript-build',
 		// https://go.nuxtjs.dev/stylelint
 		'@nuxtjs/stylelint-module',
 	],
+	generate: {
+		// choose to suit your project
+		interval: 2000,
+	},
 
 	// Modules (https://go.nuxtjs.dev/config-modules)
 	modules: [

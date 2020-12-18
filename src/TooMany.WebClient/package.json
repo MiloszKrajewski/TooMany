@@ -17,7 +17,9 @@
     "*.{css,vue}": "stylelint"
   },
   "dependencies": {
+    "@microsoft/signalr": "^5.0.1",
     "@nuxt/typescript-runtime": "^2.0.0",
+    "@nuxtjs/composition-api": "^0.17.0",
     "@nuxtjs/pwa": "^3.0.2",
     "core-js": "^3.6.5",
     "nuxt": "^2.14.6"
@@ -40,12 +42,12 @@
     "husky": "^4.3.0",
     "jest": "^26.5.0",
     "lint-staged": "^10.4.0",
+    "postcss-nested": "~4.2.3",
     "prettier": "^2.1.2",
     "stylelint": "^13.7.2",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-standard": "^20.0.0",
     "ts-jest": "^26.4.1",
-    "vue-jest": "^3.0.4",
-    "postcss-nested": "~4.2.3"
+    "vue-jest": "^3.0.4"
   }
 }

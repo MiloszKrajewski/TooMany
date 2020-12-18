@@ -27,33 +27,18 @@
 </template>
 
 <script lang="ts">
-interface Context {
-	env: {
-		apiUrl: string;
-		baseUrl: string;
-	};
-}
-
-export default {
-	async asyncData(ctx: Context) {
-		let tasks;
-		try {
-			const res = await fetch(`${ctx.env.apiUrl}/api/v1/task`);
-			const data = await res.json();
-			tasks = data?.result || [];
-		} catch (e) {
-			const res = await fetch(`${ctx.env.baseUrl}/tasks.dummy.json`);
-			const data = await res.json();
-			tasks = data?.result || [];
-		}
-		return { tasks };
+import { defineComponent, useContext, provide } from '@nuxtjs/composition-api';
+export default defineComponent({
+	setup() {
+		provide('todoLength', ['Feed a cat', 'Buy tickets'].length);
+		const ctx = useContext();
+		console.log(ctx);
 	},
-	data() {
-		return {
-			tasks: [],
-		};
+	mounted() {
+		console.log(this);
+		// will console.log 'Hello mounted!'
 	},
-};
+});
 </script>
 
 <style>
