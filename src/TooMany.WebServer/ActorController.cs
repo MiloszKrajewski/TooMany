@@ -3,12 +3,14 @@ using System.Net;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using K4os.Json.Messages.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Proto;
 using TooMany.Actors;
 
 namespace TooMany.WebServer
 {
+	[EnableCors]
 	public class ActorController: ControllerBase
 	{
 		protected RootContext Context { get; }
