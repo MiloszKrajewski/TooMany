@@ -40,18 +40,14 @@ namespace TooMany.WebServer
 			app.UseDeveloperExceptionPage();
 			app.UseRouting();
 			app.UseStaticFiles();
-			app.UseCors(policy => policy.SetIsOriginAllowed(CheckOrigin));
-			app.UseEndpoints(
-				endpoints => {
-					endpoints.MapControllers();
-					endpoints.MapHub<MonitorHub>("/monitor");
-				});
+			app.UseCors(policy => policy.WithOrigins(AllowedOrigins()));
+			app.UseEndpoints(endpoints => {
+				endpoints.MapControllers();
+				endpoints.MapHub<MonitorHub>("/monitor");
+			});
 		}
 
-		private static readonly IEnumerable<string> AllowedOrigins =
-			new[] { "localhost", "127.0.0.1" };
-
-		private static bool CheckOrigin(string origin) =>
-			AllowedOrigins.Any(o => o.Equals(origin, StringComparison.InvariantCultureIgnoreCase));
+		private string[] AllowedOrigins() => 
+			Configuration.GetSection("Host:Server:Cors").Get<string[]>();
 	}
 }

@@ -1,7 +1,10 @@
 {
     "Host": {
         "Server": { 
-            "Port": 31337
+            "Port": 31337,
+            "Cors": [
+                "http://localhost:3000"
+            ]
         }
     }
 }
