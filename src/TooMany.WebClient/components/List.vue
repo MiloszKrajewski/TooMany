@@ -1,8 +1,5 @@
 <template>
 	<ul>
-		{{
-			todoLength
-		}}
 		<li v-for="task in tasks" :key="task.name">
 			{{ task.name }}
 		</li>
@@ -32,17 +29,11 @@ export default defineComponent({
 		const { env } = useContext();
 
 		useFetch(async () => {
-			try {
-				const res = await fetch(`${env.apiUrl}/api/v1/task`);
-				const data = await res.json();
-				tasks.value = data?.result || [];
-			} catch (e) {
-				const res = await fetch(`${env.baseUrl}/tasks.dummy.json`);
-				const data = await res.json();
-				tasks.value = data?.result || [];
-			}
+			const res = await fetch(`${env.apiV1Url}/task`);
+			const data = await res.json();
+			tasks.value = data?.result || [];
 		});
-		const todoLength = inject('todoLength');
+
 		const TasksLog = inject('Task.Log') || {};
 		const TasksData = inject('Task.Data') || {};
 
@@ -51,7 +42,7 @@ export default defineComponent({
 			TasksData,
 		});
 
-		return { tasks, todoLength };
+		return { tasks };
 	},
 });
 </script>
