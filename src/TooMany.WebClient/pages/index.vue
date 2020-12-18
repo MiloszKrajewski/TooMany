@@ -26,7 +26,6 @@
 	</div>
 </template>
 
-
 <style>
 @import './index.css';
 </style>

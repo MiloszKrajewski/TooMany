@@ -1,22 +1,32 @@
 <template>
-	<ul>
-		<li v-for="task in tasks" :key="task.name">
-			{{ task.name }}
-		</li>
-	</ul>
+	<pre>
+			{{ JSON.stringify(Tasks, null, 2) }}
+	</pre
+	>
 </template>
 <script lang="ts">
 import {
 	defineComponent,
-	useFetch,
 	useContext,
 	ref,
-	inject,
+	onMounted,
+	useFetch,
+	onUnmounted,
 } from '@nuxtjs/composition-api';
-interface Task {
-	name: string;
+import SignalR from './signalr';
+
+interface ILogData {
+	channel: string;
+	text: string;
+	timestamp: string;
 }
-type Tasks = Task[];
+
+interface ITask {
+	task: string;
+	data: ILogData;
+}
+
+type ITasks = ITask[];
 
 interface Ref<T> {
 	value: T;
@@ -24,25 +34,30 @@ interface Ref<T> {
 
 export default defineComponent({
 	setup() {
-		const tasks: Ref<Tasks> = ref([]);
-
+		const Tasks: Ref<ITasks> = ref([]);
 		const { env } = useContext();
 
 		useFetch(async () => {
-			const res = await fetch(`${env.apiV1Url}/task`);
+			const res = await fetch(`${env.apiV1Url}/task/taskX/logs`);
 			const data = await res.json();
-			tasks.value = data?.result || [];
+			Tasks.value.push({ task: 'taskX', data });
 		});
 
-		const TasksLog = inject('Task.Log') || {};
-		const TasksData = inject('Task.Data') || {};
-
-		console.log({
-			TasksLog,
-			TasksData,
+		const signalR = new SignalR(env.realtimeUrl);
+		signalR.onLog((task, data) => {
+			Tasks.value.push({ task, data });
 		});
 
-		return { tasks };
+		onMounted(signalR.start);
+		onUnmounted(signalR.stop);
+
+		return { Tasks };
 	},
 });
 </script>
+
+<style scoped>
+pre {
+	width: 100%;
+}
+</style>
