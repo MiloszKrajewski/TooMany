@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace TooMany.Actors
+namespace TooMany.Actors.Worker.Processes
 {
 	public interface IProcessKiller
 	{

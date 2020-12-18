@@ -1,46 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Proto;
-using Process = System.Diagnostics.Process;
 
-namespace TooMany.Actors.Worker
+namespace TooMany.Actors.Worker.Processes
 {
-	public class LogEntry
-	{
-		public bool Error { get; set; }
-		public DateTime Timestamp { get; set; }
-		public string Text { get; set; }
-
-		public LogEntry(bool error, string text)
-		{
-			Error = error;
-			Text = text;
-			Timestamp = DateTime.UtcNow;
-		}
-	}
-
-	public class Executor
+	public class ProcessSupervisor: IProcessSupervisor
 	{
 		private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
 		private static readonly TimeSpan LongInterval = TimeSpan.FromMilliseconds(333);
 		private static readonly TimeSpan ShortInterval = TimeSpan.FromMilliseconds(33);
 
+		private readonly IProcessKiller _killer;
+		private readonly Action<LogEntry> _logAction;
+
 		private readonly ProcessStartInfo _info;
 		private Process? _proc;
-		private readonly ISenderContext _context;
-		private readonly PID _parent;
-		private IProcessKiller _processKiller;
 
-		public Executor(
-			IProcessKiller processKiller,
+		public ProcessSupervisor(
+			IProcessKiller killer,
 			TaskDefinition definition,
-			ActorSystem system,
-			PID parent)
+			Action<LogEntry> logAction)
 		{
-			_processKiller = processKiller;
+			_killer = killer;
+			_logAction = logAction;
 			_info = new ProcessStartInfo {
 				FileName = definition.Executable,
 				Arguments = definition.Arguments,
@@ -52,9 +35,6 @@ namespace TooMany.Actors.Worker
 				RedirectStandardOutput = true,
 			};
 			UpdateEnvironment(_info.Environment, definition.Environment);
-
-			_context = system.Root;
-			_parent = parent;
 		}
 
 		private static void UpdateEnvironment(
@@ -78,8 +58,8 @@ namespace TooMany.Actors.Worker
 			try
 			{
 				var proc = new Process { StartInfo = _info };
-				proc.ErrorDataReceived += (sender, args) => OnErrorReceived(args.Data);
-				proc.OutputDataReceived += (sender, args) => OnOutputReceived(args.Data);
+				proc.ErrorDataReceived += (_, args) => OnErrorReceived(args.Data);
+				proc.OutputDataReceived += (_, args) => OnOutputReceived(args.Data);
 				proc.Start();
 				proc.BeginOutputReadLine();
 				proc.BeginErrorReadLine();
@@ -93,7 +73,7 @@ namespace TooMany.Actors.Worker
 		}
 
 		private void Log(bool error, string text) =>
-			_context.Send(_parent, new LogEntry(error, text));
+			_logAction(new LogEntry(error, text));
 
 		private void OnOutputReceived(string text) => Log(false, text);
 
@@ -122,7 +102,7 @@ namespace TooMany.Actors.Worker
 			return await Wait(proc, WaitTimeout, ShortInterval);
 		}
 
-		private void KillTree(Process proc) => _processKiller.KillTree(proc);
+		private void KillTree(Process proc) => _killer.KillTree(proc);
 
 		public async Task<int> Wait()
 		{
