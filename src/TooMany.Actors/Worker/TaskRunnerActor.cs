@@ -7,6 +7,7 @@ using Proto;
 using Proto.Persistence;
 using TooMany.Actors.Messages;
 using TooMany.Actors.Tools;
+using TooMany.Actors.Worker.Processes;
 using TooMany.Messages;
 
 namespace TooMany.Actors.Worker
@@ -14,12 +15,13 @@ namespace TooMany.Actors.Worker
 	public class TaskRunnerActor: PersistentActor<TaskDefinition>, IActor
 	{
 		public const string ActorName = "TaskRunner";
+
 		private static readonly StringComparer? StringComparer =
 			StringComparer.InvariantCultureIgnoreCase;
-		
+
 		private readonly SlidingLog _slidingLog;
 		private readonly IRealtimeService _realtimeService;
-		private readonly IProcessKiller _processKiller;
+		private readonly IProcessFactory _processFactory;
 
 		private TaskDefinition? _definition;
 
@@ -27,7 +29,7 @@ namespace TooMany.Actors.Worker
 		private DateTime? _startedTime;
 		private bool _rebootRequired;
 
-		private Executor? _executor;
+		private IProcessSupervisor? _supervisor;
 
 		private string TaskId => _definition?.Name ?? "<unknown>";
 
@@ -35,11 +37,11 @@ namespace TooMany.Actors.Worker
 			ILoggerFactory loggerFactory,
 			IProvider persistenceProvider,
 			IRealtimeService realtimeService,
-			IProcessKiller processKiller):
+			IProcessFactory processFactory):
 			base(loggerFactory, persistenceProvider)
 		{
 			_realtimeService = realtimeService;
-			_processKiller = processKiller;
+			_processFactory = processFactory;
 			_slidingLog = new SlidingLog(1000);
 		}
 
@@ -106,36 +108,42 @@ namespace TooMany.Actors.Worker
 		public Task StartProcess(IContext context, TaskDefinition definition)
 		{
 			Log.LogInformation($"Starting '{TaskId}'");
-			var executor = new Executor(
-				_processKiller, definition, context.System, context.Self!);
-			var exception = executor.Start();
+			var supervisor = _processFactory.Create(definition, CreateLogAction(context));
+			var exception = supervisor.Start();
 			return exception is null
-				? OnProcessStarted(context, executor)
+				? OnProcessStarted(context, supervisor)
 				: OnProcessFailed(context, exception);
+		}
+
+		private static Action<LogEntry> CreateLogAction(IInfoContext context)
+		{
+			var root = context.System.Root;
+			var self = context.Self!;
+			return e => root.Send(self, e);
 		}
 
 		private async Task StopProcess(IContext context)
 		{
-			if (_executor is null)
+			if (_supervisor is null)
 				return;
 
 			Log.LogInformation($"Stopping '{TaskId}'");
-			if (await _executor.Stop()) return;
+			if (await _supervisor.Stop()) return;
 
 			Log.LogWarning($"Killing '{TaskId}'");
-			if (await _executor.Kill()) return;
+			if (await _supervisor.Kill()) return;
 
 			Log.LogError($"Failed to stop '{TaskId}', scheduling retry...");
 			ScheduleSync(context);
 		}
 
-		private Task OnProcessStarted(IContext context, Executor executor)
+		private Task OnProcessStarted(IContext context, IProcessSupervisor supervisor)
 		{
 			Log.LogInformation($"Task '{TaskId}' started");
-			context.ReenterAfter(executor.Wait(), t => OnProcessStopped(context, t.Result));
+			context.ReenterAfter(supervisor.Wait(), t => OnProcessStopped(context, t.Result));
 			_actualState = TaskState.Started;
 			_startedTime = DateTime.UtcNow;
-			_executor = executor;
+			_supervisor = supervisor;
 			return Notify2(context, ToTaskSnapshot());
 		}
 
@@ -146,7 +154,7 @@ namespace TooMany.Actors.Worker
 			_actualState = TaskState.Failed;
 			_startedTime = null;
 			_rebootRequired = false;
-			_executor = null;
+			_supervisor = null;
 			return Notify2(context, ToTaskSnapshot());
 		}
 
@@ -162,7 +170,7 @@ namespace TooMany.Actors.Worker
 			_actualState = gracefulOrExpected ? TaskState.Stopped : TaskState.Failed;
 			_startedTime = null;
 			_rebootRequired = false;
-			_executor = null;
+			_supervisor = null;
 			return Notify2(context, ToTaskSnapshot());
 		}
 
@@ -258,7 +266,7 @@ namespace TooMany.Actors.Worker
 			context.Respond(snapshot);
 			return true;
 		}
-		
+
 		private async Task<bool> Notify2<T>(IContext context, T snapshot) where T: TaskSnapshot
 		{
 			if (context.Parent != null)
@@ -292,17 +300,17 @@ namespace TooMany.Actors.Worker
 				Tags = request.Tags.ToList(),
 				ExpectedState = _definition?.ExpectedState ?? TaskState.Stopped
 			};
-		
+
 		private TaskRemoved ToTaskRemoved(
 			IRequest request, string id, TaskDefinition definition) =>
 			new TaskRemoved(request, id, definition, _actualState, _startedTime);
 
 		private TaskSnapshot ToTaskSnapshot(IRequest request) =>
 			new TaskSnapshot(request, _definition!, _actualState, _startedTime);
-		
+
 		private TaskSnapshot ToTaskSnapshot() =>
 			new TaskSnapshot(_definition!, _actualState, _startedTime);
-		
+
 		private static TaskNotFound ToTaskNotFound(TaskRef request) =>
 			new TaskNotFound(request, request.Name);
 
