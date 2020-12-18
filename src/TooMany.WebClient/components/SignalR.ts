@@ -5,6 +5,15 @@ import {
 	LogLevel,
 } from '@microsoft/signalr';
 
+export enum Channel {
+	Log = 'Log',
+}
+
+export enum LogChannel {
+	Stdout = 1,
+	StdErr = 0,
+}
+
 class SignalR {
 	private static connection: HubConnection;
 
@@ -43,17 +52,17 @@ class SignalR {
 		fn: (
 			task: string,
 			data: {
-				channel: string;
+				channel: LogChannel;
 				text: string;
 				timestamp: string;
 			},
 		) => void,
 	) {
-		SignalR.connection.on('Log', fn);
+		SignalR.connection.on(Channel.Log, fn);
 	}
 
 	offLog(fn: typeof SignalR.connection.on) {
-		SignalR.connection.off('Log', fn);
+		SignalR.connection.off(Channel.Log, fn);
 	}
 }
 

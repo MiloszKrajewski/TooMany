@@ -13,10 +13,10 @@ import {
 	useFetch,
 	onUnmounted,
 } from '@nuxtjs/composition-api';
-import SignalR from './signalr';
+import SignalR, { LogChannel } from './signalr';
 
 interface ILogData {
-	channel: string;
+	channel: LogChannel;
 	text: string;
 	timestamp: string;
 }
