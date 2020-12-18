@@ -1,3 +1,5 @@
+const apiUrl = process.env.API_URL || 'http://localhost:31337';
+
 export default {
 	// Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
 	ssr: false,
@@ -53,13 +55,9 @@ export default {
 		},
 	},
 
-	publicRuntimeConfig: {
-		baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-		apiUrl: process.env.API_URL || 'http://localhost:31337',
-	},
-
 	env: {
 		baseUrl: process.env.BASE_URL || 'http://localhost:3000',
-		apiUrl: process.env.API_URL || 'http://localhost:31337',
+		realtimeUrl: `${apiUrl}/monitor`,
+		apiV1Url: `${apiUrl}/api/v1`,
 	},
 };

@@ -33,7 +33,7 @@ export default defineComponent({
 
 		useFetch(async () => {
 			try {
-				const res = await fetch(`${env.apiUrl}/api/v1/task`);
+				const res = await fetch(`${env.apiV1Url}/task`);
 				const data = await res.json();
 				tasks.value = data?.result || [];
 			} catch (e) {
