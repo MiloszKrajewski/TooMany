@@ -26,20 +26,6 @@
 	</div>
 </template>
 
-<script lang="ts">
-import { defineComponent, useContext, provide } from '@nuxtjs/composition-api';
-export default defineComponent({
-	setup() {
-		provide('todoLength', ['Feed a cat', 'Buy tickets'].length);
-		const ctx = useContext();
-		console.log(ctx);
-	},
-	mounted() {
-		console.log(this);
-		// will console.log 'Hello mounted!'
-	},
-});
-</script>
 
 <style>
 @import './index.css';
