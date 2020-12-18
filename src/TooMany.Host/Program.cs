@@ -38,7 +38,6 @@ namespace TooMany.Host
 	{
 		private static readonly Type ThisType = typeof(Program);
 		private static readonly string AppName = "2many";
-		private static readonly string ExeName = "2many.host";
 		private static readonly Guid AppGuid = Guid.Parse("e7e29a39-f7c8-4eec-b080-808495092a49");
 
 		private static readonly string AssemblyPath =
@@ -92,7 +91,6 @@ namespace TooMany.Host
 			builder.AddCommandLine(Environment.GetCommandLineArgs());
 			builder.AddEnvironmentVariables(@"2many_");
 			builder.AddJsonFile($"{AppName}.json", true);
-			builder.AddJsonFile($"{ExeName}.json", true);
 		}
 
 		private static void ConfigureApp(
@@ -115,7 +113,7 @@ namespace TooMany.Host
 		{
 			const string outputTemplate =
 				"{Timestamp:HH:mm:ss} [{Level:u4}] ({SourceContext:l}) {Message:lj}{NewLine}{Exception}";
-			var outputFilename = Path.Combine(ApplicationDataPath, $"{ExeName}.log");
+			var outputFilename = Path.Combine(ApplicationDataPath, $"{AppName}.log");
 			var logger = new LoggerConfiguration()
 				.MinimumLevel.Warning()
 				.MinimumLevel.Override(nameof(TooMany), LogEventLevel.Verbose)

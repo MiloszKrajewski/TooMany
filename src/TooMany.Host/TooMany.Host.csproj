@@ -7,12 +7,10 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-  <!-- -->
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-  <!-- -->
+    <!-- COMMENT TO DEBUG >>> -->
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- <<< COMMENT TO DEBUG -->
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Frontend\tray.ico" />
