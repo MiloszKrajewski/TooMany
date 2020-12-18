@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using K4os.Json.KnownTypes;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -44,14 +45,22 @@ namespace TooMany.WebServer
 			app.UseDeveloperExceptionPage();
 			app.UseRouting();
 			app.UseStaticFiles();
-			app.UseCors(policy => policy.WithOrigins(AllowedOrigins()));
-			app.UseEndpoints(endpoints => {
-				endpoints.MapControllers();
-				endpoints.MapHub<MonitorHub>("/monitor");
-			});
+			app.UseCors(ConfigureCors);
+			app.UseEndpoints(
+				endpoints => {
+					endpoints.MapControllers();
+					endpoints.MapHub<MonitorHub>("/monitor");
+				});
 		}
 
-		private string[] AllowedOrigins() => 
-			Configuration.GetSection("Host:Server:Cors").Get<string[]>();
+		private void ConfigureCors(CorsPolicyBuilder policy)
+		{
+			var origins = Configuration.GetSection("Host:Server:Cors").Get<string[]>();
+			policy
+				.WithOrigins(origins)
+				.AllowCredentials()
+				.AllowAnyHeader()
+				.AllowAnyMethod();
+		}
 	}
 }
