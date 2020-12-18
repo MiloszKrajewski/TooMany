@@ -1,3 +1,6 @@
+## 0.4.2-beta (2020/12/18)
+* updated serialization settings for SignalR
+
 ## 0.4.1-beta (2020/12/17)
 * fixed process killing to kill whole tree
 

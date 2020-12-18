@@ -8,6 +8,8 @@ Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.Logging
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Binder
+Microsoft.Extensions.Configuration.EnvironmentVariables
+Microsoft.Extensions.Configuration.Json 
 Microsoft.Extensions.Http
 
 CommandLineParser

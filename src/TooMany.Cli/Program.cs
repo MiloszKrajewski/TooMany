@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CommandLine;
@@ -18,6 +19,8 @@ namespace TooMany.Cli
 {
 	class Program
 	{
+		private static readonly string AppName = "2many";
+
 		private static readonly string AssemblyPath =
 			#if NET5_0
 			AppContext.BaseDirectory;
@@ -57,7 +60,8 @@ namespace TooMany.Cli
 
 		private static void Configure(ConfigurationBuilder builder)
 		{
-			#warning configure configuration (go to server settings json)
+			builder.AddEnvironmentVariables(@"2many_");
+			builder.AddJsonFile(Path.Combine(AssemblyPath, $"{AppName}.json"), true);
 		}
 
 		private static void Configure(ServiceCollection services, IConfiguration configuration)
