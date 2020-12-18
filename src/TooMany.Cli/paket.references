@@ -2,6 +2,7 @@
 System.Interactive
 
 Microsoft.AspNetCore.SignalR.Client
+Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
 
 Microsoft.Extensions.DependencyInjection
 Microsoft.Extensions.Logging

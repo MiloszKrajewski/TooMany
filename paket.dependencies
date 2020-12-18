@@ -22,6 +22,7 @@ nuget Microsoft.AspNetCore.Mvc.Abstractions
 nuget Microsoft.AspNetCore.Mvc.Core
 nuget Microsoft.AspNetCore.Mvc.NewtonsoftJson
 nuget Microsoft.AspNetCore.SignalR.Client
+nuget Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
 
 nuget Grpc.Tools
 nuget Google.Protobuf 

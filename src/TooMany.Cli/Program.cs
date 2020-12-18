@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
 using CommandLine;
 using HttpRemoting.Client;
@@ -14,20 +12,18 @@ using Microsoft.Extensions.Logging;
 using TooMany.Cli.Commands;
 using TooMany.Cli.Handlers;
 using SystemProcess = System.Diagnostics.Process;
+// ReSharper disable UnusedParameter.Local
 
 namespace TooMany.Cli
 {
 	class Program
 	{
-		private static readonly Type ThisType = typeof(Program);
-		private static readonly Assembly ThisAssembly = ThisType.Assembly;
-		private static readonly string PackageName = ThisType.Namespace!;
-
-		private static readonly string ProductName =
-			ThisAssembly.GetCustomAttribute<AssemblyProductAttribute>()?.Product!;
-
 		private static readonly string AssemblyPath =
+			#if NET5_0
+			AppContext.BaseDirectory;
+			#else
 			Path.GetDirectoryName(SystemProcess.GetCurrentProcess().MainModule!.FileName)!;
+			#endif
 
 		static async Task<int> Main(string[] args)
 		{
@@ -59,27 +55,18 @@ namespace TooMany.Cli
 			}
 		}
 
-		private static void Configure(ConfigurationBuilder builder) { }
+		private static void Configure(ConfigurationBuilder builder)
+		{
+			#warning configure configuration (go to server settings json)
+		}
 
 		private static void Configure(ServiceCollection services, IConfiguration configuration)
 		{
 			services.AddHttpClient();
 			services.AddTransient(p => p.GetRequiredService<IHttpClientFactory>().CreateClient());
-			services.AddTransient(
-				p => {
-					var port = configuration.GetValue("Host:Server:Port", 31337);
-					var factory = p.GetRequiredService<IHttpClientFactory>();
-					var client = factory.CreateClient();
-					client.BaseAddress = new Uri($"http://127.0.0.1:{port}");
-					return HttpRemotingFactory.Create<IHostInterface>(client);
-				});
-
-			services.AddTransient<HubConnection>(
-				p => {
-					var port = configuration.GetValue("Host:Server:Port", 31337);
-					var uri = new Uri($"http://127.0.0.1:{port}/monitor");
-					return new HubConnectionBuilder() .WithUrl(uri).Build();
-				});
+			
+			services.AddTransient(p => ConfigureHttpRemoting(p, configuration));
+			services.AddTransient(p => ConfigureSignalR(p, configuration));
 			
 			services.AddTransient<ICommandHandler<GetLogsCommand>, GetLogsHandler>();
 			services.AddTransient<ICommandHandler<ListTaskCommand>, TaskInfoHandler>();
@@ -90,6 +77,27 @@ namespace TooMany.Cli
 			services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
 			services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
 			services.AddTransient<ICommandHandler<MonitorCommand>, MonitorHandler>();
+		}
+
+		private static IHostInterface ConfigureHttpRemoting(
+			IServiceProvider provider, IConfiguration configuration)
+		{
+			var port = configuration.GetValue("Host:Server:Port", 31337);
+			var factory = provider.GetRequiredService<IHttpClientFactory>();
+			var client = factory.CreateClient();
+			client.BaseAddress = new Uri($"http://localhost:{port}");
+			return HttpRemotingFactory.Create<IHostInterface>(client);
+		}
+
+		private static HubConnection ConfigureSignalR(
+			IServiceProvider provider, IConfiguration configuration)
+		{
+			var port = configuration.GetValue("Host:Server:Port", 31337);
+			var uri = new Uri($"http://localhost:{port}/monitor");
+			return new HubConnectionBuilder()
+				.WithUrl(uri)
+				.AddNewtonsoftJsonProtocol()
+				.Build();
 		}
 
 		private static async Task<int> Execute(

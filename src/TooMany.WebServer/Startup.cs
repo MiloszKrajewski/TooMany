@@ -22,8 +22,12 @@ namespace TooMany.WebServer
 		{
 			services
 				.AddControllers()
-				.AddNewtonsoftJson(o => UpdateSerializationSettings(o.SerializerSettings));
-			services.AddSignalR();
+				.AddNewtonsoftJson(
+					o => UpdateSerializationSettings(o.SerializerSettings));
+			services
+				.AddSignalR()
+				.AddNewtonsoftJsonProtocol(
+					o => UpdateSerializationSettings(o.PayloadSerializerSettings));
 		}
 
 		private static void UpdateSerializationSettings(JsonSerializerSettings settings)

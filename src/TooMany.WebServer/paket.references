@@ -3,5 +3,6 @@ Microsoft.Extensions.Logging.Abstractions
 Microsoft.Extensions.Hosting
 Microsoft.AspNetCore.Hosting
 Microsoft.AspNetCore.Mvc.NewtonsoftJson
+Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
 
 Proto.Actor
