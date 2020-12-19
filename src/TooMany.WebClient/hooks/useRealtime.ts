@@ -21,7 +21,6 @@ export namespace useRealtime {
 				} else {
 					Output.value = Output.value
 						.map((o) => {
-							console.log('go');
 							if (o.name !== data.name) return o;
 							return data;
 						})
