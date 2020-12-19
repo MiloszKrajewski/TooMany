@@ -10,10 +10,10 @@ import {
 	useContext,
 	ref,
 	onMounted,
-	useFetch,
+	// useFetch,
 	onUnmounted,
 } from '@nuxtjs/composition-api';
-import SignalR, { LogChannel } from './signalr';
+import { LogChannel } from '@/plugins/SignalR';
 
 interface ILogData {
 	channel: LogChannel;
@@ -35,21 +35,21 @@ interface Ref<T> {
 export default defineComponent({
 	setup() {
 		const Tasks: Ref<ITasks> = ref([]);
-		const { env } = useContext();
+		const ctx = useContext();
 
-		useFetch(async () => {
-			const res = await fetch(`${env.apiV1Url}/task/taskX/logs`);
-			const data = await res.json();
-			Tasks.value.push({ task: 'taskX', data });
-		});
+		// useFetch(async () => {
+		// 	const res = await fetch(`${env.apiV1Url}/task/taskX/logs`);
+		// 	const data = await res.json();
+		// 	Tasks.value.push({ task: 'taskX', data });
+		// });
+		console.log(ctx);
 
-		const signalR = new SignalR(env.realtimeUrl);
-		signalR.onLog((task, data) => {
+		ctx.$SignalR.onLog((task, data) => {
 			Tasks.value.push({ task, data });
 		});
 
-		onMounted(signalR.start);
-		onUnmounted(signalR.stop);
+		onMounted(ctx.$SignalR.start);
+		onUnmounted(ctx.$SignalR.stop);
 
 		return { Tasks };
 	},

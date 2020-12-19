@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { Plugin } from '@nuxt/types';
 import {
 	HubConnection,
 	HubConnectionBuilder,
@@ -66,4 +67,26 @@ class SignalR {
 	}
 }
 
-export default SignalR;
+declare module 'vue/types/vue' {
+	// this.$myInjectedFunction inside Vue components
+	interface Vue {
+		$SignalR: SignalR;
+	}
+}
+
+declare module '@nuxt/types' {
+	// nuxtContext.app.$myInjectedFunction inside asyncData, fetch, plugins, middleware, nuxtServerInit
+	interface NuxtAppOptions {
+		$SignalR: SignalR;
+	}
+	// nuxtContext.$myInjectedFunction
+	interface Context {
+		$SignalR: SignalR;
+	}
+}
+
+const $SignalR: Plugin = ({ env: { realtimeUrl } }, inject) => {
+	inject('SignalR', new SignalR(realtimeUrl));
+};
+
+export default $SignalR;
