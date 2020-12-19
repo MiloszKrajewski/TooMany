@@ -35,17 +35,17 @@ DELETE {{server}}/api/v1/task/task10
 
 ### Start task
 
-PUT {{server}}/api/v1/task/taskP/start
+PUT {{server}}/api/v1/task/taskX/start
 
 ### Restart task
 
-PUT {{server}}/api/v1/task/task9/start?force=true
+PUT {{server}}/api/v1/task/taskZ/start?force=true
 
 
 ### Stop task
 
-PUT {{server}}/api/v1/task/task8/stop
+PUT {{server}}/api/v1/task/taskX/stop
 
 ### Get task logs
 
-GET {{server}}/api/v1/task/taskP/logs
+GET {{server}}/api/v1/task/taskX/logs

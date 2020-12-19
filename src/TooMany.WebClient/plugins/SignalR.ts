@@ -1,18 +1,16 @@
 /* eslint-disable no-console */
 import { Plugin } from '@nuxt/types';
+import { v4 as uuidv4 } from 'uuid';
 import {
 	HubConnection,
 	HubConnectionBuilder,
 	LogLevel,
 } from '@microsoft/signalr';
+import { Realtime } from '~/@types';
 
 export enum Channel {
 	Log = 'Log',
-}
-
-export enum LogChannel {
-	Stdout = 1,
-	StdErr = 0,
+	Task = 'Task',
 }
 
 class SignalR {
@@ -49,44 +47,63 @@ class SignalR {
 		SignalR.connection.onclose(fn);
 	}
 
-	onLog(
-		fn: (
-			task: string,
-			data: {
-				channel: LogChannel;
-				text: string;
-				timestamp: string;
-			},
-		) => void,
-	) {
-		SignalR.connection.on(Channel.Log, fn);
+	onTaskLog(
+		id: Realtime.ChannelId,
+		fn: Realtime.onLogFnCallback,
+	): Realtime.onLogFn {
+		const handler: Realtime.onLogFn = (task, data) => {
+			if (id === task || id === null) fn({ ...data, id: uuidv4() });
+		};
+		SignalR.connection.on(Channel.Log, handler);
+		return handler;
 	}
 
-	offLog(fn: typeof SignalR.connection.on) {
+	onTaskMeta(
+		id: Realtime.ChannelId,
+		fn: Realtime.onMetaFnCallback,
+	): Realtime.onMetaFn {
+		const handler: Realtime.onMetaFn = (task, data) => {
+			if (id === task || id === null) fn(data);
+		};
+		SignalR.connection.on(Channel.Task, handler);
+		return handler;
+	}
+
+	offTaskLog(fn: Realtime.onLogFn | null) {
+		if (fn === null) return;
 		SignalR.connection.off(Channel.Log, fn);
+	}
+
+	offTaskMeta(fn: Realtime.onMetaFn | null) {
+		if (fn === null) return;
+		SignalR.connection.off(Channel.Task, fn);
 	}
 }
 
 declare module 'vue/types/vue' {
-	// this.$myInjectedFunction inside Vue components
 	interface Vue {
 		$SignalR: SignalR;
 	}
 }
 
 declare module '@nuxt/types' {
-	// nuxtContext.app.$myInjectedFunction inside asyncData, fetch, plugins, middleware, nuxtServerInit
 	interface NuxtAppOptions {
 		$SignalR: SignalR;
 	}
-	// nuxtContext.$myInjectedFunction
 	interface Context {
 		$SignalR: SignalR;
 	}
 }
 
 const $SignalR: Plugin = ({ env: { realtimeUrl } }, inject) => {
-	inject('SignalR', new SignalR(realtimeUrl));
+	inject(
+		'SignalR',
+		(() => {
+			const SR = new SignalR(realtimeUrl);
+			SR.start();
+			return SR;
+		})(),
+	);
 };
 
 export default $SignalR;
