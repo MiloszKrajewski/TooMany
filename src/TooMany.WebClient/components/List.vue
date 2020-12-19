@@ -10,12 +10,13 @@ import {
 	useContext,
 	ref,
 	onMounted,
-	useFetch,
+	// useFetch,
 	onUnmounted,
 } from '@nuxtjs/composition-api';
+import { LogChannel } from '@/plugins/SignalR';
 
 interface ILogData {
-	channel: string;
+	channel: LogChannel;
 	text: string;
 	timestamp: string;
 }
@@ -51,9 +52,6 @@ export default defineComponent({
 		onUnmounted(ctx.$SignalR.stop);
 
 		return { Tasks };
-	},
-	mounted() {
-		console.log(this.api);
 	},
 });
 </script>

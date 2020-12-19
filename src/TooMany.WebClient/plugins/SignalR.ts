@@ -67,23 +67,21 @@ class SignalR {
 	}
 }
 
-type TSignalR = typeof SignalR;
-
 declare module 'vue/types/vue' {
 	// this.$myInjectedFunction inside Vue components
 	interface Vue {
-		$SignalR: TSignalR;
+		$SignalR: SignalR;
 	}
 }
 
 declare module '@nuxt/types' {
 	// nuxtContext.app.$myInjectedFunction inside asyncData, fetch, plugins, middleware, nuxtServerInit
 	interface NuxtAppOptions {
-		$SignalR: TSignalR;
+		$SignalR: SignalR;
 	}
 	// nuxtContext.$myInjectedFunction
 	interface Context {
-		$SignalR: TSignalR;
+		$SignalR: SignalR;
 	}
 }
 
