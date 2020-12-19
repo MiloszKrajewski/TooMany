@@ -6,15 +6,15 @@ namespace Proto.Persistence.AnySql
 	/// <seealso cref="IAnySqlDialect" />
 	public class PgSqlDialect: IAnySqlDialect
 	{
-		private static string Combine(string schemaName, string tableName) =>
+		private static string Combine(string? schemaName, string tableName) =>
 			string.IsNullOrWhiteSpace(schemaName)
 				? $@"""{tableName}"""
 				: $@"""{schemaName}"".""{tableName}""";
 
-		public string EventsTable(string schemaName, string tableName) =>
+		public string EventsTable(string? schemaName, string tableName) =>
 			Combine(schemaName, tableName + "_events");
 
-		public string SnapshotsTable(string schemaName, string tableName) =>
+		public string SnapshotsTable(string? schemaName, string tableName) =>
 			Combine(schemaName, tableName + "_snapshots");
 
 		public string CreateSchema(string schemaName) =>

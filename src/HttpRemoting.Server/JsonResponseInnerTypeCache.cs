@@ -8,12 +8,11 @@ namespace HttpRemoting.Server
 {
 	internal class JsonResponseInnerTypeCache
 	{
-		private readonly ConcurrentDictionary<Type, Type> _dictionary =
-			new ConcurrentDictionary<Type, Type>();
+		private readonly ConcurrentDictionary<Type, Type?> _dictionary = new();
 
-		public Type Get(Type type) => _dictionary.GetOrAdd(type, Resolve);
+		public Type? Get(Type type) => _dictionary.GetOrAdd(type, Resolve);
 
-		private static Type Resolve(Type type)
+		private static Type? Resolve(Type type)
 		{
 			var isJsonResponse = typeof(IJsonResponse).IsAssignableFrom(type);
 			if (!isJsonResponse) return null;

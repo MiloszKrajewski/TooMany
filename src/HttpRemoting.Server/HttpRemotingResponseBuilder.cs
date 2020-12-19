@@ -24,7 +24,7 @@ namespace HttpRemoting.Server
 
 		private readonly ILogger _logger;
 
-		public HttpRemotingResponseBuilder(ILoggerFactory loggerFactory)
+		public HttpRemotingResponseBuilder(ILoggerFactory? loggerFactory)
 		{
 			_logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger(GetType());
 		}
@@ -35,8 +35,8 @@ namespace HttpRemoting.Server
 
 			if (context.Exception != null)
 			{
-				var exception = Unwrap(context.Exception);
-				var error = Translate(exception, services);
+				var exception = Unwrap(context.Exception)!;
+				var error = Translate(exception, services)!;
 				var failure = (int) error.StatusCode >= 500;
 				var level = failure ? LogLevel.Error : LogLevel.Warning;
 				_logger?.Log(level, exception, "Operation failed");
@@ -65,8 +65,8 @@ namespace HttpRemoting.Server
 		}
 
 		// ReSharper disable once SuspiciousTypeConversion.Global
-		private static IHttpRemotingError Translate(
-			Exception exception, IServiceProvider provider) =>
+		private static IHttpRemotingError? Translate(
+			Exception? exception, IServiceProvider provider) =>
 			exception is null ? null :
 			exception is IHttpRemotingError error ? error :
 			provider.GetService<IHttpRemotingErrorAdapter>()?.ToJsonError(exception) ??

@@ -6,17 +6,17 @@ namespace Proto.Persistence.AnySql
 	/// <seealso cref="IAnySqlDialect" />
 	public class SqLiteDialect: IAnySqlDialect
 	{
-		private static string Combine(string schemaName, string tableName) =>
+		private static string Combine(string? schemaName, string tableName) =>
 			string.IsNullOrWhiteSpace(schemaName)
 				? $"\"{tableName}\""
 				: $"\"{schemaName}_{tableName}\"";
 
 		public string CreateSchema(string schemaName) => "pragma _";
 
-		public string EventsTable(string schemaName, string tableName) =>
+		public string EventsTable(string? schemaName, string tableName) =>
 			Combine(schemaName, tableName + "_events");
 
-		public string SnapshotsTable(string schemaName, string tableName) =>
+		public string SnapshotsTable(string? schemaName, string tableName) =>
 			Combine(schemaName, tableName + "_snapshots");
 
 		private static string CreateEither(string objectName) =>

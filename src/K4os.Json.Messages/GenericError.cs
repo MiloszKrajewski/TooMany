@@ -6,7 +6,7 @@ namespace K4os.Json.Messages
 {
 	public class GenericError: GenericResponse, IError
 	{
-		public string ErrorMessage { get; set; }
+		public string? ErrorMessage { get; set; }
 
 		public GenericError() { }
 

@@ -46,11 +46,11 @@ namespace Proto.Persistence.AnySql
 			_ready = CreateTables();
 		}
 
-		protected async Task<DbConnection> Connect(Task ready)
+		protected async Task<DbConnection> Connect(Task? ready)
 		{
 			await (ready ?? Task.CompletedTask);
 
-			DbConnection connection = null;
+			DbConnection? connection = null;
 			try
 			{
 				connection = _connect();
@@ -73,22 +73,22 @@ namespace Proto.Persistence.AnySql
 
 		private async Task CreateTables()
 		{
-			using (var connection = await Connect(Task.CompletedTask))
+			using var connection = await Connect(Task.CompletedTask);
+			
+			if (!string.IsNullOrWhiteSpace(_schemaName))
 			{
-				if (!string.IsNullOrWhiteSpace(_schemaName))
-				{
-					await connection
-						.CreateCommand(Dialect.CreateSchema(_schemaName))
-						.ExecuteNonQueryAsync();
-				}
-
+				var schemaName = _schemaName!;
 				await connection
-					.CreateCommand(Dialect.CreateEventsTable(_eventsTable))
-					.ExecuteNonQueryAsync();
-				await connection
-					.CreateCommand(Dialect.CreateSnapshotsTable(_snapshotsTable))
+					.CreateCommand(Dialect.CreateSchema(schemaName))
 					.ExecuteNonQueryAsync();
 			}
+
+			await connection
+				.CreateCommand(Dialect.CreateEventsTable(_eventsTable))
+				.ExecuteNonQueryAsync();
+			await connection
+				.CreateCommand(Dialect.CreateSnapshotsTable(_snapshotsTable))
+				.ExecuteNonQueryAsync();
 		}
 
 		/// <summary>Reapplies events.</summary>
@@ -100,32 +100,29 @@ namespace Proto.Persistence.AnySql
 		public async Task<long> GetEventsAsync(
 			string actorName, long indexStart, long indexEnd, Action<object> callback)
 		{
-			using (var connection = await Connect())
+			using var connection = await Connect();
+			
+			var lastIndex = -1L;
+
+			var command = connection
+				.CreateCommand(Dialect.SelectEvents(_eventsTable))
+				.AddParameter("actor", DbType.String, actorName)
+				.AddParameter("index_start", DbType.Int64, indexStart)
+				.AddParameter("index_end", DbType.Int64, indexEnd);
+
+			using var reader = await command.ExecuteReaderAsync();
+			var indexField = reader.IndexOf("index");
+			var blobField = reader.IndexOf("data");
+
+			while (await reader.ReadAsync())
 			{
-				var lastIndex = -1L;
-
-				var command = connection
-					.CreateCommand(Dialect.SelectEvents(_eventsTable))
-					.AddParameter("actor", DbType.String, actorName)
-					.AddParameter("index_start", DbType.Int64, indexStart)
-					.AddParameter("index_end", DbType.Int64, indexEnd);
-
-				using (var reader = await command.ExecuteReaderAsync())
-				{
-					var indexField = reader.IndexOf("index");
-					var blobField = reader.IndexOf("data");
-
-					while (await reader.ReadAsync())
-					{
-						var index = reader.GetInt64(indexField);
-						var blob = reader.GetString(blobField);
-						callback(Deserialize(blob));
-						lastIndex = index;
-					}
-				}
-
-				return lastIndex;
+				var index = reader.GetInt64(indexField);
+				var blob = reader.GetString(blobField);
+				callback(Deserialize(blob));
+				lastIndex = index;
 			}
+
+			return lastIndex;
 		}
 
 		/// <summary>Persists event.</summary>
@@ -135,16 +132,14 @@ namespace Proto.Persistence.AnySql
 		/// <returns>New event index.</returns>
 		public async Task<long> PersistEventAsync(string actorName, long index, object @event)
 		{
-			using (var connection = await Connect())
-			{
-				var command = connection
-					.CreateCommand(Dialect.InsertEvent(_eventsTable))
-					.AddParameter("actor", DbType.String, actorName)
-					.AddParameter("index", DbType.Int64, index)
-					.AddParameter("data", DbType.String, Serialize(@event));
-				await command.ExecuteNonQueryAsync();
-				return index + 1;
-			}
+			using var connection = await Connect();
+			var command = connection
+				.CreateCommand(Dialect.InsertEvent(_eventsTable))
+				.AddParameter("actor", DbType.String, actorName)
+				.AddParameter("index", DbType.Int64, index)
+				.AddParameter("data", DbType.String, Serialize(@event));
+			await command.ExecuteNonQueryAsync();
+			return index + 1;
 		}
 
 		/// <summary>Deletes events.</summary>
@@ -153,44 +148,38 @@ namespace Proto.Persistence.AnySql
 		/// <returns>Completed task when finished.</returns>
 		public async Task DeleteEventsAsync(string actorName, long inclusiveToIndex)
 		{
-			using (var connection = await Connect())
-			{
-				var command = connection
-					.CreateCommand(Dialect.DeleteEvents(_eventsTable))
-					.AddParameter("actor", DbType.String, actorName)
-					.AddParameter("index_end", DbType.Int64, inclusiveToIndex);
-				await command.ExecuteNonQueryAsync();
-			}
+			using var connection = await Connect();
+			var command = connection
+				.CreateCommand(Dialect.DeleteEvents(_eventsTable))
+				.AddParameter("actor", DbType.String, actorName)
+				.AddParameter("index_end", DbType.Int64, inclusiveToIndex);
+			await command.ExecuteNonQueryAsync();
 		}
 
 		/// <summary>Gets the snapshot.</summary>
 		/// <param name="actorName">Name of the actor.</param>
 		/// <returns>Snapshot and its index.</returns>
 		/// <exception cref="InvalidOperationException">More than one snapshot returned</exception>
-		public async Task<(object Snapshot, long Index)> GetSnapshotAsync(string actorName)
+		public async Task<(object? Snapshot, long Index)> GetSnapshotAsync(string actorName)
 		{
-			using (var connection = await Connect())
-			{
-				var command = connection
-					.CreateCommand(Dialect.SelectSnapshot(_snapshotsTable))
-					.AddParameter("actor", DbType.String, actorName);
+			using var connection = await Connect();
+			var command = connection
+				.CreateCommand(Dialect.SelectSnapshot(_snapshotsTable))
+				.AddParameter("actor", DbType.String, actorName);
 
-				using (var reader = await command.ExecuteReaderAsync())
-				{
-					var indexField = reader.IndexOf("index");
-					var blobField = reader.IndexOf("data");
+			using var reader = await command.ExecuteReaderAsync();
+			var indexField = reader.IndexOf("index");
+			var blobField = reader.IndexOf("data");
 
-					if (!await reader.ReadAsync())
-						return (null, -1L);
+			if (!await reader.ReadAsync())
+				return (null, -1L);
 
-					var index = reader.GetInt64(indexField);
-					var blob = reader.GetString(blobField);
-					if (await reader.ReadAsync())
-						throw new InvalidOperationException("More than one snapshot returned");
+			var index = reader.GetInt64(indexField);
+			var blob = reader.GetString(blobField);
+			if (await reader.ReadAsync())
+				throw new InvalidOperationException("More than one snapshot returned");
 
-					return (Deserialize(blob), index);
-				}
-			}
+			return (Deserialize(blob), index);
 		}
 
 		/// <summary>Persists snapshot.</summary>
@@ -200,15 +189,13 @@ namespace Proto.Persistence.AnySql
 		/// <returns>Completed task when finished.</returns>
 		public async Task PersistSnapshotAsync(string actorName, long index, object snapshot)
 		{
-			using (var connection = await Connect())
-			{
-				var command = connection
-					.CreateCommand(Dialect.InsertSnapshot(_snapshotsTable))
-					.AddParameter("actor", DbType.String, actorName)
-					.AddParameter("index", DbType.Int64, index)
-					.AddParameter("data", DbType.String, Serialize(snapshot));
-				await command.ExecuteNonQueryAsync();
-			}
+			using var connection = await Connect();
+			var command = connection
+				.CreateCommand(Dialect.InsertSnapshot(_snapshotsTable))
+				.AddParameter("actor", DbType.String, actorName)
+				.AddParameter("index", DbType.Int64, index)
+				.AddParameter("data", DbType.String, Serialize(snapshot));
+			await command.ExecuteNonQueryAsync();
 		}
 
 		/// <summary>Deletes the snapshots.</summary>
@@ -217,14 +204,12 @@ namespace Proto.Persistence.AnySql
 		/// <returns>Completed task when finished.</returns>
 		public async Task DeleteSnapshotsAsync(string actorName, long inclusiveToIndex)
 		{
-			using (var connection = await Connect())
-			{
-				var command = connection
-					.CreateCommand(Dialect.DeleteSnapshots(_snapshotsTable))
-					.AddParameter("actor", DbType.String, actorName)
-					.AddParameter("index_end", DbType.Int64, inclusiveToIndex);
-				await command.ExecuteNonQueryAsync();
-			}
+			using var connection = await Connect();
+			var command = connection
+				.CreateCommand(Dialect.DeleteSnapshots(_snapshotsTable))
+				.AddParameter("actor", DbType.String, actorName)
+				.AddParameter("index_end", DbType.Int64, inclusiveToIndex);
+			await command.ExecuteNonQueryAsync();
 		}
 	}
 }

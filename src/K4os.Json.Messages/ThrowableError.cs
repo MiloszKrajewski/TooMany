@@ -12,7 +12,7 @@ namespace K4os.Json.Messages
 
 	public static class Extensions
 	{
-		public static ThrowableError Throwable(this IError error) =>
+		public static ThrowableError? Throwable(this IError? error) =>
 			error is null ? null : new ThrowableError(error);
 	}
 }

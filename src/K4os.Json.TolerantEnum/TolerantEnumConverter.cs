@@ -18,8 +18,8 @@ namespace K4os.Json.TolerantEnum
 
 		public override bool CanConvert(Type objectType) => InnerType(objectType).IsEnum;
 
-		public override object ReadJson(
-			JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+		public override object? ReadJson(
+			JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
 		{
 			var token = reader.TokenType;
 			var enumType = InnerType(objectType);
@@ -35,13 +35,13 @@ namespace K4os.Json.TolerantEnum
 
 		private static long? ReadJson(JsonToken token, JsonReader reader, EnumMapper map) =>
 			token switch {
-				JsonToken.String => map.GetValue(reader.Value?.ToString()),
+				JsonToken.String => map.GetValue(reader.Value!.ToString()),
 				JsonToken.Integer => map.ValidateValue(Convert.ToInt64(reader.Value)),
 				JsonToken.Null => null,
 				_ => throw NotSupportedToken(token)
 			};
 
-		public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
 		{
 			if (value is null)
 			{

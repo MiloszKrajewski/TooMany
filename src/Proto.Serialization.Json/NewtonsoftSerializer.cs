@@ -17,7 +17,7 @@ namespace Proto.Serialization.Json
 
 		/// <summary>Initializes a new instance of the <see cref="NewtonsoftSerializer"/> class.</summary>
 		/// <param name="settings">The serialization settings.</param>
-		public NewtonsoftSerializer(JsonSerializerSettings settings = null)
+		public NewtonsoftSerializer(JsonSerializerSettings? settings = null)
 		{
 			_settings = settings ?? new JsonSerializerSettings {
 				TypeNameHandling = TypeNameHandling.Auto,
@@ -36,7 +36,7 @@ namespace Proto.Serialization.Json
 		/// <param name="typeName">Name of the type (ignored).</param>
 		/// <returns>Deserialized object.</returns>
 		public object Deserialize(ByteString bytes, string typeName) =>
-			JsonConvert.DeserializeObject(bytes.ToStringUtf8(), _settings);
+			JsonConvert.DeserializeObject(bytes.ToStringUtf8(), _settings)!;
 
 		/// <summary>Gets the name of the type.</summary>
 		/// <param name="message">The message.</param>

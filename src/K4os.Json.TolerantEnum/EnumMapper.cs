@@ -53,13 +53,13 @@ namespace K4os.Json.TolerantEnum
 				map[key] = value;
 		}
 
-		public string GetName(long value) =>
+		public string? GetName(long value) =>
 			_enumToString.TryGetValue(value, out var name) ? name : null;
 
 		public long? GetValue(string name) =>
 			_stringToEnum.TryGetValue(name, out var value) ? value : default(long?);
 
-		public object CastToEnum(long? value) =>
+		public object? CastToEnum(long? value) =>
 			value.HasValue ? _longToEnum(value.Value) : null;
 
 		public long? ValidateValue(long value) =>
