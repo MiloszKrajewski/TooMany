@@ -81,9 +81,3 @@ export default defineComponent({
 	},
 });
 </script>
-
-<style scoped>
-pre {
-	width: 100%;
-}
-</style>

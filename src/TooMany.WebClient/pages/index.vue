@@ -1,12 +1,17 @@
 <template>
 	<div class="root">
+		<ThemeToggle />
 		<div v-for="task in tasks" :key="task.name">
 			<h5>{{ task.name }}</h5>
 			<h5>{{ task.arguments }}</h5>
 			<h5>{{ task.directory }}</h5>
 			<h5>{{ task.expected_state }}</h5>
 			<h5>{{ task.actual_state }}</h5>
-			<Task :task="task.name" :status="task.actual_state" @delete="onDelete" />
+			<Terminal
+				:task="task.name"
+				:status="task.actual_state"
+				@delete="onDelete"
+			/>
 		</div>
 	</div>
 </template>
@@ -15,6 +20,9 @@
 import { defineComponent, useFetch, ref } from '@nuxtjs/composition-api';
 import { useRealtime, useApi } from '~/hooks';
 import { Ref, Task, Realtime } from '~/@types';
+
+import ThemeToggle from '~/components/theme/Toggle';
+import Terminal from '~/components/Terminal';
 
 function useTaskMeta(id: Realtime.ChannelId) {
 	const InitialMeta: Ref<Task.Meta> = ref([]);
@@ -30,6 +38,7 @@ function useTaskMeta(id: Realtime.ChannelId) {
 }
 
 export default defineComponent({
+	components: { ThemeToggle, Terminal },
 	setup() {
 		const tasks = useTaskMeta(null);
 
