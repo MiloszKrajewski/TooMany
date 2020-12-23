@@ -1,4 +1,4 @@
-import { ref } from '@nuxtjs/composition-api';
+import { ref, computed } from '@nuxtjs/composition-api';
 import { Ref } from '~/@types';
 
 export enum FirstPartyThemes {
@@ -9,10 +9,14 @@ export enum FirstPartyThemes {
 
 export type Themes = FirstPartyThemes | string;
 
-interface SupportedCssProperties {
-	'text-color': string;
-	'background-color': string;
-	'dark-background-color'?: string;
+export enum SupportedCssPropertyKeys {
+	'text-color' = 'text-color',
+	'background-color' = 'background-color',
+}
+
+export enum SupportedCssPropertyTypes {
+	'text-color' = 'color',
+	'background-color' = 'color',
 }
 
 enum localStorageKeys {
@@ -22,55 +26,69 @@ enum localStorageKeys {
 
 type TTheme = Themes | string;
 type TSelection = Ref<TTheme>;
-type TAll = Ref<Record<string, SupportedCssProperties>>;
+type TAllCustom = Ref<Record<Themes, SupportedCssPropertyKeys>>;
 type TInlineProps = Ref<string>;
-
-function transformProperties(selection: TSelection, all: TAll): string {
-	let output = '';
-	if (!all.value || !selection.value) return output;
-	const selectedTheme = all.value[selection.value];
-	if (!selectedTheme) return output;
-	for (const [property, value] of Object.entries(selectedTheme)) {
-		if (!property || !value) continue;
-		output += `--${property}: ${value}; `;
-	}
-	return output;
-}
-
-function getAll() {
-	const themes = localStorage.getItem(localStorageKeys.customThemes);
-	if (!themes) return null;
-	return JSON.parse(themes);
-}
 
 export default function useTheme() {
 	const selection: TSelection = ref(
 		localStorage.getItem('selectedTheme') || FirstPartyThemes.system,
 	);
 
-	const all: TAll = ref(getAll());
-	const inlineProperties: TInlineProps = ref(
-		transformProperties(selection, all),
+	const allCustom: TAllCustom = ref(
+		(() => {
+			const themes = localStorage.getItem(localStorageKeys.customThemes);
+			if (!themes) return {};
+			return JSON.parse(themes);
+		})(),
 	);
+
+	const selectedProperties = computed((): string => {
+		return allCustom.value[selection.value];
+	});
+
+	const isFirstPartySelection = computed((): boolean => {
+		return selection.value in FirstPartyThemes;
+	});
+
+	const inlineProperties = computed((): string => {
+		let output = '';
+		if (!selectedProperties.value) return output;
+		for (const [property, value] of Object.entries(selectedProperties.value)) {
+			if (!property || !value) continue;
+			output += `--${property}: ${value}; `;
+		}
+		return output;
+	});
 
 	function onSelect(theme: TTheme = FirstPartyThemes.system) {
 		selection.value = theme;
 		localStorage.setItem('selectedTheme', theme);
-		inlineProperties.value = transformProperties(selection, all);
 	}
 
-	function onSave(payload: SupportedCssProperties): void {
+	function onSave(payload: SupportedCssPropertyKeys): void {
+		allCustom.value[selection.value] = payload;
+
 		localStorage.setItem(
 			localStorageKeys.customThemes,
-			JSON.stringify({ [selection.value]: payload }),
+			JSON.stringify(allCustom.value),
 		);
 	}
 
+	const all = computed(() => {
+		let custom: string[] = [];
+		if (allCustom.value) {
+			custom = Object.keys(allCustom.value);
+		}
+		return [...Object.keys(FirstPartyThemes), ...custom];
+	});
+
 	return {
-		all: [...Object.keys(FirstPartyThemes), ...Object.keys(all.value || {})],
+		all,
+		selectedProperties,
 		inlineProperties,
 		onSave,
 		onSelect,
 		selection,
+		isFirstPartySelection,
 	};
 }

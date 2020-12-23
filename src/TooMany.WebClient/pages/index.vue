@@ -1,6 +1,6 @@
 <template>
 	<div class="root">
-		<ThemeToggle />
+		<Theme />
 		<div v-for="task in tasks" :key="task.name">
 			<h5>{{ task.name }}</h5>
 			<h5>{{ task.arguments }}</h5>
@@ -21,8 +21,8 @@ import { defineComponent, useFetch, ref } from '@nuxtjs/composition-api';
 import { useRealtime, useApi } from '~/hooks';
 import { Ref, Task, Realtime } from '~/@types';
 
-import ThemeToggle from '~/components/theme/Toggle';
-import Terminal from '~/components/Terminal';
+import Theme from '~/components/theme/Theme.vue';
+import Terminal from '~/components/Terminal.vue';
 
 function useTaskMeta(id: Realtime.ChannelId) {
 	const InitialMeta: Ref<Task.Meta> = ref([]);
@@ -38,7 +38,7 @@ function useTaskMeta(id: Realtime.ChannelId) {
 }
 
 export default defineComponent({
-	components: { ThemeToggle, Terminal },
+	components: { Theme, Terminal },
 	setup() {
 		const tasks = useTaskMeta(null);
 

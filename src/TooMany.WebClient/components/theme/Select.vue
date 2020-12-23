@@ -1,9 +1,9 @@
 <template>
 	<div>
-		<label v-for="Theme in avalibleThemes" :key="Theme" :for="Theme">
+		<label v-for="Theme in themes" :key="Theme" :for="Theme">
 			<input
 				:id="Theme"
-				v-model="selection"
+				v-model="value"
 				type="radio"
 				name="theme"
 				:value="Theme"
@@ -20,17 +20,29 @@ import {
 	watch,
 	onMounted,
 } from '@nuxtjs/composition-api';
-import useTheme, { FirstPartyThemes } from '~/hooks/useTheme';
 
 export default defineComponent({
-	setup() {
+	props: {
+		inlineProperties: {
+			type: String,
+			default: '',
+		},
+		themes: {
+			type: Array,
+			default: () => [],
+		},
+		value: {
+			type: String,
+			required: true,
+		},
+	},
+	setup(props, { emit }) {
 		const { bodyAttrs } = useMeta();
-		const Themes = useTheme();
 
 		watch(
 			() => ({
-				theme: Themes.selection.value,
-				properties: Themes.inlineProperties.value,
+				theme: props.value,
+				properties: props.inlineProperties,
 			}),
 			({ theme, properties }: { theme: string; properties: string }) => {
 				bodyAttrs.value = {
@@ -41,20 +53,17 @@ export default defineComponent({
 		);
 		onMounted(() => {
 			bodyAttrs.value = {
-				'data-theme': Themes.selection.value,
-				style: Themes.inlineProperties.value,
+				'data-theme': props.value,
+				style: props.inlineProperties,
 			};
 		});
 
 		function handleToggle(event: { target: { value: string } }) {
-			Themes.onSelect(event.target.value);
+			emit('onChange', event.target.value);
 		}
 
 		return {
-			FirstPartyThemes,
 			handleToggle,
-			avalibleThemes: Themes.all,
-			selection: Themes.selection,
 		};
 	},
 	head: {},
