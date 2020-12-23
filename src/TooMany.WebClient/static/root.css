@@ -17,33 +17,39 @@ html {
 	margin: 0;
 }
 
-body,
-body[data-theme='light'] {
-	--text-color: black;
-	--background-color: white;
-}
-
-@media (prefers-color-scheme: light) {
-	body[data-theme='system'] {
+body {
+	&[data-theme='light'] {
 		--text-color: black;
 		--background-color: white;
 	}
-}
 
-body[data-theme='dark'] {
-	--text-color: white;
-	--background-color: black;
-}
+	@media (prefers-color-scheme: light) {
+		&[data-theme='system'] {
+			--text-color: black;
+			--background-color: white;
+		}
+	}
 
-@media (prefers-color-scheme: dark) {
-	body[data-theme='system'] {
+	&[data-theme='dark'] {
 		--text-color: white;
 		--background-color: black;
 	}
-}
 
-body {
+	@media (prefers-color-scheme: dark) {
+		&[data-theme='system'] {
+			--text-color: white;
+			--background-color: black;
+		}
+	}
+
 	transition: color 300ms, background-color 300ms;
 	color: var(--text-color);
 	background-color: var(--background-color);
+
+	#__nuxt {
+		transition: background-color 300ms;
+		min-height: 100vh;
+		min-width: 100vw;
+		background-color: var(--background-color);
+	}
 }

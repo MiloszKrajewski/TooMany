@@ -1,16 +1,9 @@
 <template>
-	<div>
-		<label v-for="Theme in themes" :key="Theme" :for="Theme">
-			<input
-				:id="Theme"
-				v-model="value"
-				type="radio"
-				name="theme"
-				:value="Theme"
-				@click="handleToggle"
-			/>{{ Theme }}
-		</label>
-	</div>
+	<select v-model="value" @change="onChange">
+		<option v-for="Theme in themes" :id="Theme" :key="Theme">
+			{{ Theme }}
+		</option>
+	</select>
 </template>
 
 <script lang="ts">
@@ -58,13 +51,11 @@ export default defineComponent({
 			};
 		});
 
-		function handleToggle(event: { target: { value: string } }) {
+		function onChange(event: { target: { value: string } }) {
 			emit('onChange', event.target.value);
 		}
 
-		return {
-			handleToggle,
-		};
+		return { onChange };
 	},
 	head: {},
 });
