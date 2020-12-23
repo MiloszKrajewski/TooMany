@@ -15,13 +15,14 @@
     "noEmit": true,
     "baseUrl": ".",
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "~/*": [
         "./*"
       ],
       "@/*": [
         "./*"
-      ]
+      ],
     },
     "types": [
       "./@types",
