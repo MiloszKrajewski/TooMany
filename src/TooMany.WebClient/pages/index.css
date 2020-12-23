@@ -1,5 +1,0 @@
-.root {
-	transition: color 300ms, background-color 300ms;
-	background: var(--background-color);
-	color: var(--text-color);
-}

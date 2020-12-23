@@ -1,6 +1,6 @@
 <template>
 	<div class="root">
-		<Theme />
+		C O N T E N T
 		<div v-for="task in tasks" :key="task.name">
 			<h5>{{ task.name }}</h5>
 			<h5>{{ task.arguments }}</h5>
@@ -17,28 +17,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, useFetch, ref } from '@nuxtjs/composition-api';
-import { useRealtime, useApi } from '~/hooks';
-import { Ref, Task, Realtime } from '~/@types';
+import { defineComponent } from '@nuxtjs/composition-api';
+import { useTaskMeta } from '~/hooks';
 
-import Theme from '~/components/theme/Theme.vue';
+import TaskEditor from '~/components/TaskEditor.vue';
 import Terminal from '~/components/Terminal.vue';
 
-function useTaskMeta(id: Realtime.ChannelId) {
-	const InitialMeta: Ref<Task.Meta> = ref([]);
-	const api = useApi();
-	useFetch(async () => {
-		const result = await api.tasks();
-		InitialMeta.value = result;
-	});
-
-	const RealtimeMeta = useRealtime.TaskMeta(id, InitialMeta);
-
-	return RealtimeMeta;
-}
-
 export default defineComponent({
-	components: { Theme, Terminal },
+	components: { Terminal, TaskEditor },
 	setup() {
 		const tasks = useTaskMeta(null);
 
@@ -51,6 +37,14 @@ export default defineComponent({
 });
 </script>
 
-<style>
-@import './index.css';
+<style lang="postcss" scoped>
+.root {
+	padding: 0.5rem;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	transition: color 300ms, background-color 300ms;
+	background: var(--background-color);
+	color: var(--text-color);
+}
 </style>
