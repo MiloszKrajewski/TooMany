@@ -71,12 +71,16 @@ namespace TooMany.Actors.Worker.Processes
 			}
 		}
 
-		private void Log(bool error, string text) =>
+		private void Log(bool error, string? text)
+		{
+			if (text is null) return;
+
 			_logAction(new LogEntry(error, text));
+		}
 
-		private void OnOutputReceived(string text) => Log(false, text);
+		private void OnOutputReceived(string? text) => Log(false, text);
 
-		private void OnErrorReceived(string text) => Log(true, text);
+		private void OnErrorReceived(string? text) => Log(true, text);
 
 		public async Task<bool> Stop()
 		{

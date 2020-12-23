@@ -362,6 +362,8 @@ NUGET
     Serilog.Sinks.Trace (2.1)
       Serilog (>= 2.0)
       System.Diagnostics.TraceSource (>= 4.0)
+    Spectre.Cli (0.49)
+      Spectre.Console (>= 0.33)
     Spectre.Console (0.35)
       Wcwidth (>= 0.2)
     Sprache (2.3.1)

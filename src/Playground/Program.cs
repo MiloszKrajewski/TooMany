@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Immutable;
-using System.Runtime.Serialization;
+using System.Linq;
 using Newtonsoft.Json;
+using Spectre.Cli;
 
 namespace Playground
 {
@@ -9,18 +9,39 @@ namespace Playground
 	{
 		static void Main(string[] args)
 		{
-			var a = new[] { 1, 2, 3, 4 };
-			var b = a.ToImmutableArray();
+			var testArgs = new[] {
+				"run",
+				"cmd",
+				"-e", "A=7",
+				"-e", "B=10",
+				"--",
+				"cmd", "/c", "set && pause"
+			};
+			var app = new CommandApp();
+			app.Configure(config => config.AddCommand<RunCommand>("run"));
+			app.Run(testArgs);
+		}
+	}
 
-			var c = Serialize(b);
-			
-			Console.WriteLine(c);
+	public class RunCommand: Command<RunCommand.Settings>
+	{
+		public class Settings: CommandSettings
+		{
+			[CommandArgument(0, "<EXECUTABLE>")]
+			public string Executable { get; set; } = null!;
 
-			var d = Deserialize<ImmutableArray<int>>(c);
+			[CommandOption("-e <VAR=VAL>")]
+			public string[] Environment { get; set; } = Array.Empty<string>();
 		}
 
-		static string Serialize(object o) => JsonConvert.SerializeObject(o);
-
-		static T Deserialize<T>(string s) => JsonConvert.DeserializeObject<T>(s);
+		public override int Execute(CommandContext context, Settings settings)
+		{
+			Console.WriteLine(JsonConvert.SerializeObject(settings));
+			Console.WriteLine(JsonConvert.SerializeObject(new {
+				Parsed = context.Remaining.Parsed.ToArray(),
+				Raw = context.Remaining.Raw.ToArray()
+			}));
+			return 0;
+		}
 	}
 }
