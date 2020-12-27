@@ -6,15 +6,10 @@
 		<Select :options="names" :value="name" @onChange="onSelect" />
 		<Form
 			:names="names"
-			:name="task.name"
-			:executable="task.executable"
-			:args="task.arguments"
-			:directory="task.directory"
-			:env-vars="task.environment"
-			:tags="task.tags"
+			:task="task"
+			:is-new-task="isNewTask"
+			@onSave="saveTask"
 			@onDelete="deleteTask"
-			@onCreate="createTask"
-			@onUpdate="updateTask"
 		/>
 	</div>
 </template>
@@ -23,7 +18,7 @@
 import { defineComponent, computed, ref, watch } from '@nuxtjs/composition-api';
 import Select from './../Select.vue';
 import Form from './form/Form.vue';
-import { useTaskMeta } from '~/hooks';
+import { useTaskMeta, useApi } from '~/hooks';
 
 interface Task {
 	name: string;
@@ -45,12 +40,12 @@ function getTask(tasks: Tasks, name: string) {
 	return {
 		...task,
 		name,
-		environment: { ...task.environment, x: 'y', a: 'b' },
 	};
 }
 export default defineComponent({
 	components: { Select, Form },
 	setup() {
+		const api = useApi();
 		const tasks = useTaskMeta(null);
 		const name = ref(newTaskName);
 		const task = ref(getTask(tasks.value, name.value));
@@ -72,16 +67,21 @@ export default defineComponent({
 			name.value = value;
 		}
 
-		function deleteTask(payload) {
-			console.log('deleteTask', payload);
+		function deleteTask(payload: { name: string }) {
+			if (payload.name === newTaskName) return;
+			const taskApi = api.task(payload.name);
+			name.value = newTaskName;
+			taskApi.delete();
 		}
-		function createTask(payload) {
-			console.log('createTask', payload);
+		async function saveTask(payload: Task) {
+			const taskApi = api.task(payload.name);
+			await taskApi.create<Task>(payload);
+			name.value = payload.name;
 		}
-		function updateTask(payload) {
-			console.log('updateTask', payload);
-		}
-		return { name, names, onSelect, task, deleteTask, createTask, updateTask };
+
+		const isNewTask = computed(() => name.value === newTaskName);
+
+		return { name, names, onSelect, task, deleteTask, saveTask, isNewTask };
 	},
 });
 </script>

@@ -7,11 +7,7 @@
 			<h5>{{ task.directory }}</h5>
 			<h5>{{ task.expected_state }}</h5>
 			<h5>{{ task.actual_state }}</h5>
-			<Terminal
-				:task="task.name"
-				:status="task.actual_state"
-				@delete="onDelete"
-			/>
+			<Terminal :task="task.name" :status="task.actual_state" />
 		</div>
 	</div>
 </template>
@@ -27,12 +23,7 @@ export default defineComponent({
 	components: { Terminal, TaskEditor },
 	setup() {
 		const tasks = useTaskMeta(null);
-
-		function onDelete(task: string) {
-			tasks.value = tasks.value.filter((t) => t.name !== task);
-		}
-
-		return { tasks, onDelete };
+		return { tasks };
 	},
 });
 </script>

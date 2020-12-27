@@ -17,7 +17,7 @@
 					Tasks
 				</button>
 			</aside>
-			<aside id="content">
+			<aside v-if="isAnyOpen" id="content">
 				<Theme v-if="isThemesVisible" />
 				<Editor v-if="isTaskEditorVisible" />
 			</aside>
@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '@nuxtjs/composition-api';
+import { defineComponent, computed } from '@nuxtjs/composition-api';
 import { useToggle } from '~/hooks';
 import Theme from '~/components/theme/Theme.vue';
 import Editor from '~/components/task/Task.vue';
@@ -60,11 +60,16 @@ export default defineComponent({
 			}
 		}
 
+		const isAnyOpen = computed(
+			() => isThemesVisible.value || isTaskEditorVisible.value,
+		);
+
 		return {
 			isThemesVisible,
 			onToggleThemes: () => onToggleControl(controls.theme),
 			isTaskEditorVisible,
 			onToggleTaskEditor: () => onToggleControl(controls.taskEditor),
+			isAnyOpen,
 		};
 	},
 });

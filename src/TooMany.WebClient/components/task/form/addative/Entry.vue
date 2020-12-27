@@ -1,9 +1,9 @@
 <template>
-	<fieldset>
+	<div>
 		<slot></slot>
 		<input value="-" type="button" @click="onRemove" />
 		<input value="+" type="button" @click="onAdd" />
-	</fieldset>
+	</div>
 </template>
 
 <script lang="ts">
