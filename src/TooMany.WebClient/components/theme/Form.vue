@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import { defineComponent, computed } from '@nuxtjs/composition-api';
-import { SupportedCssProperty } from '~/plugins/Theme';
+import { SupportedCssProperty } from '~/plugins/Theme.client';
 
 export default defineComponent({
 	props: {

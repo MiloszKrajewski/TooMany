@@ -1,3 +1,4 @@
+import pkg from './package.json';
 const apiUrl = process.env.API_URL || 'http://localhost:31337';
 
 export default {
@@ -24,7 +25,8 @@ export default {
 	// Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
 	plugins: [
 		'~/plugins/SignalR.ts',
-		{ src: '~/plugins/Theme.ts', mode: 'client' },
+		'~/plugins/Theme.client.ts',
+		'~/plugins/Notification.client.ts',
 	],
 
 	// Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
@@ -59,5 +61,33 @@ export default {
 		baseUrl: process.env.BASE_URL || 'http://localhost:3000',
 		realtimeUrl: `${apiUrl}/monitor`,
 		apiV1Url: `${apiUrl}/api/v1`,
+	},
+
+	pwa: {
+		meta: {
+			name: 'TooMany',
+			author: 'TooManyDevs',
+			description: 'TooMany terminals TooMany Problems.',
+			lang: 'en',
+		},
+		manifest: {
+			name: 'TooMany',
+			short_name: '2Many',
+			description: 'TooMany terminals TooMany Problems.',
+			lang: 'en',
+			useWebmanifestExtension: false,
+			display: 'fullscreen',
+		},
+		workbox: {
+			swURL: '/sw.js',
+			swDest: './static/sw.js',
+			publicPath: '/.nuxt',
+			autoRegister: true,
+			cacheOptions: {
+				cacheId: pkg.name,
+				directoryIndex: '/',
+				revision: pkg.version,
+			},
+		},
 	},
 };
