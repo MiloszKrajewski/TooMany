@@ -20,7 +20,7 @@ import Select from './../Select.vue';
 import Form from './form/Form.vue';
 import { useTaskMeta, useApi } from '~/hooks';
 
-interface Task {
+interface ITask {
 	name: string;
 	executable?: string;
 	arguments?: string;
@@ -29,10 +29,10 @@ interface Task {
 	tags?: string[];
 }
 
-type Tasks = Task[];
+type TTasks = ITask[];
 const newTaskName = 'New Task';
 
-function getTask(tasks: Tasks, name: string) {
+function getTask(tasks: TTasks, name: string) {
 	const task = tasks.find((t) => t.name === name);
 	if (!task) {
 		return {};
@@ -73,9 +73,9 @@ export default defineComponent({
 			name.value = newTaskName;
 			taskApi.delete();
 		}
-		async function saveTask(payload: Task) {
+		async function saveTask(payload: ITask) {
 			const taskApi = api.task(payload.name);
-			await taskApi.create<Task>(payload);
+			await taskApi.create<ITask>(payload);
 			name.value = payload.name;
 		}
 
