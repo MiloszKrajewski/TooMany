@@ -63,7 +63,7 @@ class SignalR {
 		fn: Realtime.onMetaFnCallback,
 	): Realtime.onMetaFn {
 		const handler: Realtime.onMetaFn = (task, data) => {
-			if (id === task || id === null) fn(data);
+			if (id === task || id === null) fn(task, data);
 		};
 		SignalR.connection.on(Channel.Task, handler);
 		return handler;

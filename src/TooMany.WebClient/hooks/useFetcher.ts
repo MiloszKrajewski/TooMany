@@ -24,8 +24,17 @@ function fail({
 `;
 }
 
-async function fetcher<T>(url: string, method: string): Promise<T> {
-	const res = await fetch(url, { method });
+enum EHeaders {
+	contentType = 'Content-Type',
+}
+
+async function fetcher<T>(
+	url: string,
+	method: string,
+	headers?: { [EHeaders.contentType]: string },
+	body?: string,
+): Promise<T> {
+	const res = await fetch(url, { method, headers, body });
 	if (res.status < 200 || res.status >= 300) {
 		throw new Error(
 			fail({
@@ -42,10 +51,13 @@ async function fetcher<T>(url: string, method: string): Promise<T> {
 	return result;
 }
 
+const headers = { [EHeaders.contentType]: 'application/json' };
 export default function () {
 	return {
+		postRequest: <T, D>(url: string, payload: D): Promise<T> =>
+			fetcher<T>(url, 'POST', headers, JSON.stringify(payload)),
 		getRequest: <T>(url: string): Promise<T> => fetcher<T>(url, 'GET'),
-		putRequest: <T>(url: string): Promise<T> => fetcher<T>(url, 'PUT'),
+		putRequest: <T>(url: string): Promise<T> => fetcher<T>(url, 'PUT', headers),
 		deleteRequest: <T>(url: string): Promise<T> => fetcher<T>(url, 'DELETE'),
 	};
 }

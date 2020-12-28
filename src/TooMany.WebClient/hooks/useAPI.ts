@@ -9,6 +9,11 @@ export default function () {
 	return {
 		tasks: () => fetcher.getRequest<Task.Meta>(`${env.apiV1Url}/task`),
 		task: (task: string) => ({
+			create: <T>(payload: T) =>
+				fetcher.postRequest<Task.IMeta, T>(
+					`${env.apiV1Url}/task/${task}`,
+					payload,
+				),
 			start: () =>
 				fetcher.putRequest<Task.Log>(`${env.apiV1Url}/task/${task}/start`),
 			restart: () =>

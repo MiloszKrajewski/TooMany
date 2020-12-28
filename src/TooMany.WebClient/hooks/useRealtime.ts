@@ -13,15 +13,17 @@ export namespace useRealtime {
 		const Output: Ref<Task.Meta> = Input || ref([]);
 		const Listener: Ref<Realtime.onMetaFn | null> = ref(null);
 		onMounted(() => {
-			Listener.value = $SignalR.onTaskMeta(id, (data) => {
+			Listener.value = $SignalR.onTaskMeta(id, (task, data) => {
 				if (data === null) {
-					return Output.value;
+					Output.value = Output.value.filter((o) => o.name !== task);
 				} else if (Output.value.length <= 0) {
 					Output.value = [data];
+				} else if (!Output.value.some((o) => o.name === task)) {
+					Output.value = [...Output.value, data];
 				} else {
 					Output.value = Output.value
 						.map((o) => {
-							if (o.name !== data.name) return o;
+							if (o.name !== task) return o;
 							return data;
 						})
 						.filter(Boolean);

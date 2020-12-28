@@ -36,7 +36,7 @@ export namespace Realtime {
 	export type onLogFnCallback = (data: Task.ILog) => void;
 
 	export type onMetaFn = (task: string, data: Task.IMeta) => void;
-	export type onMetaFnCallback = (data: Task.IMeta) => void;
+	export type onMetaFnCallback = (task: string, data: Task.IMeta) => void;
 
 	export type ChannelId = string | null;
 }
