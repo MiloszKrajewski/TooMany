@@ -77,13 +77,11 @@ export default defineComponent({
 
 <style lang="postcss" scoped>
 main {
-	width: 100vw;
 	display: flex;
 	nav {
 		background-color: var(--background-color);
 		min-height: 100vh;
 		max-width: 100%;
-		z-index: 0;
 		display: flex;
 		aside {
 			&#controls {
@@ -111,9 +109,10 @@ main {
 		}
 	}
 	section {
-		z-index: 1;
-		min-height: 100vh;
 		flex: 1;
+		height: 100vh;
+		width: 100vw;
+		overflow-y: scroll;
 	}
 }
 </style>

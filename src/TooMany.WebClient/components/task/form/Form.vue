@@ -25,23 +25,26 @@
 					<input v-model="directory" name="directory" type="text" />
 				</dd>
 			</label>
-			<Wrapper :is-add-visible="envVars.length <= 0" @onAdd="addEnvVar">
+			<Wrapper
+				:is-add-visible="environmentVariables.length <= 0"
+				@onAdd="addEnvironmentVariable"
+			>
 				<template slot:title>environment key/value</template>
 				<Entry
-					v-for="(envVar, index) in envVars"
-					:key="envVar.id"
+					v-for="(environmentVariable, index) in environmentVariables"
+					:key="environmentVariable.id"
 					:index="index"
-					@onAdd="addEnvVar"
-					@onRemove="removeEnvVar"
+					@onAdd="addEnvironmentVariable"
+					@onRemove="removeEnvironmentVariable"
 				>
 					<input
-						v-model="envVar.key"
+						v-model="environmentVariable.key"
 						name="key"
 						type="text"
 						placeholder="key"
 					/>
 					<input
-						v-model="envVar.value"
+						v-model="environmentVariable.value"
 						name="value"
 						type="text"
 						placeholder="value"
@@ -94,18 +97,18 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { Entry, Wrapper } from './addative';
 
-type TPropEnvVars = Record<string, string>;
-interface IEnvVar {
+type TPropEnvironmentVariables = Record<string, string>;
+interface IEnvironmentVariables {
 	key: string;
 	value: string;
 	id: string;
 }
-type TEnvVars = IEnvVar[];
-interface IEnvVarValue {
+type TEnvironmentVariables = IEnvironmentVariables[];
+interface IEnvironmentVariablesValue {
 	key: string;
 	value: string;
 }
-type TEnvVarValues = IEnvVarValue[];
+type TEnvironmentVariableValues = IEnvironmentVariablesValue[];
 
 type TPropTags = string[];
 interface ITag {
@@ -118,9 +121,9 @@ type TTagValues = string[];
 interface TTask {
 	name: string;
 	executable: string;
-	args: string;
+	arguments: string;
 	directory: string;
-	envVars: Record<string, string>;
+	environment: Record<string, string>;
 	tags: string[];
 }
 
@@ -151,8 +154,10 @@ function removeEntry<T>({ index, entries }: { index: number; entries: T[] }) {
 	return entries.filter((_, i) => i !== index);
 }
 
-function envVarsFromProps(envVars: TPropEnvVars): TEnvVars {
-	return Object.entries(envVars).map(([key, value]) => ({
+function environmentFromProps(
+	environmentVariables: TPropEnvironmentVariables,
+): TEnvironmentVariables {
+	return Object.entries(environmentVariables).map(([key, value]) => ({
 		key,
 		value,
 		id: uuidv4(),
@@ -167,9 +172,9 @@ function tagsFromProps(tags: TPropTags): TTags {
 function TaskToState({
 	name = '',
 	executable = '',
-	args = '',
+	arguments: args = '',
 	directory = '',
-	envVars = {},
+	environment = {},
 	tags = [],
 }: TTask) {
 	return {
@@ -177,7 +182,7 @@ function TaskToState({
 		executable,
 		args,
 		directory,
-		envVars: envVarsFromProps(envVars),
+		environmentVariables: environmentFromProps(environment),
 		tags: tagsFromProps(tags),
 	};
 }
@@ -208,24 +213,24 @@ export default defineComponent({
 				state.executable = task.executable;
 				state.args = task.args;
 				state.directory = task.directory;
-				state.envVars = task.envVars;
+				state.environmentVariables = task.environmentVariables;
 				state.tags = task.tags;
 			},
 		);
 		const isNameInvaild = computed(() => !state.name.trim().toLowerCase());
 
-		function addEnvVar(index?: number) {
-			state.envVars = addEntry<IEnvVar>({
+		function addEnvironmentVariable(index?: number) {
+			state.environmentVariables = addEntry<IEnvironmentVariables>({
 				index,
 				entry: { key: '', value: '', id: uuidv4() },
-				entries: state.envVars,
+				entries: state.environmentVariables,
 			});
 		}
 
-		function removeEnvVar(index: number) {
-			state.envVars = removeEntry<IEnvVar>({
+		function removeEnvironmentVariable(index: number) {
+			state.environmentVariables = removeEntry<IEnvironmentVariables>({
 				index,
-				entries: state.envVars,
+				entries: state.environmentVariables,
 			});
 		}
 
@@ -250,19 +255,26 @@ export default defineComponent({
 		}
 
 		function onSave() {
-			const vallidEnvVars: TEnvVarValues = state.envVars
-				.map(({ key, value }) => ({ key, value }))
-				.filter(({ key, value }) => Boolean(key) && Boolean(value));
+			const environmentVariables: Record<string, string> = {};
+			for (const { key, value } of state.environmentVariables) {
+				if (Boolean(key) && Boolean(value)) {
+					environmentVariables[key] = value;
+				}
+			}
 
-			const validTags: TTagValues = state.tags
+			const tags: TTagValues = state.tags
 				.map(({ value }) => value)
 				.filter(Boolean);
 
-			emit('onSave', {
-				...state,
-				tags: validTags,
-				EnvVar: vallidEnvVars,
-			});
+			const payload: TTask = {
+				name: state.name,
+				executable: state.executable,
+				arguments: state.args,
+				directory: state.directory,
+				environment: environmentVariables,
+				tags,
+			};
+			emit('onSave', payload);
 		}
 
 		return {
@@ -270,8 +282,8 @@ export default defineComponent({
 			isNameInvaild,
 			onSave,
 			onDelete,
-			addEnvVar,
-			removeEnvVar,
+			addEnvironmentVariable,
+			removeEnvironmentVariable,
 			addTag,
 			removeTag,
 		};
