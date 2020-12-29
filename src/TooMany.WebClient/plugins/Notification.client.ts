@@ -1,6 +1,8 @@
 /* eslint-disable no-new */
 import { Plugin } from '@nuxt/types';
 
+const favicon = '/favicon.ico';
+
 class NotificationManager {
 	private permission: boolean = false;
 
@@ -25,7 +27,8 @@ class NotificationManager {
 		if (!this.permission) return;
 		new Notification(title, {
 			body,
-			icon: '/icons/icon-64',
+			icon: favicon,
+			badge: favicon,
 			requireInteraction,
 		});
 	}
