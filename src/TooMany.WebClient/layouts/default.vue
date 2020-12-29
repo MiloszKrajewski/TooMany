@@ -4,8 +4,8 @@
 			<aside id="controls">
 				<button
 					class="control"
-					:class="{ active: isThemesVisible }"
-					@click="onToggleThemes"
+					:class="{ active: isThemeEditorVisible }"
+					@click="onToggleThemeEditor"
 				>
 					Themes
 				</button>
@@ -16,10 +16,18 @@
 				>
 					Tasks
 				</button>
+				<button
+					class="control"
+					:class="{ active: isConfigEditorVisible }"
+					@click="onToggleConfigEditor"
+				>
+					Config
+				</button>
 			</aside>
 			<aside v-if="isAnyOpen" id="content">
-				<Theme v-if="isThemesVisible" />
-				<Editor v-if="isTaskEditorVisible" />
+				<ThemeEditor v-if="isThemeEditorVisible" />
+				<TaskEditor v-if="isTaskEditorVisible" />
+				<ConfigEditor v-if="isConfigEditorVisible" />
 			</aside>
 		</nav>
 		<section>
@@ -31,44 +39,60 @@
 <script lang="ts">
 import { defineComponent, computed } from '@nuxtjs/composition-api';
 import { useToggle } from '~/hooks';
-import Theme from '~/components/theme/Theme.vue';
-import Editor from '~/components/task/Task.vue';
+import ThemeEditor from '~/components/theme/Theme.vue';
+import TaskEditor from '~/components/task/Task.vue';
+import ConfigEditor from '~/components/config/Config.vue';
 
 enum controls {
-	theme = 'theme',
+	themeEditor = 'themeEditor',
 	taskEditor = 'taskEditor',
+	configEditor = 'configEditor',
 }
 
 export default defineComponent({
-	components: { Theme, Editor },
+	components: { ThemeEditor, TaskEditor, ConfigEditor },
 	setup() {
-		const [isThemesVisible, onToggleThemes] = useToggle(false);
+		const [isThemeEditorVisible, onToggleThemeEditor] = useToggle(false);
 		const [isTaskEditorVisible, onToggleTaskEditor] = useToggle();
+		const [isConfigEditorVisible, onToggleConfigEditor] = useToggle();
 
 		function onToggleControl(target: string) {
 			switch (target) {
-				case controls.theme: {
-					onToggleThemes();
+				case controls.themeEditor: {
+					onToggleThemeEditor();
 					onToggleTaskEditor(false);
+					onToggleConfigEditor(false);
 					break;
 				}
 				case controls.taskEditor: {
-					onToggleThemes(false);
+					onToggleThemeEditor(false);
 					onToggleTaskEditor();
+					onToggleConfigEditor(false);
+					break;
+				}
+				case controls.configEditor: {
+					onToggleThemeEditor(false);
+					onToggleTaskEditor(false);
+					onToggleConfigEditor();
 					break;
 				}
 			}
 		}
 
 		const isAnyOpen = computed(
-			() => isThemesVisible.value || isTaskEditorVisible.value,
+			() =>
+				isThemeEditorVisible.value ||
+				isTaskEditorVisible.value ||
+				isConfigEditorVisible.value,
 		);
 
 		return {
-			isThemesVisible,
-			onToggleThemes: () => onToggleControl(controls.theme),
+			isThemeEditorVisible,
+			onToggleThemeEditor: () => onToggleControl(controls.themeEditor),
 			isTaskEditorVisible,
 			onToggleTaskEditor: () => onToggleControl(controls.taskEditor),
+			isConfigEditorVisible,
+			onToggleConfigEditor: () => onToggleControl(controls.configEditor),
 			isAnyOpen,
 		};
 	},

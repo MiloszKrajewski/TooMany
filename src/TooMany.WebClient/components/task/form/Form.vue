@@ -1,30 +1,26 @@
 <template>
 	<form @submit.prevent>
 		<dl>
-			<label for="name">
-				<dt>name</dt>
-				<dd>
-					<input v-model="name" name="name" type="text" />
-				</dd>
-			</label>
-			<label for="executable">
-				<dt>executable</dt>
-				<dd>
-					<input v-model="executable" name="executable" type="text" />
-				</dd>
-			</label>
-			<label for="arguments">
-				<dt>arguments</dt>
-				<dd>
-					<input v-model="args" name="arguments" type="text" />
-				</dd>
-			</label>
-			<label for="directory">
-				<dt>directory</dt>
-				<dd>
-					<input v-model="directory" name="directory" type="text" />
-				</dd>
-			</label>
+			<dt><label for="name">name</label></dt>
+			<dd>
+				<input id="name" v-model="name" type="text" />
+			</dd>
+
+			<dt><label for="executable">executable</label></dt>
+			<dd>
+				<input id="executable" v-model="executable" type="text" />
+			</dd>
+
+			<dt><label for="arguments">arguments</label></dt>
+			<dd>
+				<input id="arguments" v-model="args" type="text" />
+			</dd>
+
+			<dt><label for="directory">directory</label></dt>
+			<dd>
+				<input id="directory" v-model="directory" type="text" />
+			</dd>
+
 			<Wrapper
 				:is-add-visible="environmentVariables.length <= 0"
 				@onAdd="addEnvironmentVariable"
@@ -39,13 +35,11 @@
 				>
 					<input
 						v-model="environmentVariable.key"
-						name="key"
 						type="text"
 						placeholder="key"
 					/>
 					<input
 						v-model="environmentVariable.value"
-						name="value"
 						type="text"
 						placeholder="value"
 					/>
@@ -60,12 +54,7 @@
 					@onAdd="addTag"
 					@onRemove="removeTag"
 				>
-					<input
-						v-model="tag.value"
-						name="value"
-						type="text"
-						placeholder="tag"
-					/>
+					<input v-model="tag.value" type="text" placeholder="tag" />
 				</Entry>
 			</Wrapper>
 		</dl>
@@ -93,6 +82,7 @@ import {
 	toRefs,
 	reactive,
 	computed,
+	useContext,
 } from '@nuxtjs/composition-api';
 import { v4 as uuidv4 } from 'uuid';
 import { Entry, Wrapper } from './addative';
@@ -204,11 +194,26 @@ export default defineComponent({
 		},
 	},
 	setup(props, { emit }) {
-		const state = reactive(TaskToState(props.task));
+		const { $UserConfig } = useContext();
+		const state = reactive(
+			TaskToState({
+				name: props.task.name,
+				executable: props.task.executable || $UserConfig.task.executable,
+				arguments: props.task.arguments,
+				directory: props.task.directory || $UserConfig.task.directory,
+				environment: props.task.environment,
+				tags: props.task.tags,
+			}),
+		);
 		watch(
 			() => props.task.name,
 			() => {
-				const task = TaskToState(props.task);
+				const incomingTask = props.task;
+				if (props.isNewTask) {
+					incomingTask.executable = $UserConfig.task.executable;
+					incomingTask.directory = $UserConfig.task.directory;
+				}
+				const task = TaskToState(incomingTask);
 				state.name = task.name;
 				state.executable = task.executable;
 				state.args = task.args;
