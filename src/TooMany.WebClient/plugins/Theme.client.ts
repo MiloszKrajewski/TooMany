@@ -6,7 +6,7 @@ import {
 	ComputedRef,
 	watchEffect,
 } from '@nuxtjs/composition-api';
-import { Ref } from '~/@types';
+import { Ref } from '~/types';
 
 enum FirstPartyThemeNames {
 	system = 'system',

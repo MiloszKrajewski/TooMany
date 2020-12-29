@@ -1,5 +1,5 @@
 import { ref } from '@nuxtjs/composition-api';
-import { Ref } from '~/@types';
+import { Ref } from '~/types';
 
 export default function (
 	initialValue = false,

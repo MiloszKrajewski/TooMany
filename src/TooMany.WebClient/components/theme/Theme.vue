@@ -24,7 +24,7 @@ import { defineComponent, useContext } from '@nuxtjs/composition-api';
 import Select from './../Select.vue';
 import Form from './Form.vue';
 import { useToggle } from '~/hooks';
-import { SupportedCssProperty } from '~/plugins/Theme';
+import { SupportedCssProperty } from '~/plugins/Theme.client';
 
 export default defineComponent({
 	components: { Select, Form },
