@@ -1,5 +1,12 @@
-import { ref, computed } from '@nuxtjs/composition-api';
-import { Ref } from '~/@types';
+/* eslint-disable no-console */
+import { Plugin } from '@nuxt/types';
+import {
+	ref,
+	computed,
+	ComputedRef,
+	watchEffect,
+} from '@nuxtjs/composition-api';
+import { Ref } from '~/types';
 
 enum FirstPartyThemeNames {
 	system = 'system',
@@ -13,11 +20,13 @@ export namespace SupportedCssProperty {
 	export enum Keys {
 		'text-color' = 'text-color',
 		'background-color' = 'background-color',
+		'dark-background-color' = 'dark-background-color',
 	}
 
 	export enum Types {
 		'text-color' = 'color',
 		'background-color' = 'color',
+		'dark-background-color' = 'color',
 	}
 }
 
@@ -38,7 +47,22 @@ function saveThemeValues(theme: TAllCustom) {
 	localStorage.setItem(localStorageKeys.customThemes, JSON.stringify(theme));
 }
 
-export default function useTheme() {
+interface ITheme {
+	all: ComputedRef<string[]>;
+	selectedProperties: ComputedRef<string>;
+	inlineProperties: ComputedRef<string>;
+	onDelete(): void;
+	onSave(
+		name: TThemesNames,
+		payload: SupportedCssProperty.Keys,
+		isNew: boolean,
+	): void;
+	onSelect(name: TThemesNames): void;
+	selection: TSelection;
+	isFirstPartySelection: ComputedRef<boolean>;
+}
+
+function useTheme() {
 	const selection: TSelection = ref(
 		localStorage.getItem(localStorageKeys.current) ||
 			FirstPartyThemeNames.system,
@@ -128,3 +152,30 @@ export default function useTheme() {
 		isFirstPartySelection,
 	};
 }
+
+declare module 'vue/types/vue' {
+	interface Vue {
+		$Theme: ITheme;
+	}
+}
+
+declare module '@nuxt/types' {
+	interface NuxtAppOptions {
+		$Theme: ITheme;
+	}
+	interface Context {
+		$Theme: ITheme;
+	}
+}
+
+const $Theme: Plugin = (_, inject) => {
+	const Theme = useTheme();
+
+	watchEffect(() => {
+		document.body.setAttribute('data-theme', Theme.selection.value);
+		document.body.setAttribute('style', Theme.inlineProperties.value);
+	});
+	inject('Theme', Theme);
+};
+
+export default $Theme;

@@ -16,13 +16,13 @@
 					/></dd
 			></label>
 		</dl>
-		<input id="save" type="submit" value="save" />
+		<input id="save" type="submit" value="Update" />
 	</form>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from '@nuxtjs/composition-api';
-import { SupportedCssProperty } from '~/hooks/useTheme';
+import { SupportedCssProperty } from '~/plugins/Theme.client';
 
 export default defineComponent({
 	props: {

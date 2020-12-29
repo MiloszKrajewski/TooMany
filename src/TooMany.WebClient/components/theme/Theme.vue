@@ -1,15 +1,10 @@
 <template>
-	<div>
-		<Select
-			:inline-properties="inlineProperties"
-			:themes="avalibleThemes"
-			:value="selection"
-			@onChange="onSelect"
-		/>
-		<button @click="onAdd">New Theme</button>
-		<button v-if="!isFirstPartySelection && !isAdd" @click="onDelete">
-			Delete Theme
-		</button>
+	<div class="root">
+		<header>
+			<h3>Themes</h3>
+		</header>
+		<Select :options="avalibleThemes" :value="selection" @onChange="onSelect" />
+		<button @click="onAdd">{{ isAdd ? 'Cancel' : 'Create' }}</button>
 		<Form
 			v-if="!isFirstPartySelection && !isAdd"
 			:themes="avalibleThemes"
@@ -17,40 +12,26 @@
 			:name="selection"
 			@onSave="onSave"
 		/>
-		<h1 v-if="isAdd">adding</h1>
 		<Form v-if="isAdd" is-new @onSave="onSave" />
+		<button v-if="!isFirstPartySelection && !isAdd" @click="onDelete">
+			Delete
+		</button>
 	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from '@nuxtjs/composition-api';
-import Select from './Select.vue';
+import { defineComponent, useContext } from '@nuxtjs/composition-api';
+import Select from './../Select.vue';
 import Form from './Form.vue';
-import { useTheme } from '~/hooks';
-import { SupportedCssProperty } from '~/hooks/useTheme';
-import { Ref } from '~/@types';
-
-function useToggle(
-	initialValue = false,
-): [Ref<boolean>, (value: boolean) => void] {
-	const isToggled: Ref<boolean> = ref(initialValue);
-
-	const onToggle = (value: boolean): void => {
-		if (typeof value === 'boolean') {
-			isToggled.value = value;
-		} else {
-			isToggled.value = !isToggled.value;
-		}
-	};
-
-	return [isToggled, onToggle];
-}
+import { useToggle } from '~/hooks';
+import { SupportedCssProperty } from '~/plugins/Theme.client';
 
 export default defineComponent({
 	components: { Select, Form },
 	setup() {
 		const [isAdd, onAdd] = useToggle();
-		const Theme = useTheme();
+		const ctx = useContext();
+		const Theme = ctx.$Theme;
 
 		function onSaveExtended(
 			name: string,
@@ -89,3 +70,9 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="postcss" scoped>
+.root {
+	min-height: 100%;
+}
+</style>
