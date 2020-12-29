@@ -69,7 +69,7 @@ export default {
 	pwa: {
 		meta: {
 			name: 'TooMany',
-			author: 'TooManyDevs',
+			author: 'TooMany Developers',
 			description: 'TooMany terminals TooMany Problems.',
 			lang: 'en',
 		},
