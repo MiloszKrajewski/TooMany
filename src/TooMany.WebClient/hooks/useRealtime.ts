@@ -52,7 +52,7 @@ function useTaskLogErrorNotifications(
 				}
 			}
 
-			const isRemainingMessages = buffer.length >= 0;
+			const isRemainingMessages = buffer.length > 0;
 			const isTooManyMessages = buffer.length >= _config.bufferThreshold;
 			if (hasBeenErroringForLongTime || isTooManyMessages) {
 				$Notification.create({
