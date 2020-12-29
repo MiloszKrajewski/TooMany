@@ -15,7 +15,7 @@ namespace Playground
 				"-e", "A=7",
 				"-e", "B=10",
 				"--",
-				"cmd", "/c", "set && pause"
+				"/c", "set && pause"
 			};
 			var app = new CommandApp();
 			app.Configure(config => config.AddCommand<RunCommand>("run"));

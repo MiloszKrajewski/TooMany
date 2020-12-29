@@ -10,16 +10,16 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <PropertyGroup>
-    <LangVersion>default</LangVersion>
+    <PackageId>$(AssemblyName)</PackageId>
+    <LangVersion>latest</LangVersion>
     <Product>TooMany</Product>
-    <Authors>...</Authors>
-    <Copyright>...</Copyright>
-    <Description>...</Description>
-    <RepositoryUrl>https://.../TooMany</RepositoryUrl>
+    <Authors>Milosz Krajewski</Authors>
+    <Copyright>Milosz Krajewski</Copyright>
+    <Description>Docker inspired console application host for Windows</Description>
+    <RepositoryUrl>https://github.com/MiloszKrajewski/TooMany</RepositoryUrl>
   </PropertyGroup>
   <PropertyGroup>
     <!--
-    <PackageId>TooMany</PackageId>
     <PackageTags>...</PackageTags>
     <PackageLicenseUrl>https://.../LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://.../TooMany</PackageProjectUrl>

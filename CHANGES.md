@@ -1,3 +1,6 @@
+## 0.4.3-beta (2020/12/29)
+* re-release with new updated metadata
+
 ## 0.4.2-beta (2020/12/18)
 * updated serialization settings for SignalR
 
