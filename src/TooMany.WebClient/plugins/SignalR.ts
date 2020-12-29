@@ -6,7 +6,7 @@ import {
 	HubConnectionBuilder,
 	LogLevel,
 } from '@microsoft/signalr';
-import { Realtime } from '~/@types';
+import { Realtime } from '~/types';
 
 export enum Channel {
 	Log = 'Log',

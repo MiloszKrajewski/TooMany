@@ -4,7 +4,7 @@ import {
 	ref,
 	useContext,
 } from '@nuxtjs/composition-api';
-import { Ref, Task, Realtime } from '~/@types';
+import { Ref, Task, Realtime } from '~/types';
 
 function useTaskLogErrorNotifications(
 	id: Realtime.ChannelId,

@@ -1,6 +1,6 @@
 import { useContext } from '@nuxtjs/composition-api';
 import useFetcher from './useFetcher';
-import { Task } from '~/@types';
+import { Task } from '~/types';
 
 export default function () {
 	const { env } = useContext();
