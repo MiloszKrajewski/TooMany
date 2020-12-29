@@ -1,6 +1,8 @@
 import pkg from './package.json';
 const apiUrl = process.env.API_URL || 'http://localhost:31337';
 
+const isInstallable = process.argv.includes('--install');
+const isProd = process.env.NODE_ENV === 'production';
 export default {
 	// Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
 	ssr: false,
@@ -79,6 +81,7 @@ export default {
 			display: 'fullscreen',
 		},
 		workbox: {
+			enabled: isProd || isInstallable,
 			swURL: '/sw.js',
 			swDest: './static/sw.js',
 			publicPath: '/.nuxt',

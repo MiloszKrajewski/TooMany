@@ -1,7 +1,7 @@
 <template>
 	<div class="root">
 		C O N T E N T
-		<div id="content" v-for="task in tasks" :key="task.name">
+		<div v-for="task in tasks" id="content" :key="task.name">
 			<h3>{{ task.name }}</h3>
 			<ul>
 				<li>
