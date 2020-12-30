@@ -4,6 +4,13 @@
 			<aside id="controls">
 				<button
 					class="control"
+					:class="{ active: isTerminalEditorVisible }"
+					@click="onToggleTerminalEditor"
+				>
+					Terminals
+				</button>
+				<button
+					class="control"
 					:class="{ active: isThemeEditorVisible }"
 					@click="onToggleThemeEditor"
 				>
@@ -25,6 +32,7 @@
 				</button>
 			</aside>
 			<aside v-if="isAnyOpen" id="content">
+				<TerminalEditor v-if="isTerminalEditorVisible" />
 				<ThemeEditor v-if="isThemeEditorVisible" />
 				<TaskEditor v-if="isTaskEditorVisible" />
 				<ConfigEditor v-if="isConfigEditorVisible" />
@@ -39,6 +47,7 @@
 <script lang="ts">
 import { defineComponent, computed } from '@nuxtjs/composition-api';
 import { useToggle } from '~/hooks';
+import TerminalEditor from '~/components/terminal/Terminal.vue';
 import ThemeEditor from '~/components/theme/Theme.vue';
 import TaskEditor from '~/components/task/Task.vue';
 import ConfigEditor from '~/components/config/Config.vue';
@@ -47,14 +56,16 @@ enum controls {
 	themeEditor = 'themeEditor',
 	taskEditor = 'taskEditor',
 	configEditor = 'configEditor',
+	terminalEditor = 'terminalEditor',
 }
 
 export default defineComponent({
-	components: { ThemeEditor, TaskEditor, ConfigEditor },
+	components: { TerminalEditor, ThemeEditor, TaskEditor, ConfigEditor },
 	setup() {
-		const [isThemeEditorVisible, onToggleThemeEditor] = useToggle(false);
+		const [isThemeEditorVisible, onToggleThemeEditor] = useToggle();
 		const [isTaskEditorVisible, onToggleTaskEditor] = useToggle();
 		const [isConfigEditorVisible, onToggleConfigEditor] = useToggle();
+		const [isTerminalEditorVisible, onToggleTerminalEditor] = useToggle();
 
 		function onToggleControl(target: string) {
 			switch (target) {
@@ -62,18 +73,28 @@ export default defineComponent({
 					onToggleThemeEditor();
 					onToggleTaskEditor(false);
 					onToggleConfigEditor(false);
+					onToggleTerminalEditor(false);
 					break;
 				}
 				case controls.taskEditor: {
 					onToggleThemeEditor(false);
 					onToggleTaskEditor();
 					onToggleConfigEditor(false);
+					onToggleTerminalEditor(false);
 					break;
 				}
 				case controls.configEditor: {
 					onToggleThemeEditor(false);
 					onToggleTaskEditor(false);
 					onToggleConfigEditor();
+					onToggleTerminalEditor(false);
+					break;
+				}
+				case controls.terminalEditor: {
+					onToggleThemeEditor(false);
+					onToggleTaskEditor(false);
+					onToggleConfigEditor(false);
+					onToggleTerminalEditor();
 					break;
 				}
 			}
@@ -83,7 +104,8 @@ export default defineComponent({
 			() =>
 				isThemeEditorVisible.value ||
 				isTaskEditorVisible.value ||
-				isConfigEditorVisible.value,
+				isConfigEditorVisible.value ||
+				isTerminalEditorVisible.value,
 		);
 
 		return {
@@ -93,6 +115,8 @@ export default defineComponent({
 			onToggleTaskEditor: () => onToggleControl(controls.taskEditor),
 			isConfigEditorVisible,
 			onToggleConfigEditor: () => onToggleControl(controls.configEditor),
+			isTerminalEditorVisible,
+			onToggleTerminalEditor: () => onToggleControl(controls.terminalEditor),
 			isAnyOpen,
 		};
 	},
@@ -127,7 +151,6 @@ main {
 			}
 			&#content {
 				background-color: var(--dark-background-color);
-				min-width: 20rem;
 				padding: 0.5rem 0.75rem;
 			}
 		}
