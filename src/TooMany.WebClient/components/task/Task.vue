@@ -1,7 +1,7 @@
 <template>
-	<div class="root">
+	<Fragment>
 		<header>
-			<h3>Editor</h3>
+			<h3>Task Editor</h3>
 		</header>
 		<Select :options="names" :value="name" @onChange="onSelect" />
 		<Form
@@ -11,7 +11,7 @@
 			@onSave="saveTask"
 			@onDelete="deleteTask"
 		/>
-	</div>
+	</Fragment>
 </template>
 
 <script lang="ts">

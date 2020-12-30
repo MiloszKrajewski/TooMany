@@ -52,7 +52,6 @@ export default defineComponent({
 <style lang="postcss" scoped>
 .root {
 	padding: 0.5rem;
-	transition: color 300ms, background-color 300ms;
 	background: var(--background-color);
 	color: var(--text-color);
 	#content {

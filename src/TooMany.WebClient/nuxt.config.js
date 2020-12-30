@@ -29,6 +29,7 @@ export default {
 		'~/plugins/SignalR.ts',
 		'~/plugins/Theme.client.ts',
 		'~/plugins/Notification.client.ts',
+		'~/plugins/UserConfig.client.ts',
 	],
 
 	// Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
@@ -68,7 +69,7 @@ export default {
 	pwa: {
 		meta: {
 			name: 'TooMany',
-			author: 'TooManyDevs',
+			author: 'TooMany Developers',
 			description: 'TooMany terminals TooMany Problems.',
 			lang: 'en',
 		},

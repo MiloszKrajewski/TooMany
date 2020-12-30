@@ -1,9 +1,9 @@
 <template>
-	<div>
+	<Fragment>
 		<slot></slot>
 		<input value="-" type="button" @click="onRemove" />
 		<input value="+" type="button" @click="onAdd" />
-	</div>
+	</Fragment>
 </template>
 
 <script lang="ts">
