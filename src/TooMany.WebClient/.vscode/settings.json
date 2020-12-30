@@ -1,6 +1,12 @@
 {
   "editor.formatOnSave": true,
   "cSpell.words": [
-    "Installable"
+    "Installable",
+    "Nuxt",
+    "nuxtjs",
+    "signalr",
+    "stylelint",
+    "toomany",
+    "webclient"
   ],
 }
