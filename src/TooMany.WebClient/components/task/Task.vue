@@ -16,10 +16,18 @@
 
 <script lang="ts">
 import { Fragment } from 'vue-fragment';
-import { defineComponent, computed, ref, watch } from '@nuxtjs/composition-api';
-import Select from './../Select.vue';
+import {
+	defineComponent,
+	computed,
+	ref,
+	watch,
+	inject,
+} from '@nuxtjs/composition-api';
 import Form from './form/Form.vue';
-import { useTaskMeta, useApi } from '~/hooks';
+import Select from '~/components/Select.vue';
+import { useApi } from '~/hooks';
+import { Ref, Task } from '~/types';
+import { StateSymbol as TaskMetadataState } from '~/components/TaskMetadataProvider.vue';
 
 interface ITask {
 	name: string;
@@ -31,9 +39,12 @@ interface ITask {
 }
 
 type TTasks = ITask[];
-const newTaskName = 'New Task';
+const newName = 'New Task';
 
-function getTask(tasks: TTasks, name: string) {
+function getTask(name: string, tasks?: TTasks) {
+	if (!tasks) {
+		return {};
+	}
 	const task = tasks.find((t) => t.name === name);
 	if (!task) {
 		return {};
@@ -47,31 +58,34 @@ export default defineComponent({
 	components: { Fragment, Select, Form },
 	setup() {
 		const api = useApi();
-		const tasks = useTaskMeta(null);
-		const name = ref(newTaskName);
-		const task = ref(getTask(tasks.value, name.value));
+		const tasks = inject<Ref<Task.Meta>>(TaskMetadataState);
+		const name = ref(newName);
+		const task = ref(getTask(name.value, tasks?.value));
 
 		watch(
 			// I only want to update the task when the selection changes
 			() => name.value,
 			(name) => {
-				task.value = getTask(tasks.value, name);
+				task.value = getTask(name, tasks?.value);
 			},
 		);
 
-		const names = computed(() => [
-			newTaskName,
-			...tasks.value.map((t) => t.name),
-		]);
+		const names = computed(() => {
+			const taskNames = tasks?.value.map((t) => t.name);
+			if (!taskNames || taskNames.length <= 0) {
+				return [newName];
+			}
+			return [newName, ...taskNames];
+		});
 
 		function onSelect(value: string) {
 			name.value = value;
 		}
 
 		function deleteTask(payload: { name: string }) {
-			if (payload.name === newTaskName) return;
+			if (payload.name === newName) return;
 			const taskApi = api.task(payload.name);
-			name.value = newTaskName;
+			name.value = newName;
 			taskApi.delete();
 		}
 		async function saveTask(payload: ITask) {
@@ -80,7 +94,7 @@ export default defineComponent({
 			name.value = payload.name;
 		}
 
-		const isNewTask = computed(() => name.value === newTaskName);
+		const isNewTask = computed(() => name.value === newName);
 
 		return { name, names, onSelect, task, deleteTask, saveTask, isNewTask };
 	},

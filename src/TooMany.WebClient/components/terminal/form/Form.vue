@@ -1,5 +1,9 @@
 <template>
 	<form @submit.prevent="onSave">
+		<pre>
+			{{ processes }}
+		</pre
+		>
 		<dl>
 			<dt><label for="name">name</label></dt>
 			<dd>
@@ -9,63 +13,137 @@
 		<table>
 			<thead>
 				<tr>
-					<th>Task</th>
-					<th v-for="stream in streamNames" :key="stream">{{ stream }}</th>
+					<th>Process</th>
+					<th>StdOut</th>
+					<th>StdErr</th>
 					<th>Filter</th>
 					<th>Include</th>
 				</tr>
-				<tr v-for="task of tasks" :key="task.name">
-					<td>{{ task.name }}</td>
-					<td v-for="stream of streamNames" :key="stream">
-						<input v-model="task[stream]" type="checkbox" />
-					</td>
-					<td><input v-model="task.filter" type="text" /></td>
-					<td><input v-model="task.include" type="checkbox" /></td>
-				</tr>
 			</thead>
-			<tbody></tbody>
+			<tbody>
+				<tr v-for="pro in processes" :key="pro.name">
+					<td>{{ pro.name }}</td>
+					<td>
+						<input
+							v-model="pro.stdOut"
+							:disabled="!isFormReady"
+							type="checkbox"
+						/>
+					</td>
+					<td>
+						<input
+							v-model="pro.stdErr"
+							:disabled="!isFormReady"
+							type="checkbox"
+						/>
+					</td>
+					<td>
+						<input v-model="pro.filter" :disabled="!isFormReady" type="text" />
+					</td>
+					<td>
+						<input
+							v-model="pro.include"
+							:disabled="!isFormReady"
+							type="checkbox"
+						/>
+					</td>
+				</tr>
+			</tbody>
 		</table>
-		<input id="save" type="submit" value="Save" />
+		<input id="save" :disabled="!isFormReady" type="submit" value="Save" />
 	</form>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from '@nuxtjs/composition-api';
-import { StdSteams } from '~/types';
-import { useTaskMeta } from '~/hooks';
+import {
+	defineComponent,
+	ref,
+	inject,
+	computed,
+} from '@nuxtjs/composition-api';
+import { Terminal } from '../types';
+import { Ref, Task } from '~/types';
+import { StateSymbol as TaskMetadataState } from '~/components/TaskMetadataProvider.vue';
 
 export default defineComponent({
-	setup() {
-		const tasks = useTaskMeta(null);
-		const name = ref('');
-		const streamNames = Object.keys(StdSteams);
-		const streams: Record<string, boolean> = {};
-		for (const s of streamNames) {
-			streams[s] = true;
-		}
+	props: {
+		initialState: {
+			type: Object as () => Terminal.Manifest,
+			default: () => ({}),
+		},
+		isNew: {
+			type: Boolean,
+			default: false,
+		},
+	},
+	setup(props, { emit }) {
+		const tasks = inject<Ref<Task.Meta>>(TaskMetadataState);
 
-		const state = computed(() =>
-			tasks.value.map((t) => ({
-				name: t.name,
-				...streams,
+		const isFormReady = computed(() => typeof tasks?.value !== 'undefined');
+		const defaultProcesses = computed(() => {
+			if (typeof tasks?.value === 'undefined') {
+				return [];
+			}
+			return tasks.value.map((task) => ({
+				name: task.name,
+				stdOut: true,
+				stdErr: true,
 				filter: '',
 				include: false,
-			})),
+			}));
+		});
+
+		const name = ref(props.initialState.name || '');
+		const processes = ref(
+			props.isNew ? defaultProcesses.value : props.initialState.processes,
 		);
 
 		function onSave() {
-			console.log(state.value);
+			emit('onSave', { name: name.value, processes: processes.value });
 		}
 
-		return { name, onSave, streamNames, tasks: state };
+		return { isFormReady, name, onSave, processes };
 	},
 });
 </script>
 
 <style lang="postcss" scoped>
-fieldset {
-	margin: 0;
-	padding: 0;
-	border: none;
+form {
+	max-width: 350px;
+	table {
+		display: grid;
+		border-collapse: collapse;
+		width: fit-content;
+		min-width: 100%;
+		grid-template-columns: repeat(5, minmax(50px, 1fr));
+
+		thead,
+		tbody,
+		tr {
+			display: contents;
+		}
+
+		th,
+		td {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		th {
+			position: sticky;
+			top: 0;
+			text-align: left;
+			font-weight: normal;
+			&:last-child {
+				border: 0;
+			}
+		}
+
+		td {
+			padding-top: 10px;
+			padding-bottom: 10px;
+		}
+	}
 }
 </style>
