@@ -7,18 +7,19 @@
 			<button @click="handleStop">stop</button>
 			<button @click="handleDelete">delete</button>
 		</header>
-		<div class="scrollWrapper">
+		<ScrollToBottom class="output">
 			<ul>
 				<li v-for="log in logs" :key="log.id">
 					{{ log.date }}: {{ log.text }}
 				</li>
 			</ul>
-		</div>
+		</ScrollToBottom>
 	</Fragment>
 </template>
 <script lang="ts">
 import { defineComponent, useFetch } from '@nuxtjs/composition-api';
 import { v4 as uuidv4 } from 'uuid';
+import ScrollToBottom from './ScrollToBottom.vue';
 import { useRealtime, useApi } from '~/hooks';
 
 enum Status {
@@ -28,6 +29,7 @@ enum Status {
 }
 
 export default defineComponent({
+	components: { ScrollToBottom },
 	props: {
 		task: {
 			type: String,
@@ -85,10 +87,7 @@ export default defineComponent({
 </script>
 
 <style lang="postcss" scoped>
-.scrollWrapper {
+.output {
 	height: 500px;
-	overflow: auto;
-	display: flex;
-	flex-direction: column-reverse;
 }
 </style>
