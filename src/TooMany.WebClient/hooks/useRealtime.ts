@@ -14,6 +14,13 @@ function useTaskLogErrorNotifications(
 		cooldown: number;
 	},
 ) {
+	/**
+	 * TODO:
+	 * Add notification click
+	 * focus on the app
+	 * open the erroring terminal
+	 * scroll to first error
+	 */
 	const { $Notification } = useContext();
 
 	const defaultConfig = {
