@@ -15,6 +15,7 @@
 </template>
 
 <script lang="ts">
+import { Fragment } from 'vue-fragment';
 import { defineComponent, computed, ref, watch } from '@nuxtjs/composition-api';
 import Select from './../Select.vue';
 import Form from './form/Form.vue';
@@ -43,7 +44,7 @@ function getTask(tasks: TTasks, name: string) {
 	};
 }
 export default defineComponent({
-	components: { Select, Form },
+	components: { Fragment, Select, Form },
 	setup() {
 		const api = useApi();
 		const tasks = useTaskMeta(null);

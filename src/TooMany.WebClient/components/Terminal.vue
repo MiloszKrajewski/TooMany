@@ -17,6 +17,7 @@
 	</Fragment>
 </template>
 <script lang="ts">
+import { Fragment } from 'vue-fragment';
 import { defineComponent, useFetch } from '@nuxtjs/composition-api';
 import { v4 as uuidv4 } from 'uuid';
 import ScrollToBottom from './ScrollToBottom.vue';
@@ -29,7 +30,7 @@ enum Status {
 }
 
 export default defineComponent({
-	components: { ScrollToBottom },
+	components: { Fragment, ScrollToBottom },
 	props: {
 		task: {
 			type: String,
