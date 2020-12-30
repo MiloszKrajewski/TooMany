@@ -3,15 +3,15 @@
 		<header>
 			<h3>Task</h3>
 		</header>
-		<Form />
+		<TaskForm />
 	</div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api';
-import Form from './task/Form.vue';
+import TaskForm from './task/Form.vue';
 
 export default defineComponent({
-	components: { Form },
+	components: { TaskForm },
 });
 </script>
