@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<Fragment>
 		<header>
 			<button @click="handleStart">start</button>
 			<button @click="handleRestart">restart</button>
@@ -7,12 +7,14 @@
 			<button @click="handleStop">stop</button>
 			<button @click="handleDelete">delete</button>
 		</header>
-		<ul>
-			<li v-for="log in logs" :key="log.id">
-				{{ log.text }}
-			</li>
-		</ul>
-	</div>
+		<div class="scrollWrapper">
+			<ul>
+				<li v-for="log in logs" :key="log.id">
+					{{ log.date }}: {{ log.text }}
+				</li>
+			</ul>
+		</div>
+	</Fragment>
 </template>
 <script lang="ts">
 import { defineComponent, useFetch } from '@nuxtjs/composition-api';
@@ -81,3 +83,12 @@ export default defineComponent({
 	},
 });
 </script>
+
+<style lang="postcss" scoped>
+.scrollWrapper {
+	height: 500px;
+	overflow: auto;
+	display: flex;
+	flex-direction: column-reverse;
+}
+</style>
