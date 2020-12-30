@@ -1,15 +1,15 @@
 <template>
-	<div class="root">
+	<Fragment>
 		<header>
-			<h3>Task</h3>
+			<h3>Tasks</h3>
 		</header>
 		<TaskForm />
-	</div>
+	</Fragment>
 </template>
 
 <script lang="ts">
 import { defineComponent } from '@nuxtjs/composition-api';
-import TaskForm from './task/Form.vue';
+import TaskForm from './form/Form.vue';
 
 export default defineComponent({
 	components: { TaskForm },

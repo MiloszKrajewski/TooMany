@@ -1,5 +1,5 @@
 <template>
-	<div class="root">
+	<Fragment>
 		<header>
 			<h3>Themes</h3>
 		</header>
@@ -16,7 +16,7 @@
 		<button v-if="!isFirstPartySelection && !isAdd" @click="onDelete">
 			Delete
 		</button>
-	</div>
+	</Fragment>
 </template>
 
 <script lang="ts">
@@ -70,9 +70,3 @@ export default defineComponent({
 	},
 });
 </script>
-
-<style lang="postcss" scoped>
-.root {
-	min-height: 100%;
-}
-</style>
