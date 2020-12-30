@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
 using K4os.Json.Messages.Interfaces;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Proto;
 using TooMany.Actors.Catalog;
@@ -13,7 +14,7 @@ using TooMany.WebServer.Messages;
 
 namespace TooMany.WebServer
 {
-	[ApiController, Route("/api/v1"), HttpRemoting]
+	[ApiController, Route("/api/v1"), HttpRemoting, EnableCors]
 	public class HostController: ActorController
 	{
 		public HostController(ActorSystem system): base(system) { }

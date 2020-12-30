@@ -1,3 +1,6 @@
+## 0.4.4-beta (2020/12/29)
+* Added "Open UI" context menu item
+
 ## 0.4.3-beta (2020/12/29)
 * re-release with new updated metadata
 

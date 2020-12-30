@@ -10,7 +10,6 @@ using TooMany.Actors;
 
 namespace TooMany.WebServer
 {
-	[EnableCors]
 	public class ActorController: ControllerBase
 	{
 		protected RootContext Context { get; }
