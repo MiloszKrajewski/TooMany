@@ -7,12 +7,13 @@ export namespace Terminal {
 		include?: boolean;
 	}
 
-	export type DBManifest = Record<string, Task[]>;
+	export type Manifest = Record<string, Task[]>;
+	export type Names = string[];
 
-	export interface Manifest {
-		name: string;
-		tasks: Task[];
-	}
+	export type onCreate = (terminal: Terminal.Manifest) => void;
 
-	export type Manifests = Manifest[];
+	export type onUpdate = (
+		terminal: Terminal.Manifest,
+		initialName: string,
+	) => void;
 }

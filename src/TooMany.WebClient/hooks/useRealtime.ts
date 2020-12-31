@@ -123,10 +123,51 @@ export namespace useRealtime {
 		onMounted(() => {
 			Listener.value = $SignalR.onTaskLog(id, (data) => {
 				errorNotifications(data);
-				Output.value = [...Output.value, data];
+				Output.value = [
+					...Output.value,
+					{ ...data, time: new Date(data.timestamp).getTime() },
+				];
 			});
 		});
 		onUnmounted(() => $SignalR.offTaskLog(Listener.value));
+		return Output;
+	}
+	export function TaskLogs<T>(
+		ids: string[] | null,
+		Input?: Ref<Task.Logs>,
+		filter?: Function,
+		config?: T,
+	) {
+		if (ids === null) {
+			return TaskLog(ids, Input);
+		}
+		const { $SignalR } = useContext();
+
+		const Output: Ref<Task.Logs> = Input || ref([]);
+		const Listener = ref<Record<string, Realtime.onLogFn>>({});
+		onMounted(() => {
+			for (const id of ids) {
+				const errorNotifications = useTaskLogErrorNotifications(id);
+				Listener.value[id] = $SignalR.onTaskLog(id, (data) => {
+					const payload = {
+						...data,
+						task: id,
+						time: new Date(data.timestamp).getTime(),
+					};
+					errorNotifications(payload);
+					if (typeof filter === 'function') {
+						const result = filter(config, id, payload);
+						if (result === false) return;
+					}
+					Output.value = [...Output.value, payload];
+				});
+			}
+		});
+		onUnmounted(() => {
+			for (const id of ids) {
+				$SignalR.offTaskLog(Listener.value[id]);
+			}
+		});
 		return Output;
 	}
 }

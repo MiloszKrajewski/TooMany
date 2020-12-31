@@ -22,19 +22,23 @@
 					<td>
 						<input
 							v-model="task.stdOut"
-							:disabled="!isFormReady"
+							:disabled="!isFormReady || !task.include"
 							type="checkbox"
 						/>
 					</td>
 					<td>
 						<input
 							v-model="task.stdErr"
-							:disabled="!isFormReady"
+							:disabled="!isFormReady || !task.include"
 							type="checkbox"
 						/>
 					</td>
 					<td>
-						<input v-model="task.filter" :disabled="!isFormReady" type="text" />
+						<input
+							v-model="task.filter"
+							:disabled="!isFormReady || !task.include"
+							type="text"
+						/>
 					</td>
 					<td>
 						<input
@@ -48,14 +52,14 @@
 		</table>
 		<input
 			id="update"
-			:disabled="!isFormReady"
+			:disabled="!isFormReady || isFormValid"
 			type="button"
 			value="Update"
 			@click="onUpdate"
 		/>
 		<input
 			id="create"
-			:disabled="!isFormReady"
+			:disabled="!isFormReady || isFormValid"
 			type="button"
 			value="Create"
 			@click="onCreate"
@@ -76,21 +80,28 @@ import { Terminal } from '../types';
 import { Ref, Task } from '~/types';
 import { NamesSymbol as TaskMetadataNames } from '~/components/TaskMetadataProvider.vue';
 
+interface Terminal {
+	name: string;
+	tasks: Terminal.Task[];
+}
+
 function MapTerminalPropToState({
-	initialManifest,
+	name,
+	tasks,
 	taskNames,
 }: {
-	initialManifest: Terminal.Manifest;
+	name: string;
+	tasks: Terminal.Task[];
 	taskNames: string[];
-}): Terminal.Manifest {
-	const initialManifestMap: Record<string, Terminal.Task> = {};
-	for (const task of initialManifest.tasks) {
-		initialManifestMap[task.name] = task;
+}): Terminal {
+	const taskMap: Record<string, Terminal.Task> = {};
+	for (const task of tasks) {
+		taskMap[task.name] = task;
 	}
-	const output = {
-		name: initialManifest.name,
+	return {
+		name,
 		tasks: taskNames.map((name) => {
-			const initialValue = initialManifestMap[name];
+			const initialValue = taskMap[name];
 			if (!initialValue) {
 				return {
 					name,
@@ -109,124 +120,54 @@ function MapTerminalPropToState({
 			};
 		}),
 	};
-	return output;
 }
 
 export default defineComponent({
 	props: {
 		terminal: {
-			type: Object as () => Terminal.Manifest,
+			type: Object as () => Terminal,
 			default: () => ({}),
 		},
 	},
 	setup(props, { emit }) {
-		const taskNames = inject<Ref<string[]>>(TaskMetadataNames);
-		const state = reactive<Terminal.Manifest>(
+		const taskNames = inject<Ref<string[]>>(TaskMetadataNames) || { value: [] };
+		const state = reactive<Terminal>(
 			MapTerminalPropToState({
-				initialManifest: props.terminal,
-				taskNames: taskNames?.value || [],
+				name: props.terminal.name,
+				tasks: props.terminal.tasks,
+				taskNames: taskNames.value,
 			}),
 		);
 		watch(
 			() => props.terminal.name,
 			() => {
 				const terminal = MapTerminalPropToState({
-					initialManifest: props.terminal,
-					taskNames: taskNames?.value || [],
+					name: props.terminal.name,
+					tasks: props.terminal.tasks,
+					taskNames: taskNames.value,
 				});
 				state.name = terminal.name;
 				state.tasks = terminal.tasks;
 			},
 		);
-		watch(
-			() => taskNames?.value || [],
-			(names) => {
-				/**
-				 * For when someone updates on a different window
-				 */
-				const nameMap: Record<string, boolean> = {};
-				for (const name of names) {
-					nameMap[name] = true;
-				}
-				const validTasks = state.tasks.filter((t) => nameMap[t.name]);
-
-				const currentTaskNameMap: Record<string, boolean> = {};
-				for (const task of validTasks) {
-					nameMap[task.name] = true;
-				}
-
-				const newTasks = names
-					.filter((name) => {
-						const hasNameBeenUsed = currentTaskNameMap[name];
-						return !hasNameBeenUsed;
-					})
-					.map((name) => ({
-						name,
-						stdOut: true,
-						stdErr: true,
-						filter: '',
-						include: false,
-					}));
-
-				state.tasks = [...validTasks, ...newTasks];
-			},
-		);
-
-		const isFormReady = computed(() => typeof taskNames?.value !== 'undefined');
-
-		function onSave(type: string) {
-			emit(type, { name: state.name, tasks: state.tasks });
-		}
 
 		function onCreate() {
-			onSave('onCreate');
+			emit('onCreate', { [state.name]: state.tasks });
 		}
 		function onUpdate() {
-			onSave('onUpdate');
+			emit('onUpdate', { [state.name]: state.tasks });
 		}
 
-		return { isFormReady, onCreate, onUpdate, ...toRefs(state) };
+		const isFormReady = computed(() => taskNames.value.length > 0);
+		const isFormValid = computed(() => state.tasks.every((t) => !t.include));
+
+		return {
+			isFormReady,
+			isFormValid,
+			onCreate,
+			onUpdate,
+			...toRefs(state),
+		};
 	},
 });
 </script>
-
-<style lang="postcss" scoped>
-form {
-	max-width: 350px;
-	table {
-		display: grid;
-		border-collapse: collapse;
-		width: fit-content;
-		min-width: 100%;
-		grid-template-columns: repeat(5, minmax(50px, 1fr));
-
-		thead,
-		tbody,
-		tr {
-			display: contents;
-		}
-
-		th,
-		td {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
-		}
-
-		th {
-			position: sticky;
-			top: 0;
-			text-align: left;
-			font-weight: normal;
-			&:last-child {
-				border: 0;
-			}
-		}
-
-		td {
-			padding-top: 10px;
-			padding-bottom: 10px;
-		}
-	}
-}
-</style>

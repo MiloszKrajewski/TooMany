@@ -10,117 +10,73 @@
 
 <script lang="ts">
 import { Fragment } from 'vue-fragment';
-import { defineComponent, computed, ref } from '@nuxtjs/composition-api';
+import {
+	defineComponent,
+	computed,
+	ref,
+	inject,
+} from '@nuxtjs/composition-api';
 import Form from './form/Form.vue';
-import { Terminal } from './types';
+import {
+	StateSymbol as TerminalStateSymbol,
+	NamesSymbol as TerminalNamesSymbol,
+	CreateSymbol as CreateTerminalSymbol,
+	UpdateSymbol as UpdateTerminalSymbol,
+} from './TerminalProvider.vue';
 import Select from '~/components/Select.vue';
-
-enum localStorageKeys {
-	terminals = 'terminals',
-}
+import { Ref } from '~/types';
+import { Terminal } from '~/components/terminal/types';
 
 const newName = 'New';
 
+const noop = () => {};
 export default defineComponent({
 	components: { Fragment, Select, Form },
 	setup(_, { root }) {
-		const serializedTerminals = localStorage.getItem(
-			localStorageKeys.terminals,
-		);
-		let deserializedTerminals: Terminal.DBManifest = {};
-		if (serializedTerminals) {
-			deserializedTerminals = JSON.parse(serializedTerminals);
-		}
-		const terminals = ref(
-			Object.entries(deserializedTerminals).map(([name, tasks]) => ({
-				name,
-				tasks,
-			})),
-		);
+		const terminalNames = inject<Ref<Terminal.Names>>(TerminalNamesSymbol) || {
+			value: [],
+		};
+		const onCreateTerminal =
+			inject<Terminal.onCreate>(CreateTerminalSymbol) || noop;
+		const onUpdateTerminal =
+			inject<Terminal.onUpdate>(UpdateTerminalSymbol) || noop;
 
 		const name = ref<string>(newName);
-		const names = computed<string[]>(() => {
-			const tNames = terminals.value.map((t) => t.name);
-			return [newName, ...tNames];
-		});
+		const names = computed<string[]>(() => [newName, ...terminalNames.value]);
 
-		const terminal = computed<Terminal.Manifest>(() => {
-			const terminal = terminals.value.find((t) => t.name === name.value);
-			if (!terminal)
-				return {
-					name: '',
-					tasks: [],
-				};
-			return terminal;
-		});
+		const terminals = inject<Ref<Terminal.Manifest>>(TerminalStateSymbol) || {
+			value: {},
+		};
+		const tasks = computed<Terminal.Task[]>(
+			() => terminals.value[name.value] || [],
+		);
 
-		function updateLocalStorage(updatedTerminals: Terminal.Manifests) {
-			const dbValue: Terminal.DBManifest = {};
-			for (const terminal of updatedTerminals) {
-				dbValue[terminal.name] = terminal.tasks;
-			}
-
-			localStorage.setItem(localStorageKeys.terminals, JSON.stringify(dbValue));
-		}
-
-		function transformTerminal(value: Terminal.Manifest) {
-			return {
-				name: value.name,
-				tasks: value.tasks
-					.filter((t) => t.include)
-					.map((t) => {
-						const result: Terminal.Task = {
-							name: t.name,
-							stdOut: t.stdOut,
-							stdErr: t.stdErr,
-						};
-						if (t.filter) {
-							result.filter = t.filter;
-						}
-						return result;
-					}),
-			};
-		}
-
-		function onCreate(newTerminal: Terminal.Manifest) {
-			if (terminals.value.some((t) => t.name === newTerminal.name)) {
-				return;
-			}
-			const transformedTerminal = transformTerminal(newTerminal);
-			if (transformedTerminal.tasks.length <= 0) return;
-			const updatedTerminals = [...terminals.value, transformedTerminal];
-			updateLocalStorage(updatedTerminals);
-
-			terminals.value = updatedTerminals;
+		function onCreate(manifest: Terminal.Manifest) {
+			onCreateTerminal(manifest);
 			root.$nextTick(() => {
-				name.value = transformedTerminal.name;
+				const [newName] = Object.keys(manifest);
+				name.value = newName;
 			});
 		}
-		function onUpdate(updatedTerminal: Terminal.Manifest) {
-			if (!terminals.value.some((t) => t.name === updatedTerminal.name)) {
-				onCreate(updatedTerminal);
-				return;
-			}
-			const transformedTerminal = transformTerminal(updatedTerminal);
-			if (transformedTerminal.tasks.length <= 0) return;
-			const updatedTerminals = terminals.value.map((t) => {
-				if (t.name === name.value) return transformedTerminal;
-				return t;
-			});
-			updateLocalStorage(updatedTerminals);
-			terminals.value = updatedTerminals;
-
+		function onUpdate(manifest: Terminal.Manifest) {
+			onUpdateTerminal(manifest, name.value);
 			root.$nextTick(() => {
-				name.value = transformedTerminal.name;
+				const [newName] = Object.keys(manifest);
+				name.value = newName;
 			});
 		}
+
+		const terminal = computed(() => ({
+			name: name.value === newName ? '' : name.value,
+			tasks: tasks.value,
+		}));
 
 		return {
 			name,
 			names,
-			terminal,
 			onCreate,
 			onUpdate,
+			terminal,
 		};
 	},
 });

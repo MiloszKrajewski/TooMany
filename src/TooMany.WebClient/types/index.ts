@@ -26,9 +26,15 @@ export namespace Task {
 		channel: StdSteams;
 		text: string;
 		timestamp: string;
+		time: number;
 	}
 
 	export type Log = ILog[];
+
+	export interface ILogs extends ILog {
+		task: string;
+	}
+	export type Logs = ILogs[];
 }
 
 export namespace Realtime {

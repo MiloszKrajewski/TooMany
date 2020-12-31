@@ -1,7 +1,7 @@
 <template>
 	<Fragment>
-		<div v-for="task in tasks" :key="task.name">
-			<NuxtLink :to="`/task/${task.name}`">{{ task.name }}</NuxtLink>
+		<div v-for="terminal in terminals" :key="terminal">
+			<NuxtLink :to="`/terminal/${terminal}`">{{ terminal }}</NuxtLink>
 		</div>
 	</Fragment>
 </template>
@@ -9,14 +9,16 @@
 <script lang="ts">
 import { Fragment } from 'vue-fragment';
 import { defineComponent, inject } from '@nuxtjs/composition-api';
-import { Ref, Task } from '~/types';
-import { StateSymbol as TaskMetadataState } from '~/components/TaskMetadataProvider.vue';
+
+import { Ref } from '~/types';
+import { Terminal } from '~/components/terminal/types';
+import { NamesSymbol as TerminalNames } from '~/components/Terminal/TerminalProvider.vue';
 
 export default defineComponent({
 	components: { Fragment },
 	setup() {
-		const tasks = inject<Ref<Task.Meta>>(TaskMetadataState) || { value: [] };
-		return { tasks };
+		const terminals = inject<Ref<Terminal.Names>>(TerminalNames);
+		return { terminals };
 	},
 });
 </script>

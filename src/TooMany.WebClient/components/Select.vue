@@ -7,7 +7,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onUpdated } from '@nuxtjs/composition-api';
+import { defineComponent } from '@nuxtjs/composition-api';
 
 export default defineComponent({
 	props: {
@@ -21,9 +21,6 @@ export default defineComponent({
 		},
 	},
 	setup(_, { emit }) {
-		onUpdated(() => {
-			console.log('update');
-		});
 		function onInput(event: { target: { value: string } }) {
 			emit('input', event.target.value);
 		}
