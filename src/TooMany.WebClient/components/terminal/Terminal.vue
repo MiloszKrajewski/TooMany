@@ -63,16 +63,37 @@ export default defineComponent({
 			localStorage.setItem(localStorageKeys.terminals, JSON.stringify(dbValue));
 		}
 
+		function transformTerminal(value: Terminal.Manifest) {
+			return {
+				name: value.name,
+				tasks: value.tasks
+					.filter((t) => t.include)
+					.map((t) => {
+						const result: Terminal.Task = {
+							name: t.name,
+							stdOut: t.stdOut,
+							stdErr: t.stdErr,
+						};
+						if (t.filter) {
+							result.filter = t.filter;
+						}
+						return result;
+					}),
+			};
+		}
+
 		function onCreate(newTerminal: Terminal.Manifest) {
 			if (terminals.value.some((t) => t.name === newTerminal.name)) {
 				return;
 			}
-			const updatedTerminals = [...terminals.value, newTerminal];
+			const transformedTerminal = transformTerminal(newTerminal);
+			if (transformedTerminal.tasks.length <= 0) return;
+			const updatedTerminals = [...terminals.value, transformedTerminal];
 			updateLocalStorage(updatedTerminals);
 
 			terminals.value = updatedTerminals;
 			root.$nextTick(() => {
-				name.value = newTerminal.name;
+				name.value = transformedTerminal.name;
 			});
 		}
 		function onUpdate(updatedTerminal: Terminal.Manifest) {
@@ -80,15 +101,17 @@ export default defineComponent({
 				onCreate(updatedTerminal);
 				return;
 			}
+			const transformedTerminal = transformTerminal(updatedTerminal);
+			if (transformedTerminal.tasks.length <= 0) return;
 			const updatedTerminals = terminals.value.map((t) => {
-				if (t.name === name.value) return updatedTerminal;
+				if (t.name === name.value) return transformedTerminal;
 				return t;
 			});
 			updateLocalStorage(updatedTerminals);
 			terminals.value = updatedTerminals;
 
 			root.$nextTick(() => {
-				name.value = updatedTerminal.name;
+				name.value = transformedTerminal.name;
 			});
 		}
 

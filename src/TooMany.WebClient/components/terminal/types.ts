@@ -4,7 +4,7 @@ export namespace Terminal {
 		stdOut: boolean;
 		stdErr: boolean;
 		filter?: string;
-		include: boolean;
+		include?: boolean;
 	}
 
 	export type DBManifest = Record<string, Task[]>;

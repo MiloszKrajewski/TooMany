@@ -1,9 +1,5 @@
 <template>
 	<form>
-		<pre>
-			{{ tasks }}
-		</pre
-		>
 		<dl>
 			<dt><label for="name">name</label></dt>
 			<dd>
@@ -109,7 +105,7 @@ function MapTerminalPropToState({
 				stdOut: initialValue.stdOut || true,
 				stdErr: initialValue.stdErr || true,
 				filter: initialValue.filter || '',
-				include: initialValue.include || false,
+				include: true,
 			};
 		}),
 	};
