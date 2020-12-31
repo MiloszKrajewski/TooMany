@@ -102,8 +102,8 @@ function MapTerminalPropToState({
 			}
 			return {
 				name,
-				stdOut: initialValue.stdOut || true,
-				stdErr: initialValue.stdErr || true,
+				stdOut: initialValue.stdOut ?? true,
+				stdErr: initialValue.stdErr ?? true,
 				filter: initialValue.filter || '',
 				include: true,
 			};
