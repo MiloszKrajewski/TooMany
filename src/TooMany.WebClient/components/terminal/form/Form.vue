@@ -1,7 +1,7 @@
 <template>
-	<form @submit.prevent="onSave">
+	<form>
 		<pre>
-			{{ processes }}
+			{{ tasks }}
 		</pre
 		>
 		<dl>
@@ -21,28 +21,28 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="pro in processes" :key="pro.name">
-					<td>{{ pro.name }}</td>
+				<tr v-for="task in tasks" :key="task.name">
+					<td>{{ task.name }}</td>
 					<td>
 						<input
-							v-model="pro.stdOut"
+							v-model="task.stdOut"
 							:disabled="!isFormReady"
 							type="checkbox"
 						/>
 					</td>
 					<td>
 						<input
-							v-model="pro.stdErr"
+							v-model="task.stdErr"
 							:disabled="!isFormReady"
 							type="checkbox"
 						/>
 					</td>
 					<td>
-						<input v-model="pro.filter" :disabled="!isFormReady" type="text" />
+						<input v-model="task.filter" :disabled="!isFormReady" type="text" />
 					</td>
 					<td>
 						<input
-							v-model="pro.include"
+							v-model="task.include"
 							:disabled="!isFormReady"
 							type="checkbox"
 						/>
@@ -50,59 +50,146 @@
 				</tr>
 			</tbody>
 		</table>
-		<input id="save" :disabled="!isFormReady" type="submit" value="Save" />
+		<input
+			id="update"
+			:disabled="!isFormReady"
+			type="button"
+			value="Update"
+			@click="onUpdate"
+		/>
+		<input
+			id="create"
+			:disabled="!isFormReady"
+			type="button"
+			value="Create"
+			@click="onCreate"
+		/>
 	</form>
 </template>
 
 <script lang="ts">
 import {
 	defineComponent,
-	ref,
 	inject,
 	computed,
+	reactive,
+	watch,
+	toRefs,
 } from '@nuxtjs/composition-api';
 import { Terminal } from '../types';
 import { Ref, Task } from '~/types';
-import { StateSymbol as TaskMetadataState } from '~/components/TaskMetadataProvider.vue';
+import { NamesSymbol as TaskMetadataNames } from '~/components/TaskMetadataProvider.vue';
+
+function MapTerminalPropToState({
+	initialManifest,
+	taskNames,
+}: {
+	initialManifest: Terminal.Manifest;
+	taskNames: string[];
+}): Terminal.Manifest {
+	const initialManifestMap: Record<string, Terminal.Task> = {};
+	for (const task of initialManifest.tasks) {
+		initialManifestMap[task.name] = task;
+	}
+	const output = {
+		name: initialManifest.name,
+		tasks: taskNames.map((name) => {
+			const initialValue = initialManifestMap[name];
+			if (!initialValue) {
+				return {
+					name,
+					stdOut: true,
+					stdErr: true,
+					filter: '',
+					include: false,
+				};
+			}
+			return {
+				name,
+				stdOut: initialValue.stdOut || true,
+				stdErr: initialValue.stdErr || true,
+				filter: initialValue.filter || '',
+				include: initialValue.include || false,
+			};
+		}),
+	};
+	return output;
+}
 
 export default defineComponent({
 	props: {
-		initialState: {
+		terminal: {
 			type: Object as () => Terminal.Manifest,
 			default: () => ({}),
 		},
-		isNew: {
-			type: Boolean,
-			default: false,
-		},
 	},
 	setup(props, { emit }) {
-		const tasks = inject<Ref<Task.Meta>>(TaskMetadataState);
+		const taskNames = inject<Ref<string[]>>(TaskMetadataNames);
+		const state = reactive<Terminal.Manifest>(
+			MapTerminalPropToState({
+				initialManifest: props.terminal,
+				taskNames: taskNames?.value || [],
+			}),
+		);
+		watch(
+			() => props.terminal.name,
+			() => {
+				const terminal = MapTerminalPropToState({
+					initialManifest: props.terminal,
+					taskNames: taskNames?.value || [],
+				});
+				state.name = terminal.name;
+				state.tasks = terminal.tasks;
+			},
+		);
+		watch(
+			() => taskNames?.value || [],
+			(names) => {
+				/**
+				 * For when someone updates on a different window
+				 */
+				const nameMap: Record<string, boolean> = {};
+				for (const name of names) {
+					nameMap[name] = true;
+				}
+				const validTasks = state.tasks.filter((t) => nameMap[t.name]);
 
-		const isFormReady = computed(() => typeof tasks?.value !== 'undefined');
-		const defaultProcesses = computed(() => {
-			if (typeof tasks?.value === 'undefined') {
-				return [];
-			}
-			return tasks.value.map((task) => ({
-				name: task.name,
-				stdOut: true,
-				stdErr: true,
-				filter: '',
-				include: false,
-			}));
-		});
+				const currentTaskNameMap: Record<string, boolean> = {};
+				for (const task of validTasks) {
+					nameMap[task.name] = true;
+				}
 
-		const name = ref(props.initialState.name || '');
-		const processes = ref(
-			props.isNew ? defaultProcesses.value : props.initialState.processes,
+				const newTasks = names
+					.filter((name) => {
+						const hasNameBeenUsed = currentTaskNameMap[name];
+						return !hasNameBeenUsed;
+					})
+					.map((name) => ({
+						name,
+						stdOut: true,
+						stdErr: true,
+						filter: '',
+						include: false,
+					}));
+
+				state.tasks = [...validTasks, ...newTasks];
+			},
 		);
 
-		function onSave() {
-			emit('onSave', { name: name.value, processes: processes.value });
+		const isFormReady = computed(() => typeof taskNames?.value !== 'undefined');
+
+		function onSave(type: string) {
+			emit(type, { name: state.name, tasks: state.tasks });
 		}
 
-		return { isFormReady, name, onSave, processes };
+		function onCreate() {
+			onSave('onCreate');
+		}
+		function onUpdate() {
+			onSave('onUpdate');
+		}
+
+		return { isFormReady, onCreate, onUpdate, ...toRefs(state) };
 	},
 });
 </script>

@@ -1,15 +1,17 @@
 export namespace Terminal {
-	export interface Process {
+	export interface Task {
 		name: string;
-		stdout: boolean;
-		stderr: boolean;
+		stdOut: boolean;
+		stdErr: boolean;
 		filter?: string;
 		include: boolean;
 	}
 
+	export type DBManifest = Record<string, Task[]>;
+
 	export interface Manifest {
 		name: string;
-		processes: Process[];
+		tasks: Task[];
 	}
 
 	export type Manifests = Manifest[];

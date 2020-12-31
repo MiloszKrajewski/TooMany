@@ -3,7 +3,7 @@
 		<header>
 			<h3>Themes</h3>
 		</header>
-		<Select :options="avalibleThemes" :value="selection" @onChange="onSelect" />
+		<Select v-model="selection" :options="avalibleThemes" @input="onSelect" />
 		<button @click="onAdd">{{ isAdd ? 'Cancel' : 'Create' }}</button>
 		<Form
 			v-if="!isFirstPartySelection && !isAdd"
@@ -22,7 +22,7 @@
 <script lang="ts">
 import { Fragment } from 'vue-fragment';
 import { defineComponent, useContext } from '@nuxtjs/composition-api';
-import Select from './../Select.vue';
+import Select from '~/components/Select.vue';
 import Form from './Form.vue';
 import { useToggle } from '~/hooks';
 import { SupportedCssProperty } from '~/plugins/Theme.client';

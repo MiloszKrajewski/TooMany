@@ -3,19 +3,14 @@
 		<header>
 			<h3>Terminals</h3>
 		</header>
-		<Select :options="names" :value="name" @onChange="onSelect" />
-		<Form :initial-state="selection" :is-new="isNew" @onSave="onSave" />
+		<Select v-model="name" :options="names" />
+		<Form :terminal="terminal" @onCreate="onCreate" @onUpdate="onUpdate" />
 	</Fragment>
 </template>
 
 <script lang="ts">
 import { Fragment } from 'vue-fragment';
-import {
-	defineComponent,
-	computed,
-	ComputedRef,
-	ref,
-} from '@nuxtjs/composition-api';
+import { defineComponent, computed, ref } from '@nuxtjs/composition-api';
 import Form from './form/Form.vue';
 import { Terminal } from './types';
 import Select from '~/components/Select.vue';
@@ -28,38 +23,81 @@ const newName = 'New';
 
 export default defineComponent({
 	components: { Fragment, Select, Form },
-	setup() {
-		const name = ref(newName);
+	setup(_, { root }) {
 		const serializedTerminals = localStorage.getItem(
 			localStorageKeys.terminals,
 		);
-		let terminals: Terminal.Manifests = [];
+		let deserializedTerminals: Terminal.DBManifest = {};
 		if (serializedTerminals) {
-			terminals = JSON.parse(serializedTerminals);
+			deserializedTerminals = JSON.parse(serializedTerminals);
 		}
-		const names = computed(() => [newName, ...terminals.map((t) => t.name)]);
-		const selection: ComputedRef<Terminal.Manifest> = computed(() => {
-			const terminal = terminals.find((t) => t.name === name.value);
+		const terminals = ref(
+			Object.entries(deserializedTerminals).map(([name, tasks]) => ({
+				name,
+				tasks,
+			})),
+		);
+
+		const name = ref<string>(newName);
+		const names = computed<string[]>(() => {
+			const tNames = terminals.value.map((t) => t.name);
+			return [newName, ...tNames];
+		});
+
+		const terminal = computed<Terminal.Manifest>(() => {
+			const terminal = terminals.value.find((t) => t.name === name.value);
 			if (!terminal)
 				return {
 					name: '',
-					processes: [],
+					tasks: [],
 				};
 			return terminal;
 		});
-		function onSelect(value: string) {
-			name.value = value;
+
+		function updateLocalStorage(updatedTerminals: Terminal.Manifests) {
+			const dbValue: Terminal.DBManifest = {};
+			for (const terminal of updatedTerminals) {
+				dbValue[terminal.name] = terminal.tasks;
+			}
+
+			localStorage.setItem(localStorageKeys.terminals, JSON.stringify(dbValue));
 		}
 
-		const isNew = computed(() => name.value === newName);
+		function onCreate(newTerminal: Terminal.Manifest) {
+			if (terminals.value.some((t) => t.name === newTerminal.name)) {
+				return;
+			}
+			const updatedTerminals = [...terminals.value, newTerminal];
+			updateLocalStorage(updatedTerminals);
+
+			terminals.value = updatedTerminals;
+			root.$nextTick(() => {
+				name.value = newTerminal.name;
+			});
+		}
+		function onUpdate(updatedTerminal: Terminal.Manifest) {
+			if (!terminals.value.some((t) => t.name === updatedTerminal.name)) {
+				onCreate(updatedTerminal);
+				return;
+			}
+			const updatedTerminals = terminals.value.map((t) => {
+				if (t.name === name.value) return updatedTerminal;
+				return t;
+			});
+			updateLocalStorage(updatedTerminals);
+			terminals.value = updatedTerminals;
+
+			root.$nextTick(() => {
+				name.value = updatedTerminal.name;
+			});
+		}
 
 		return {
 			name,
 			names,
-			selection,
-			onSelect,
-			onSave: console.log,
-			isNew,
+			terminal,
+			onCreate,
+			onUpdate,
 		};
 	},
 });

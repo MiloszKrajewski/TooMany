@@ -3,7 +3,7 @@
 		<header>
 			<h3>Task Editor</h3>
 		</header>
-		<Select :options="names" :value="name" @onChange="onSelect" />
+		<Select v-model="name" :options="names" />
 		<Form
 			:names="names"
 			:task="task"
@@ -27,7 +27,10 @@ import Form from './form/Form.vue';
 import Select from '~/components/Select.vue';
 import { useApi } from '~/hooks';
 import { Ref, Task } from '~/types';
-import { StateSymbol as TaskMetadataState } from '~/components/TaskMetadataProvider.vue';
+import {
+	StateSymbol as TaskMetadataState,
+	NamesSymbol as TaskMetadataNames,
+} from '~/components/TaskMetadataProvider.vue';
 
 interface ITask {
 	name: string;
@@ -59,8 +62,13 @@ export default defineComponent({
 	setup() {
 		const api = useApi();
 		const tasks = inject<Ref<Task.Meta>>(TaskMetadataState);
+		const taskNames = inject<Ref<string[]>>(TaskMetadataNames);
 		const name = ref(newName);
 		const task = ref(getTask(name.value, tasks?.value));
+		const names = computed(() => {
+			if (!taskNames?.value) return [newName];
+			return [newName, ...taskNames.value];
+		});
 
 		watch(
 			// I only want to update the task when the selection changes
@@ -69,18 +77,6 @@ export default defineComponent({
 				task.value = getTask(name, tasks?.value);
 			},
 		);
-
-		const names = computed(() => {
-			const taskNames = tasks?.value.map((t) => t.name);
-			if (!taskNames || taskNames.length <= 0) {
-				return [newName];
-			}
-			return [newName, ...taskNames];
-		});
-
-		function onSelect(value: string) {
-			name.value = value;
-		}
 
 		function deleteTask(payload: { name: string }) {
 			if (payload.name === newName) return;
@@ -96,7 +92,7 @@ export default defineComponent({
 
 		const isNewTask = computed(() => name.value === newName);
 
-		return { name, names, onSelect, task, deleteTask, saveTask, isNewTask };
+		return { name, names, task, deleteTask, saveTask, isNewTask };
 	},
 });
 </script>

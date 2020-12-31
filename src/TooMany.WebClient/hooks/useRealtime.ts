@@ -91,7 +91,7 @@ export namespace useRealtime {
 		const { $SignalR } = useContext();
 
 		const Output: Ref<Task.Meta> = Input || ref([]);
-		const Listener: Ref<Realtime.onMetaFn | null> = ref(null);
+		const Listener = ref<Realtime.onMetaFn | null>(null);
 		onMounted(() => {
 			Listener.value = $SignalR.onTaskMeta(id, (task, data) => {
 				if (data === null) {
@@ -119,7 +119,7 @@ export namespace useRealtime {
 		const errorNotifications = useTaskLogErrorNotifications(id);
 
 		const Output: Ref<Task.Log> = Input || ref([]);
-		const Listener: Ref<Realtime.onLogFn | null> = ref(null);
+		const Listener = ref<Realtime.onLogFn | null>(null);
 		onMounted(() => {
 			Listener.value = $SignalR.onTaskLog(id, (data) => {
 				errorNotifications(data);
