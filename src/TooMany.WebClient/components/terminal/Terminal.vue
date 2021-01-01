@@ -4,7 +4,13 @@
 			<h3>Terminals</h3>
 		</header>
 		<Select v-model="name" :options="names" />
-		<Form :terminal="terminal" @onCreate="onCreate" @onUpdate="onUpdate" />
+		<Form
+			:terminal="terminal"
+			:names="terminalNames"
+			:is-new="isNew"
+			@onCreate="onCreate"
+			@onUpdate="onUpdate"
+		/>
 	</Fragment>
 </template>
 
@@ -15,6 +21,7 @@ import {
 	computed,
 	ref,
 	inject,
+	useContext,
 } from '@nuxtjs/composition-api';
 import Form from './form/Form.vue';
 import {
@@ -24,8 +31,7 @@ import {
 	UpdateSymbol as UpdateTerminalSymbol,
 } from './TerminalProvider.vue';
 import Select from '~/components/Select.vue';
-import { Ref } from '~/types';
-import { Terminal } from '~/components/terminal/types';
+import { Ref, Terminal } from '~/types';
 
 const newName = 'New';
 
@@ -41,35 +47,46 @@ export default defineComponent({
 		const onUpdateTerminal =
 			inject<Terminal.onUpdate>(UpdateTerminalSymbol) || noop;
 
-		const name = ref<string>(newName);
-		const names = computed<string[]>(() => [newName, ...terminalNames.value]);
-
-		const terminals = inject<Ref<Terminal.Manifest>>(TerminalStateSymbol) || {
+		const terminals = inject<Ref<Terminal.Manifests>>(TerminalStateSymbol) || {
 			value: {},
 		};
-		const tasks = computed<Terminal.Task[]>(
-			() => terminals.value[name.value] || [],
+		const { params, route } = useContext();
+		const name = ref<string>(
+			(() => {
+				if (params.value.id && route.value.name === 'terminal-id') {
+					return terminals.value[params.value.id].name;
+				}
+				return newName;
+			})(),
 		);
+		const names = computed<string[]>(() => [newName, ...terminalNames.value]);
 
+		const terminal = computed(() => {
+			const terminalSet = Object.values(terminals.value);
+			const terminal = terminalSet.find((t) => t.name === name.value);
+			if (!terminal) {
+				return {
+					id: '',
+					name: '',
+					tasks: [],
+				};
+			}
+			return terminal;
+		});
 		function onCreate(manifest: Terminal.Manifest) {
 			onCreateTerminal(manifest);
 			root.$nextTick(() => {
-				const [newName] = Object.keys(manifest);
-				name.value = newName;
+				name.value = manifest.name;
 			});
 		}
 		function onUpdate(manifest: Terminal.Manifest) {
-			onUpdateTerminal(manifest, name.value);
+			onUpdateTerminal(manifest, terminal.value.id);
 			root.$nextTick(() => {
-				const [newName] = Object.keys(manifest);
-				name.value = newName;
+				name.value = manifest.name;
 			});
 		}
 
-		const terminal = computed(() => ({
-			name: name.value === newName ? '' : name.value,
-			tasks: tasks.value,
-		}));
+		const isNew = computed(() => name.value === newName);
 
 		return {
 			name,
@@ -77,6 +94,8 @@ export default defineComponent({
 			onCreate,
 			onUpdate,
 			terminal,
+			isNew,
+			terminalNames,
 		};
 	},
 });

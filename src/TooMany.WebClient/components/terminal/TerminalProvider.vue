@@ -6,10 +6,12 @@ import {
 	ref,
 	computed,
 } from '@nuxtjs/composition-api';
-import { Terminal } from './types';
+import { v4 as uuidv4 } from 'uuid';
+import { Terminal } from '~/types';
 import { useDeserializedLocalStorage } from '~/hooks';
 
 export const StateSymbol = 'All terminals';
+export const IdsSymbol = 'All terminal ids';
 export const NamesSymbol = 'All terminal names';
 export const CreateSymbol = 'Create a terminal, updating state and store';
 export const UpdateSymbol = 'Update a terminal, updating state and store';
@@ -20,13 +22,18 @@ enum localStorageKeys {
 
 export default defineComponent({
 	setup() {
-		const storedState = useDeserializedLocalStorage<Terminal.Manifest>(
+		const storedState = useDeserializedLocalStorage<Terminal.Manifests>(
 			localStorageKeys.terminals,
 		);
-		const state = ref<Terminal.Manifest>(storedState || {});
-		const names = computed<string[]>(() => Object.keys(state.value));
+		const state = ref(storedState || {});
+		const ids = computed(() => Object.keys(state.value));
+		const names = computed(() => {
+			const internalState = Object.values(state.value);
+			if (internalState.length <= 0) return [];
+			return internalState.map((t) => t.name);
+		});
 
-		function storeTerminal(terminals: Terminal.Manifest) {
+		function storeTerminals(terminals: Terminal.Manifests) {
 			localStorage.setItem(
 				localStorageKeys.terminals,
 				JSON.stringify(terminals),
@@ -49,27 +56,26 @@ export default defineComponent({
 				});
 		}
 
-		const onCreate: Terminal.onCreate = function (terminal) {
-			const [[name, tasks]] = Object.entries(terminal);
-			const filterTasks = filterIncluded(tasks);
+		const onCreate: Terminal.onCreate = function (terminal, id = uuidv4()) {
+			const filterTasks = filterIncluded(terminal.tasks);
 			if (filterTasks.length <= 0) return;
-			const updatedManifests = { ...state.value, [name]: filterTasks };
-			storeTerminal(updatedManifests);
+			const updatedManifests = {
+				...state.value,
+				[id]: {
+					id,
+					name: terminal.name,
+					tasks: filterTasks,
+				},
+			};
+			storeTerminals(updatedManifests);
 			state.value = updatedManifests;
-		};
-
-		const onUpdate: Terminal.onUpdate = function (terminal, initialName) {
-			const [name] = Object.keys(terminal);
-			if (name !== initialName && state.value[initialName]) {
-				delete state.value[initialName];
-			}
-			onCreate(terminal);
 		};
 
 		provide(StateSymbol, readonly(state));
 		provide(NamesSymbol, names);
+		provide(IdsSymbol, ids);
 		provide(CreateSymbol, onCreate);
-		provide(UpdateSymbol, onUpdate);
+		provide(UpdateSymbol, onCreate);
 	},
 	render() {
 		return typeof this.$slots.default === 'function'

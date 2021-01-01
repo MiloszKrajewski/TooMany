@@ -7,27 +7,38 @@
 			<div class="subheader">
 				<ul class="breadcrumbs">
 					<li><NuxtLink to="/">Home</NuxtLink></li>
-					<li>{{ name }}</li>
+					<li>{{ terminal.name }}</li>
 				</ul>
 			</div>
 		</header>
 		<ScrollToBottom>
-			<TerminalLogs :name="name" />
+			<TerminalLogs :tasks="terminal.tasks" />
 		</ScrollToBottom>
 	</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, useContext } from '@nuxtjs/composition-api';
+import {
+	defineComponent,
+	computed,
+	inject,
+	useContext,
+} from '@nuxtjs/composition-api';
 import TerminalLogs from '~/components/terminal/Log.vue';
 import ScrollToBottom from '~/components/ScrollToBottom.vue';
+import { Ref, Terminal } from '~/types';
+import { StateSymbol as TerminalState } from '~/components/Terminal/TerminalProvider.vue';
 
 export default defineComponent({
 	components: { TerminalLogs, ScrollToBottom },
 	setup() {
 		const { params } = useContext();
+		const terminals = inject<Ref<Terminal.Manifests>>(TerminalState) || {
+			value: {},
+		};
+		const terminal = computed(() => terminals.value[params.value.id]);
 
-		return { name: params.value.name };
+		return { terminal };
 	},
 });
 </script>

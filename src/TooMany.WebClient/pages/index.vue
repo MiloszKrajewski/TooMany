@@ -1,7 +1,7 @@
 <template>
 	<Fragment>
-		<div v-for="terminal in terminals" :key="terminal">
-			<NuxtLink :to="`/terminal/${terminal}`">{{ terminal }}</NuxtLink>
+		<div v-for="terminal in terminals" :key="terminal.id">
+			<NuxtLink :to="`/terminal/${terminal.id}`">{{ terminal.name }}</NuxtLink>
 		</div>
 	</Fragment>
 </template>
@@ -10,14 +10,13 @@
 import { Fragment } from 'vue-fragment';
 import { defineComponent, inject } from '@nuxtjs/composition-api';
 
-import { Ref } from '~/types';
-import { Terminal } from '~/components/terminal/types';
-import { NamesSymbol as TerminalNames } from '~/components/Terminal/TerminalProvider.vue';
+import { Ref, Terminal } from '~/types';
+import { StateSymbol as TerminalState } from '~/components/Terminal/TerminalProvider.vue';
 
 export default defineComponent({
 	components: { Fragment },
 	setup() {
-		const terminals = inject<Ref<Terminal.Names>>(TerminalNames);
+		const terminals = inject<Ref<Terminal.Manifests>>(TerminalState);
 		return { terminals };
 	},
 });

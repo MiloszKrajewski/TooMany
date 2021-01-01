@@ -52,14 +52,16 @@
 		</table>
 		<input
 			id="update"
-			:disabled="!isFormReady || isFormValid"
+			:disabled="
+				isNew || !isFormReady || isFormValid || (isNameTaken && !isInitialName)
+			"
 			type="button"
 			value="Update"
 			@click="onUpdate"
 		/>
 		<input
 			id="create"
-			:disabled="!isFormReady || isFormValid"
+			:disabled="!isFormReady || isFormValid || isNameTaken"
 			type="button"
 			value="Create"
 			@click="onCreate"
@@ -76,8 +78,7 @@ import {
 	watch,
 	toRefs,
 } from '@nuxtjs/composition-api';
-import { Terminal } from '../types';
-import { Ref, Task } from '~/types';
+import { Ref, Task, Terminal } from '~/types';
 import { NamesSymbol as TaskMetadataNames } from '~/components/TaskMetadataProvider.vue';
 
 interface Terminal {
@@ -128,6 +129,14 @@ export default defineComponent({
 			type: Object as () => Terminal,
 			default: () => ({}),
 		},
+		isNew: {
+			type: Boolean,
+			default: false,
+		},
+		names: {
+			type: Array as () => string[],
+			default: [],
+		},
 	},
 	setup(props, { emit }) {
 		const taskNames = inject<Ref<string[]>>(TaskMetadataNames) || { value: [] };
@@ -152,18 +161,24 @@ export default defineComponent({
 		);
 
 		function onCreate() {
-			emit('onCreate', { [state.name]: state.tasks });
+			emit('onCreate', state);
 		}
 		function onUpdate() {
-			emit('onUpdate', { [state.name]: state.tasks });
+			emit('onUpdate', state);
 		}
 
 		const isFormReady = computed(() => taskNames.value.length > 0);
 		const isFormValid = computed(() => state.tasks.every((t) => !t.include));
+		const isNameTaken = computed(() =>
+			props.names.some((name) => name === state.name),
+		);
+		const isInitialName = computed(() => props.terminal.name === state.name);
 
 		return {
 			isFormReady,
 			isFormValid,
+			isNameTaken,
+			isInitialName,
 			onCreate,
 			onUpdate,
 			...toRefs(state),
