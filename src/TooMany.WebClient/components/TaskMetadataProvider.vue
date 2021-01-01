@@ -7,8 +7,8 @@ import {
 } from '@nuxtjs/composition-api';
 import { useTaskMeta } from '~/hooks';
 
-export const StateSymbol = Symbol('All task metadata');
-export const NamesSymbol = Symbol('All task names');
+export const StateSymbol = 'All task metadata';
+export const NamesSymbol = 'All task names';
 
 export default defineComponent({
 	setup() {
