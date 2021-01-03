@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 
-namespace TooMany.Cli.SpectreCommands
+namespace TooMany.Cli.Commands
 {
 	[Description("Lists tasks matching given patterns")]
 	public class ListTasksCommand: HostCommand<ListTasksCommand.Settings>

@@ -6,6 +6,6 @@ namespace TooMany.Messages
 	public class TagsRequest
 	{
 		[JsonProperty("tags")]
-		public List<string?>? Tags { get; set; }
+		public List<string>? Tags { get; set; }
 	}
 }

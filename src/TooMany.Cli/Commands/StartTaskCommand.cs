@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 
-namespace TooMany.Cli.SpectreCommands
+namespace TooMany.Cli.Commands
 {
 	public class StartTaskCommand: HostCommand<StartTaskCommand.Settings>
 	{

@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
-using TooMany.Cli.SpectreCommands;
+using TooMany.Cli.Commands;
 using TooMany.Cli.Utilities;
 using SystemProcess = System.Diagnostics.Process;
 
@@ -108,21 +108,18 @@ namespace TooMany.Cli
 					config.AddCommand<StartTaskCommand>("start");
 					config.AddCommand<StopTaskCommand>("stop");
 					config.AddCommand<RestartTaskCommand>("restart");
+					config.AddCommand<MonitorCommand>("monitor");
+					config.AddCommand<DefineTaskCommand>("define");
+					config.AddCommand<ApplyTagsCommand>("tag");
+					config.AddCommand<RemoveTaskCommand>("remove");
 				});
 
 			await app.RunAsync(args);
 
-			//
 			// var parsed = parser.ParseArguments<
-			// 	GetLogsCommand,
-			// 	ListTaskCommand,
-			// 	TaskInfoCommand,
 			// 	DefineTaskCommand,
-			// 	StartTaskCommand,
-			// 	StopTaskCommand,
 			// 	RemoveTaskCommand,
 			// 	ApplyTagsCommand,
-			// 	MonitorCommand
 			// >(args);
 
 			// await parsed

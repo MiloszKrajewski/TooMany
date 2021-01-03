@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 
-namespace TooMany.Cli.SpectreCommands
+namespace TooMany.Cli.Commands
 {
 	public class StopTaskCommand: HostCommand<StopTaskCommand.Settings>
 	{
@@ -22,6 +22,7 @@ namespace TooMany.Cli.SpectreCommands
 			var found = tasks.Select(t => t.Name).ToArray();
 			
 			await Task.WhenAll(tasks.Select(t => Host.StopTask(t.Name)));
+			
 			Presentation.TaskInfo(await GetNamedTasks(found));
 
 			return 0;

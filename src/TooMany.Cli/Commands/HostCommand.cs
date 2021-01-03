@@ -9,7 +9,7 @@ using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 using TooMany.Messages;
 
-namespace TooMany.Cli.SpectreCommands
+namespace TooMany.Cli.Commands
 {
 	public abstract class HostCommand<T>: AsyncCommand<T> where T: CommandSettings
 	{

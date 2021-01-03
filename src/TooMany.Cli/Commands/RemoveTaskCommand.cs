@@ -1,19 +1,44 @@
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using CommandLine;
-//
-// namespace TooMany.Cli.Commands
-// {
-// 	[Verb("remove", HelpText = "Removed task")]
-// 	public class RemoveTaskCommand: IManyTasksOptions
-// 	{
-// 		public IEnumerable<string> Names { get; set; } = Array.Empty<string>();
-// 		
-// 		public string? Tags { get; set; } = null;
-// 	
-// 		[Option('f', "force", HelpText = "Confirms removal when using wildcards")]
-// 		public bool Force { get; set; }
-//
-// 	}
-// }
+using System.ComponentModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Spectre.Console.Cli;
+using TooMany.Cli.UserInterface;
+
+namespace TooMany.Cli.Commands
+{
+	[Description("Remove tasks")]
+	public class RemoveTaskCommand: HostCommand<RemoveTaskCommand.Settings>
+	{
+		public class Settings: ManyTasksSettings
+		{
+			[CommandOption("-f|--force")]
+			[Description("Confirms removal when using wildcards")]
+			public bool Force { get; set; }
+		}
+
+		public RemoveTaskCommand(IHostInterface host): base(host) { }
+
+		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+		{
+			ShowUnknownOptions(context);
+			ShowIgnoredArguments(context);
+
+			var names = settings.Names.ToArray();
+			if (names.Any(Wildcard.IsWildcard) && !settings.Force)
+			{
+				Presentation.Error(
+					"When removing tasks using wildcard '--force' switch is required");
+				return 0;
+			}
+
+			var tasks = await GetTasks(settings);
+			if (tasks.Length <= 0) return 0;
+
+			Presentation.TaskInfo(tasks);
+
+			await Task.WhenAll(tasks.Select(t => Host.RemoveTask(t.Name)));
+
+			return 0;
+		}
+	}
+}

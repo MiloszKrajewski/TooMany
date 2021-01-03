@@ -15,8 +15,31 @@ namespace TooMany.Cli.UserInterface
 		}
 
 		public static void Error(string text) => WriteLine(ConsoleColor.Red, text);
-		
+
 		public static void Warn(string text) => WriteLine(ConsoleColor.Yellow, text);
+
+		public static void LogEvent(string task, LogEntryResponse message)
+		{
+			var color = message.Channel switch {
+				LogChannel.StdErr => "red",
+				LogChannel.StdOut => "aqua",
+				_ => "grey"
+			};
+			var time = message.Timestamp.ToLocalTime();
+			var text = message.Text;
+			var id = $"[{task} {time:s}]".EscapeMarkup();
+			AnsiConsole.MarkupLine($"[grey]{id}[/] [{color}]{text.EscapeMarkup()}[/]");
+		}
+
+		public static void LogState(string task, TaskResponse? message)
+		{
+			var time = DateTime.Now;
+			var id = $"[{task} {time:s}]".EscapeMarkup();
+			var state = message is null ? "[fuchsia]Removed[/]" : StateToAnsi(message);
+			var name = task.EscapeMarkup();
+
+			AnsiConsole.MarkupLine($"[grey]{id}[/] [white]{name}[/] [grey]is[/] {state}");
+		}
 
 		public static void TaskInfo(IEnumerable<TaskResponse> tasks)
 		{
@@ -131,7 +154,7 @@ namespace TooMany.Cli.UserInterface
 		{
 			if (task.ExpectedState == task.ActualState)
 				return StateToAnsi(task.ActualState);
-			
+
 			return (task.ExpectedState, task.ActualState) switch {
 				(TaskState.Stopped, TaskState.Started) => "[yellow]Stopping[/]",
 				(TaskState.Started, TaskState.Stopped) => "[yellow]Starting[/]",

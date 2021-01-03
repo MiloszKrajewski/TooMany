@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel;
 using Spectre.Console.Cli;
 
-namespace TooMany.Cli.SpectreCommands
+namespace TooMany.Cli.Commands
 {
 	public class ManyTasksSettings: CommandSettings
 	{
