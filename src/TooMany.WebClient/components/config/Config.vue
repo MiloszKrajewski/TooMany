@@ -8,10 +8,11 @@
 </template>
 
 <script lang="ts">
+import { Fragment } from 'vue-fragment';
 import { defineComponent } from '@nuxtjs/composition-api';
 import TaskForm from './form/Form.vue';
 
 export default defineComponent({
-	components: { TaskForm },
+	components: { Fragment, TaskForm },
 });
 </script>

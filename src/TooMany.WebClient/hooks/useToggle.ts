@@ -4,7 +4,7 @@ import { Ref } from '~/types';
 export default function (
 	initialValue = false,
 ): [Ref<boolean>, (value?: boolean) => void] {
-	const isToggled: Ref<boolean> = ref(initialValue);
+	const isToggled = ref<boolean>(initialValue);
 
 	const onToggle = (value?: boolean): void => {
 		if (typeof value === 'boolean') {

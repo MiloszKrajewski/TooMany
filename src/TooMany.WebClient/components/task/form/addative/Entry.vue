@@ -7,9 +7,11 @@
 </template>
 
 <script lang="ts">
+import { Fragment } from 'vue-fragment';
 import { defineComponent } from '@nuxtjs/composition-api';
 
 export default defineComponent({
+	components: { Fragment },
 	props: {
 		index: {
 			type: Number,

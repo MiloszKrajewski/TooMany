@@ -1,5 +1,5 @@
 <template>
-	<form @submit.prevent="onSave">
+	<form>
 		<dl>
 			<dt><label for="name">name</label></dt>
 			<dd>
@@ -9,63 +9,180 @@
 		<table>
 			<thead>
 				<tr>
-					<th>Task</th>
-					<th v-for="stream in streamNames" :key="stream">{{ stream }}</th>
+					<th>Process</th>
+					<th>StdOut</th>
+					<th>StdErr</th>
 					<th>Filter</th>
 					<th>Include</th>
 				</tr>
-				<tr v-for="task of tasks" :key="task.name">
-					<td>{{ task.name }}</td>
-					<td v-for="stream of streamNames" :key="stream">
-						<input v-model="task[stream]" type="checkbox" />
-					</td>
-					<td><input v-model="task.filter" type="text" /></td>
-					<td><input v-model="task.include" type="checkbox" /></td>
-				</tr>
 			</thead>
-			<tbody></tbody>
+			<tbody>
+				<tr v-for="task in tasks" :key="task.name">
+					<td>{{ task.name }}</td>
+					<td>
+						<input
+							v-model="task.stdOut"
+							:disabled="!isFormReady || !task.include"
+							type="checkbox"
+						/>
+					</td>
+					<td>
+						<input
+							v-model="task.stdErr"
+							:disabled="!isFormReady || !task.include"
+							type="checkbox"
+						/>
+					</td>
+					<td>
+						<input
+							v-model="task.filter"
+							:disabled="!isFormReady || !task.include"
+							type="text"
+						/>
+					</td>
+					<td>
+						<input
+							v-model="task.include"
+							:disabled="!isFormReady"
+							type="checkbox"
+						/>
+					</td>
+				</tr>
+			</tbody>
 		</table>
-		<input id="save" type="submit" value="Save" />
+		<input
+			id="update"
+			:disabled="
+				isNew || !isFormReady || isFormValid || (isNameTaken && !isInitialName)
+			"
+			type="button"
+			value="Update"
+			@click="onUpdate"
+		/>
+		<input
+			id="create"
+			:disabled="!isFormReady || isFormValid || isNameTaken"
+			type="button"
+			value="Create"
+			@click="onCreate"
+		/>
 	</form>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from '@nuxtjs/composition-api';
-import { StdSteams } from '~/types';
-import { useTaskMeta } from '~/hooks';
+import {
+	defineComponent,
+	inject,
+	computed,
+	reactive,
+	watch,
+	toRefs,
+} from '@nuxtjs/composition-api';
+import { Ref, Task, Terminal } from '~/types';
+import { NamesSymbol as TaskMetadataNames } from '~/components/TaskMetadataProvider.vue';
+
+interface Terminal {
+	name: string;
+	tasks: Terminal.Task[];
+}
+
+function MapTerminalPropToState({
+	name,
+	tasks,
+	taskNames,
+}: {
+	name: string;
+	tasks: Terminal.Task[];
+	taskNames: string[];
+}): Terminal {
+	const taskMap: Record<string, Terminal.Task> = {};
+	for (const task of tasks) {
+		taskMap[task.name] = task;
+	}
+	return {
+		name,
+		tasks: taskNames.map((name) => {
+			const initialValue = taskMap[name];
+			if (!initialValue) {
+				return {
+					name,
+					stdOut: true,
+					stdErr: true,
+					filter: '',
+					include: false,
+				};
+			}
+			return {
+				name,
+				stdOut: initialValue.stdOut ?? true,
+				stdErr: initialValue.stdErr ?? true,
+				filter: initialValue.filter || '',
+				include: true,
+			};
+		}),
+	};
+}
 
 export default defineComponent({
-	setup() {
-		const tasks = useTaskMeta(null);
-		const name = ref('');
-		const streamNames = Object.keys(StdSteams);
-		const streams: Record<string, boolean> = {};
-		for (const s of streamNames) {
-			streams[s] = true;
-		}
-
-		const state = computed(() =>
-			tasks.value.map((t) => ({
-				name: t.name,
-				...streams,
-				filter: '',
-				include: false,
-			})),
+	props: {
+		terminal: {
+			type: Object as () => Terminal,
+			default: () => ({}),
+		},
+		isNew: {
+			type: Boolean,
+			default: false,
+		},
+		names: {
+			type: Array as () => string[],
+			default: [],
+		},
+	},
+	setup(props, { emit }) {
+		const taskNames = inject<Ref<string[]>>(TaskMetadataNames) || { value: [] };
+		const state = reactive<Terminal>(
+			MapTerminalPropToState({
+				name: props.terminal.name,
+				tasks: props.terminal.tasks,
+				taskNames: taskNames.value,
+			}),
+		);
+		watch(
+			() => props.terminal.name,
+			() => {
+				const terminal = MapTerminalPropToState({
+					name: props.terminal.name,
+					tasks: props.terminal.tasks,
+					taskNames: taskNames.value,
+				});
+				state.name = terminal.name;
+				state.tasks = terminal.tasks;
+			},
 		);
 
-		function onSave() {
-			console.log(state.value);
+		function onCreate() {
+			emit('onCreate', state);
+		}
+		function onUpdate() {
+			emit('onUpdate', state);
 		}
 
-		return { name, onSave, streamNames, tasks: state };
+		const isFormReady = computed(() => taskNames.value.length > 0);
+		const isFormValid = computed(() => state.tasks.every((t) => !t.include));
+		const isNameTaken = computed(() =>
+			props.names.some((name) => name === state.name),
+		);
+		const isInitialName = computed(() => props.terminal.name === state.name);
+
+		return {
+			isFormReady,
+			isFormValid,
+			isNameTaken,
+			isInitialName,
+			onCreate,
+			onUpdate,
+			...toRefs(state),
+		};
 	},
 });
 </script>
-
-<style lang="postcss" scoped>
-fieldset {
-	margin: 0;
-	padding: 0;
-	border: none;
-}
-</style>

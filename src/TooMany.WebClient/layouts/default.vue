@@ -1,47 +1,51 @@
 <template>
-	<main>
-		<nav>
-			<aside id="controls">
-				<button
-					class="control"
-					:class="{ active: isTerminalEditorVisible }"
-					@click="onToggleTerminalEditor"
-				>
-					Terminals
-				</button>
-				<button
-					class="control"
-					:class="{ active: isThemeEditorVisible }"
-					@click="onToggleThemeEditor"
-				>
-					Themes
-				</button>
-				<button
-					class="control"
-					:class="{ active: isTaskEditorVisible }"
-					@click="onToggleTaskEditor"
-				>
-					Tasks
-				</button>
-				<button
-					class="control"
-					:class="{ active: isConfigEditorVisible }"
-					@click="onToggleConfigEditor"
-				>
-					Config
-				</button>
-			</aside>
-			<aside v-if="isAnyOpen" id="content">
-				<TerminalEditor v-if="isTerminalEditorVisible" />
-				<ThemeEditor v-if="isThemeEditorVisible" />
-				<TaskEditor v-if="isTaskEditorVisible" />
-				<ConfigEditor v-if="isConfigEditorVisible" />
-			</aside>
-		</nav>
-		<section>
-			<Nuxt />
-		</section>
-	</main>
+	<TerminalProvider>
+		<TaskMetadataProvider>
+			<main>
+				<nav>
+					<aside id="controls">
+						<button
+							class="control"
+							:class="{ active: isTaskEditorVisible }"
+							@click="onToggleTaskEditor"
+						>
+							Tasks
+						</button>
+						<button
+							class="control"
+							:class="{ active: isTerminalEditorVisible }"
+							@click="onToggleTerminalEditor"
+						>
+							Terminals
+						</button>
+						<button
+							class="control"
+							:class="{ active: isConfigEditorVisible }"
+							@click="onToggleConfigEditor"
+						>
+							Config
+						</button>
+						<button
+							class="control"
+							:class="{ active: isThemeEditorVisible }"
+							@click="onToggleThemeEditor"
+						>
+							Themes
+						</button>
+					</aside>
+					<aside v-if="isAnyOpen" id="content">
+						<TaskEditor v-if="isTaskEditorVisible" />
+						<TerminalEditor v-if="isTerminalEditorVisible" />
+						<ConfigEditor v-if="isConfigEditorVisible" />
+						<ThemeEditor v-if="isThemeEditorVisible" />
+					</aside>
+				</nav>
+				<section>
+					<Nuxt />
+				</section>
+			</main>
+		</TaskMetadataProvider>
+	</TerminalProvider>
 </template>
 
 <script lang="ts">
@@ -51,6 +55,8 @@ import TerminalEditor from '~/components/terminal/Terminal.vue';
 import ThemeEditor from '~/components/theme/Theme.vue';
 import TaskEditor from '~/components/task/Task.vue';
 import ConfigEditor from '~/components/config/Config.vue';
+import TaskMetadataProvider from '~/components/TaskMetadataProvider.vue';
+import TerminalProvider from '~/components/Terminal/TerminalProvider.vue';
 
 enum controls {
 	themeEditor = 'themeEditor',
@@ -60,7 +66,14 @@ enum controls {
 }
 
 export default defineComponent({
-	components: { TerminalEditor, ThemeEditor, TaskEditor, ConfigEditor },
+	components: {
+		TaskMetadataProvider,
+		TerminalProvider,
+		TerminalEditor,
+		ThemeEditor,
+		TaskEditor,
+		ConfigEditor,
+	},
 	setup() {
 		const [isThemeEditorVisible, onToggleThemeEditor] = useToggle();
 		const [isTaskEditorVisible, onToggleTaskEditor] = useToggle();
@@ -158,8 +171,6 @@ main {
 	section {
 		flex: 1;
 		height: 100vh;
-		width: 100vw;
-		overflow-y: scroll;
 	}
 }
 </style>

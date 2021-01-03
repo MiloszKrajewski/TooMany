@@ -14,6 +14,13 @@ function useTaskLogErrorNotifications(
 		cooldown: number;
 	},
 ) {
+	/**
+	 * TODO:
+	 * Add notification click
+	 * focus on the app
+	 * open the erroring terminal
+	 * scroll to first error
+	 */
 	const { $Notification } = useContext();
 
 	const defaultConfig = {
@@ -84,7 +91,7 @@ export namespace useRealtime {
 		const { $SignalR } = useContext();
 
 		const Output: Ref<Task.Meta> = Input || ref([]);
-		const Listener: Ref<Realtime.onMetaFn | null> = ref(null);
+		const Listener = ref<Realtime.onMetaFn | null>(null);
 		onMounted(() => {
 			Listener.value = $SignalR.onTaskMeta(id, (task, data) => {
 				if (data === null) {
@@ -112,11 +119,14 @@ export namespace useRealtime {
 		const errorNotifications = useTaskLogErrorNotifications(id);
 
 		const Output: Ref<Task.Log> = Input || ref([]);
-		const Listener: Ref<Realtime.onLogFn | null> = ref(null);
+		const Listener = ref<Realtime.onLogFn | null>(null);
 		onMounted(() => {
 			Listener.value = $SignalR.onTaskLog(id, (data) => {
 				errorNotifications(data);
-				Output.value = [...Output.value, data];
+				Output.value = [
+					...Output.value,
+					{ ...data, time: new Date(data.timestamp).getTime() },
+				];
 			});
 		});
 		onUnmounted(() => $SignalR.offTaskLog(Listener.value));

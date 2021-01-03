@@ -1,5 +1,5 @@
 <template>
-	<select :value="value" @change="onChange">
+	<select :value="value" @input="onInput">
 		<option v-for="option in options" :id="option" :key="option">
 			{{ option }}
 		</option>
@@ -21,11 +21,11 @@ export default defineComponent({
 		},
 	},
 	setup(_, { emit }) {
-		function onChange(event: { target: { value: string } }) {
-			emit('onChange', event.target.value);
+		function onInput(event: { target: { value: string } }) {
+			emit('input', event.target.value);
 		}
 
-		return { onChange };
+		return { onInput };
 	},
 	head: {},
 });

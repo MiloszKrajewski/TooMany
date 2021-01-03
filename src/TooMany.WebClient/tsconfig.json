@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "noImplicitThis": false,  
+    "noImplicitThis": false,
     "paths": {
       "~/*": [
         "./*"
@@ -27,6 +27,7 @@
     },
     "types": [
       "./types/index.ts",
+      "./types/shims.vue-fragment.d.ts",
       "@types/node",
       "@nuxt/types"
     ]
