@@ -4,12 +4,12 @@
     <AssemblyName>2many</AssemblyName>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5</TargetFramework>
-    <!--
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <!-- COMMENT TO DEBUG >>> -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- <<< COMMENT TO DEBUG -->
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpRemoting.Client\HttpRemoting.Client.csproj" />

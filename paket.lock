@@ -2,7 +2,6 @@ STORAGE: NONE
 RESTRICTION: || (== net5.0-windows7.0) (== net50) (== netstandard2.0) (== netstandard2.1)
 NUGET
   remote: https://www.nuget.org/api/v2
-    CommandLineParser (2.8)
     Google.Protobuf (3.14)
       System.Memory (>= 4.5.3)
       System.Runtime.CompilerServices.Unsafe (>= 4.5.2)

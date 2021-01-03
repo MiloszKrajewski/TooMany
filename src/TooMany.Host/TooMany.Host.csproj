@@ -8,10 +8,8 @@
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <!-- COMMENT TO DEBUG >>> -->
-    <!-- 
     <PublishSingleFile>true</PublishSingleFile>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    -->
     <!-- <<< COMMENT TO DEBUG -->
   </PropertyGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Newtonsoft.Json;
 using Spectre.Console.Cli;
@@ -40,7 +41,7 @@ namespace Playground
 				Enumerable.Empty<string>().ToLookup(x => x);
 		}
 
-		public override int Execute(CommandContext context, Settings settings)
+		public override int Execute([NotNull] CommandContext context, [NotNull] Settings settings)
 		{
 			Console.WriteLine(JsonConvert.SerializeObject(settings));
 			var remaining = new {

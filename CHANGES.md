@@ -1,3 +1,6 @@
+## 0.4.5-beta (2020/12/29)
+* Moved to Spectre.Console for command line arguments
+
 ## 0.4.4-beta (2020/12/29)
 * Added "Open UI" context menu item
 
