@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console.Cli;
@@ -6,11 +7,13 @@ using TooMany.Cli.UserInterface;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Start tasks")]
 	public class StartTaskCommand: HostCommand<StartTaskCommand.Settings>
 	{
 		public class Settings: ManyTasksSettings
 		{
 			[CommandOption("-f|--force")]
+			[Description("Forces running tasks to restart")]
 			public bool Force { get; set; }
 		}
 

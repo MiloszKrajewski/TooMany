@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
@@ -10,6 +11,7 @@ using TooMany.Messages;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Get logs of tasks")]
 	public class GetLogsCommand: HostCommand<GetLogsCommand.Settings>
 	{
 		public GetLogsCommand(IHostInterface host): base(host) { }

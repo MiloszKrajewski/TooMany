@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console.Cli;
@@ -6,6 +7,7 @@ using TooMany.Messages;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Restart tasks")]
 	public class RestartTaskCommand: HostCommand<RestartTaskCommand.Settings>
 	{
 		public class Settings: ManyTasksSettings { }

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Spectre.Console.Cli;
@@ -5,6 +6,7 @@ using TooMany.Cli.UserInterface;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Stop tasks")]
 	public class StopTaskCommand: HostCommand<StopTaskCommand.Settings>
 	{
 		public class Settings: ManyTasksSettings { }

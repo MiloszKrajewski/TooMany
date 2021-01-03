@@ -7,7 +7,7 @@ using TooMany.Cli.UserInterface;
 
 namespace TooMany.Cli.Commands
 {
-	[Description("Lists tasks matching given patterns")]
+	[Description("Lists tasks")]
 	public class ListTasksCommand: HostCommand<ListTasksCommand.Settings>
 	{
 		public class Settings: ManyTasksSettings

@@ -9,6 +9,7 @@ using TooMany.Messages;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Apply tags (set and clear) to tasks")]
 	public class ApplyTagsCommand: HostCommand<ApplyTagsCommand.Settings>
 	{
 		public class Settings: ManyTasksSettings

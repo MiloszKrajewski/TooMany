@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -8,6 +9,7 @@ using TooMany.Messages;
 
 namespace TooMany.Cli.Commands
 {
+	[Description("Monitor tasks")]
 	public class MonitorCommand: HostCommand<MonitorCommand.Settings>
 	{
 		public class Settings: CommandSettings { }
