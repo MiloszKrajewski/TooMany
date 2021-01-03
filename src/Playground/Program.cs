@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Newtonsoft.Json;
-using Spectre.Cli;
+using Spectre.Console.Cli;
 
 namespace Playground
 {
@@ -11,12 +11,14 @@ namespace Playground
 		{
 			var testArgs = new[] {
 				"run",
-				"cmd",
 				"-e", "A=7",
 				"-e", "B=10",
+				"a", "b", "-e x=2",
+				// "a", "b", "c", "d", "-e x",
 				"--",
 				"/c", "set && pause"
 			};
+			testArgs = args;
 			var app = new CommandApp();
 			app.Configure(config => config.AddCommand<RunCommand>("run"));
 			app.Run(testArgs);
@@ -28,19 +30,24 @@ namespace Playground
 		public class Settings: CommandSettings
 		{
 			[CommandArgument(0, "<EXECUTABLE>")]
-			public string Executable { get; set; } = null!;
+			public string[] Executable { get; set; } = null!;
+
+			[CommandOption("-d|--details")]
+			public bool Details { get; set; }
 
 			[CommandOption("-e <VAR=VAL>")]
-			public string[] Environment { get; set; } = Array.Empty<string>();
+			public ILookup<string, string> Environment { get; set; } =
+				Enumerable.Empty<string>().ToLookup(x => x);
 		}
 
 		public override int Execute(CommandContext context, Settings settings)
 		{
 			Console.WriteLine(JsonConvert.SerializeObject(settings));
-			Console.WriteLine(JsonConvert.SerializeObject(new {
-				Parsed = context.Remaining.Parsed.ToArray(),
+			var remaining = new {
+				Parsed = context.Remaining.Parsed.ToDictionary(g => g.Key, g => g.ToArray()),
 				Raw = context.Remaining.Raw.ToArray()
-			}));
+			};
+			Console.WriteLine(JsonConvert.SerializeObject(remaining));
 			return 0;
 		}
 	}

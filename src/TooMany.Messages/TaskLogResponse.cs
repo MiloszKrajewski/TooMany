@@ -14,7 +14,11 @@ namespace TooMany.Messages
 	{
 		[JsonProperty("channel"), JsonConverter(typeof(StringEnumConverter))]
 		public LogChannel Channel { get; set; }
+		
+		[JsonProperty("timestamp")]
 		public DateTime Timestamp { get; set; }
+		
+		[JsonProperty("text")]
 		public string? Text { get; set; }
 	}
 }

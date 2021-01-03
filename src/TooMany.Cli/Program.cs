@@ -1,18 +1,18 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Linq;
 using System.Threading.Tasks;
-using CommandLine;
 using HttpRemoting.Client;
-using K4os.RoutR;
-using K4os.RoutR.Abstractions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using TooMany.Cli.Commands;
-using TooMany.Cli.Handlers;
+using Spectre.Console;
+using Spectre.Console.Cli;
+using TooMany.Cli.SpectreCommands;
+using TooMany.Cli.Utilities;
 using SystemProcess = System.Diagnostics.Process;
+
 // ReSharper disable UnusedParameter.Local
 
 namespace TooMany.Cli
@@ -30,15 +30,9 @@ namespace TooMany.Cli
 
 		static async Task<int> Main(string[] args)
 		{
-			var console = new ColorConsoleProvider("TooMany");
-
 			try
 			{
-				var loggerFactory = new LoggerFactory();
-				loggerFactory.AddProvider(console);
-
 				var serviceCollection = new ServiceCollection();
-				serviceCollection.AddSingleton<ILoggerFactory>(loggerFactory);
 
 				var configurationBuilder = new ConfigurationBuilder();
 				Configure(configurationBuilder);
@@ -47,13 +41,12 @@ namespace TooMany.Cli
 				serviceCollection.AddSingleton<IConfiguration>(configuration);
 
 				Configure(serviceCollection, configuration);
-				var serviceProvider = serviceCollection.BuildServiceProvider();
 
-				return await Execute(loggerFactory, serviceProvider, args);
+				return await Execute(serviceCollection, args);
 			}
 			catch (Exception e)
 			{
-				console.Default.LogError(e, "Operation failed");
+				AnsiConsole.WriteException(e);
 				return -1;
 			}
 		}
@@ -68,19 +61,19 @@ namespace TooMany.Cli
 		{
 			services.AddHttpClient();
 			services.AddTransient(p => p.GetRequiredService<IHttpClientFactory>().CreateClient());
-			
+
 			services.AddTransient(p => ConfigureHttpRemoting(p, configuration));
 			services.AddTransient(p => ConfigureSignalR(p, configuration));
-			
-			services.AddTransient<ICommandHandler<GetLogsCommand>, GetLogsHandler>();
-			services.AddTransient<ICommandHandler<ListTaskCommand>, TaskInfoHandler>();
-			services.AddTransient<ICommandHandler<TaskInfoCommand>, TaskInfoHandler>();
-			services.AddTransient<ICommandHandler<DefineTaskCommand>, DefineTaskHandler>();
-			services.AddTransient<ICommandHandler<StartTaskCommand>, StartStopTaskHandler>();
-			services.AddTransient<ICommandHandler<StopTaskCommand>, StartStopTaskHandler>();
-			services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
-			services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
-			services.AddTransient<ICommandHandler<MonitorCommand>, MonitorHandler>();
+
+			// services.AddTransient<ICommandHandler<GetLogsCommand>, GetLogsHandler>();
+			// services.AddTransient<ICommandHandler<ListTaskCommand>, TaskInfoHandler>();
+			// services.AddTransient<ICommandHandler<TaskInfoCommand>, TaskInfoHandler>();
+			// services.AddTransient<ICommandHandler<DefineTaskCommand>, DefineTaskHandler>();
+			// services.AddTransient<ICommandHandler<StartTaskCommand>, StartStopTaskHandler>();
+			// services.AddTransient<ICommandHandler<StopTaskCommand>, StartStopTaskHandler>();
+			// services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
+			// services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
+			// services.AddTransient<ICommandHandler<MonitorCommand>, MonitorHandler>();
 		}
 
 		private static IHostInterface ConfigureHttpRemoting(
@@ -105,26 +98,36 @@ namespace TooMany.Cli
 		}
 
 		private static async Task<int> Execute(
-			LoggerFactory loggerFactory, ServiceProvider services, string[] args)
+			ServiceCollection services, string[] args)
 		{
-			var log = loggerFactory.CreateLogger(typeof(Program));
+			var app = new CommandApp(new CompositeTypeRegistrar(services));
+			app.Configure(
+				config => {
+					config.AddCommand<ListTasksCommand>("list");
+					config.AddCommand<GetLogsCommand>("logs");
+					config.AddCommand<StartTaskCommand>("start");
+					config.AddCommand<StopTaskCommand>("stop");
+					config.AddCommand<RestartTaskCommand>("restart");
+				});
 
-			var parser = Parser.Default;
-			var parsed = parser.ParseArguments<
-				GetLogsCommand,
-				ListTaskCommand,
-				TaskInfoCommand,
-				DefineTaskCommand,
-				StartTaskCommand,
-				StopTaskCommand,
-				RemoveTaskCommand,
-				ApplyTagsCommand,
-				MonitorCommand
-			>(args);
+			await app.RunAsync(args);
 
-			await parsed
-				.WithNotParsed(e => log.LogError("Invalid arguments"))
-				.WithParsedAsync(o => services.SendAny(o));
+			//
+			// var parsed = parser.ParseArguments<
+			// 	GetLogsCommand,
+			// 	ListTaskCommand,
+			// 	TaskInfoCommand,
+			// 	DefineTaskCommand,
+			// 	StartTaskCommand,
+			// 	StopTaskCommand,
+			// 	RemoveTaskCommand,
+			// 	ApplyTagsCommand,
+			// 	MonitorCommand
+			// >(args);
+
+			// await parsed
+			// 	.WithNotParsed(e => log.LogError("Invalid arguments"))
+			// 	.WithParsedAsync(o => services.SendAny(o));
 
 			return 0;
 		}

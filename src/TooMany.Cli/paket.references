@@ -1,19 +1,16 @@
-# System.Reactive
+System.Reactive
 System.Interactive
 
 Microsoft.AspNetCore.SignalR.Client
 Microsoft.AspNetCore.SignalR.Protocols.NewtonsoftJson
 
 Microsoft.Extensions.DependencyInjection
-Microsoft.Extensions.Logging
 Microsoft.Extensions.Configuration
 Microsoft.Extensions.Configuration.Binder
 Microsoft.Extensions.Configuration.EnvironmentVariables
 Microsoft.Extensions.Configuration.Json 
 Microsoft.Extensions.Http
 
-CommandLineParser
 Spectre.Console
 
-K4os.RoutR
 K4os.BoolEx.Parsing

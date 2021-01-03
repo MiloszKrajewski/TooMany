@@ -8,6 +8,16 @@ namespace TooMany.Cli.UserInterface
 {
 	public class Presentation
 	{
+		public static void WriteLine(ConsoleColor color, string text)
+		{
+			AnsiConsole.Foreground = Color.FromConsoleColor(color);
+			AnsiConsole.WriteLine(text);
+		}
+
+		public static void Error(string text) => WriteLine(ConsoleColor.Red, text);
+		
+		public static void Warn(string text) => WriteLine(ConsoleColor.Yellow, text);
+
 		public static void TaskInfo(IEnumerable<TaskResponse> tasks)
 		{
 			var table = new Table { Border = TableBorder.Simple };
