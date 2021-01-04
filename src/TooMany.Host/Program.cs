@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows.Forms;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
+using HttpRemoting.Server.Tracing;
 using K4os.Json.KnownTypes;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -117,6 +118,7 @@ namespace TooMany.Host
 			var logger = new LoggerConfiguration()
 				.MinimumLevel.Warning()
 				.MinimumLevel.Override(nameof(TooMany), LogEventLevel.Verbose)
+				.MinimumLevel.Override(nameof(HttpRemoting), LogEventLevel.Verbose)
 				.Enrich.FromLogContext()
 				.WriteTo.File(outputFilename, outputTemplate: outputTemplate)
 				.CreateLogger();
@@ -138,6 +140,7 @@ namespace TooMany.Host
 			services.AddHostedService<FrontendService>();
 			services.AddHostedService<ActorsService>();
 
+			services.AddSingleton<IActionTraceMonitor, ActionTraceMonitor>();
 			services.AddSingleton<IHttpRemotingResponseBuilder, HttpRemotingResponseBuilder>();
 			services.AddSingleton<IHttpRemotingErrorAdapter, DefaultHttpRemotingErrorAdapter>();
 

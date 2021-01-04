@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using Spectre.Console;
@@ -119,6 +120,18 @@ namespace TooMany.Cli.Commands
 			var remaining = context.Remaining.Raw.ToArray();
 			if (remaining.Length > 0)
 				Presentation.Warn($"Unknown arguments: {remaining.Join(", ")}");
+		}
+
+		protected static Func<LogEntryResponse, bool> BuildLogFilter(
+			IReadOnlyCollection<string> filters)
+		{
+			static bool NotEmpty(LogEntryResponse e) => !string.IsNullOrEmpty(e.Text);
+			if (filters.Count <= 0) return NotEmpty;
+
+			var regex = filters.Select(f => new Regex(f, RegexOptions.Singleline)).ToArray();
+			bool MatchesAny(LogEntryResponse e) => regex.Any(r => r.IsMatch(e.Text ?? ""));
+
+			return e => NotEmpty(e) && MatchesAny(e);
 		}
 	}
 }

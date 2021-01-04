@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
@@ -29,7 +30,7 @@ namespace TooMany.Cli.Commands
 
 			var found = tasks.Select(t => t.Name).ToArray();
 
-			await Task.WhenAll(tasks.Select(t => Host.StartTask(t.Name, settings.Force)));
+			await Task.WhenAll(found.Select(n => Host.StartTask(n, settings.Force)));
 
 			Presentation.TaskInfo(await GetNamedTasks(found));
 

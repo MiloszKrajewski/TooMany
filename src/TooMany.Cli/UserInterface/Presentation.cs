@@ -8,10 +8,18 @@ namespace TooMany.Cli.UserInterface
 {
 	public class Presentation
 	{
-		public static void WriteLine(ConsoleColor color, string text)
+		private static void NewLine() => AnsiConsole.WriteLine();
+
+		private static void Write(ConsoleColor color, string? text)
 		{
 			AnsiConsole.Foreground = Color.FromConsoleColor(color);
-			AnsiConsole.WriteLine(text);
+			if (text != null) AnsiConsole.Write(text);
+		}
+
+		private static void WriteLine(ConsoleColor color, string? text)
+		{
+			Write(color, text);
+			NewLine();
 		}
 
 		public static void Error(string text) => WriteLine(ConsoleColor.Red, text);
@@ -21,24 +29,28 @@ namespace TooMany.Cli.UserInterface
 		public static void LogEvent(string task, LogEntryResponse message)
 		{
 			var color = message.Channel switch {
-				LogChannel.StdErr => "red",
-				LogChannel.StdOut => "aqua",
-				_ => "grey"
+				LogChannel.StdErr => ConsoleColor.Red,
+				LogChannel.StdOut => ConsoleColor.Cyan,
+				_ => ConsoleColor.Gray
 			};
 			var time = message.Timestamp.ToLocalTime();
 			var text = message.Text;
-			var id = $"[{task} {time:s}]".EscapeMarkup();
-			AnsiConsole.MarkupLine($"[grey]{id}[/] [{color}]{text.EscapeMarkup()}[/]");
+
+			Write(ConsoleColor.DarkGray, $"[{task} {time:s}] ");
+			Write(color, text);
+			NewLine();
 		}
 
 		public static void LogState(string task, TaskResponse? message)
 		{
 			var time = DateTime.Now;
-			var id = $"[{task} {time:s}]".EscapeMarkup();
 			var state = message is null ? "[fuchsia]Removed[/]" : StateToAnsi(message);
-			var name = task.EscapeMarkup();
 
-			AnsiConsole.MarkupLine($"[grey]{id}[/] [white]{name}[/] [grey]is[/] {state}");
+			Write(ConsoleColor.Gray, $"[{task} {time:s}] ");
+			Write(ConsoleColor.White, task);
+			Write(ConsoleColor.Gray, " is ");
+			AnsiConsole.Markup(state);
+			NewLine();
 		}
 
 		public static void TaskInfo(IEnumerable<TaskResponse> tasks)
@@ -53,7 +65,7 @@ namespace TooMany.Cli.UserInterface
 			table.AddColumn("[white]Uptime[/]");
 			table.AddColumn("[white]Tags[/]");
 
-			foreach (var task in tasks)
+			foreach (var task in tasks.OrderBy(t => t.Name))
 			{
 				TaskInfo(table, task);
 			}
@@ -81,7 +93,7 @@ namespace TooMany.Cli.UserInterface
 			table.AddColumn("[silver]Property[/]");
 			table.AddColumn("[white]Value[/]");
 
-			foreach (var (index, task) in tasks.WithIndex())
+			foreach (var (index, task) in tasks.OrderBy(t => t.Name).WithIndex())
 			{
 				if (index > 0) table.AddEmptyRow();
 				TaskDetails(table, task);

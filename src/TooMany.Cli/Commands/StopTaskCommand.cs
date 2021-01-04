@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,9 +23,9 @@ namespace TooMany.Cli.Commands
 			if (tasks.Length <= 0) return 0;
 
 			var found = tasks.Select(t => t.Name).ToArray();
-			
-			await Task.WhenAll(tasks.Select(t => Host.StopTask(t.Name)));
-			
+
+			await Task.WhenAll(found.Select(n => Host.StopTask(n)));
+
 			Presentation.TaskInfo(await GetNamedTasks(found));
 
 			return 0;

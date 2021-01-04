@@ -3,9 +3,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
+using HttpRemoting.Server.Tracing;
 using K4os.Json.Messages.Interfaces;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Proto;
 using TooMany.Actors.Catalog;
 using TooMany.Actors.Messages;
@@ -14,10 +16,17 @@ using TooMany.WebServer.Messages;
 
 namespace TooMany.WebServer
 {
-	[ApiController, Route("/api/v1"), HttpRemoting, EnableCors]
+	[ApiController, Route("/api/v1"), HttpRemoting, ActionTrace, EnableCors]
 	public class HostController: ActorController
 	{
-		public HostController(ActorSystem system): base(system) { }
+		protected ILogger Log { get; }
+
+		public HostController(
+			ActorSystem system,
+			ILoggerFactory loggerFactory): base(system)
+		{
+			Log = loggerFactory.CreateLogger(GetType());
+		}
 
 		[HttpGet("now")]
 		public DateTime Now() => DateTime.UtcNow;

@@ -12,7 +12,14 @@ namespace TooMany.Cli.Commands
 	[Description("Monitor tasks")]
 	public class MonitorCommand: HostCommand<MonitorCommand.Settings>
 	{
-		public class Settings: CommandSettings { }
+		private static readonly object Lock = new object();
+
+		public class Settings: CommandSettings
+		{
+			[CommandOption("-f|--filter <REGEX>")]
+			[Description("Show only lines matching at least one given regular expression")]
+			public string[] Filters { get; set; } = Array.Empty<string>();
+		}
 
 		protected HubConnection Hub { get; }
 
@@ -28,9 +35,11 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
+			var matcher = BuildLogFilter(settings.Filters);
+
 			Hub.On(
 				"Log",
-				(string task, LogEntryResponse message) => OnLog(task, message));
+				(string task, LogEntryResponse message) => OnLog(task, message, matcher));
 
 			Hub.On(
 				"Task",
@@ -52,14 +61,17 @@ namespace TooMany.Cli.Commands
 			return 0;
 		}
 
-		private static void OnLog(string task, LogEntryResponse message)
+		private static void OnLog(
+			string task, LogEntryResponse message, Func<LogEntryResponse, bool> filter)
 		{
-			Presentation.LogEvent(task, message);
+			if (!filter(message)) return;
+
+			lock (Lock) Presentation.LogEvent(task, message);
 		}
 
 		private static void OnTask(string task, TaskResponse message)
 		{
-			Presentation.LogState(task, message);
+			lock (Lock) Presentation.LogState(task, message);
 		}
 	}
 }

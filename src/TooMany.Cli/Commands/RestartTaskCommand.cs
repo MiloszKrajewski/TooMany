@@ -27,7 +27,7 @@ namespace TooMany.Cli.Commands
 				.Select(t => t.Name)
 				.ToArray();
 
-			await Task.WhenAll(tasks.Select(t => Host.StartTask(t.Name, true)));
+			await Task.WhenAll(found.Select(n => Host.StartTask(n, true)));
 
 			Presentation.TaskInfo(await GetNamedTasks(found));
 

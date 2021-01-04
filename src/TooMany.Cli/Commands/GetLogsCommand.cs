@@ -16,19 +16,26 @@ namespace TooMany.Cli.Commands
 	{
 		public GetLogsCommand(IHostInterface host): base(host) { }
 
-		public class Settings: ManyTasksSettings { }
+		public class Settings: ManyTasksSettings
+		{
+			[CommandOption("-f|--filter <REGEX>")]
+			[Description("Show only lines matching at least one given regular expression")]
+			public string[] Filters { get; set; } = Array.Empty<string>();
+		}
 
 		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 		{
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
+			var filter = BuildLogFilter(settings.Filters);
 			var tasks = await GetTasks(settings);
 			var entries = await tasks
 				.ToObservable()
 				.SelectMany(GetTaskLog).SelectMany(x => x)
 				.ToArray();
 			entries
+				.Where(e => filter(e.Log))
 				.OrderBy(e => e.Log.Timestamp)
 				.ForEach(e => Print(e.Task, e.Log));
 			return 0;

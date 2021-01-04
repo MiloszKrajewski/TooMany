@@ -116,16 +116,6 @@ namespace TooMany.Cli
 
 			await app.RunAsync(args);
 
-			// var parsed = parser.ParseArguments<
-			// 	DefineTaskCommand,
-			// 	RemoveTaskCommand,
-			// 	ApplyTagsCommand,
-			// >(args);
-
-			// await parsed
-			// 	.WithNotParsed(e => log.LogError("Invalid arguments"))
-			// 	.WithParsedAsync(o => services.SendAny(o));
-
 			return 0;
 		}
 	}
