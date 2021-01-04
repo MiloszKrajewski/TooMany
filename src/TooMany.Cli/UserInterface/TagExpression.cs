@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using K4os.BoolEx;
 using K4os.BoolEx.Parsing;
 
@@ -8,6 +10,13 @@ namespace TooMany.Cli.UserInterface
 {
 	public class TagExpression
 	{
+		public class TagParser: ExpressionParser
+		{
+			public override Regex IdentRegex => new Regex("(\\w|\\d|_|\\*|\\?)+");
+		}
+
+		private static readonly ExpressionParser Parser = new TagParser();
+
 		public static Func<IEnumerable<string>, bool>? Matcher(
 			string? tagExpression, bool ignoreCase = false)
 		{
@@ -24,7 +33,7 @@ namespace TooMany.Cli.UserInterface
 
 			try
 			{
-				return ExpressionParser.Default.FromString(tags);
+				return Parser.FromString(tags);
 			}
 			catch (Exception)
 			{
@@ -34,16 +43,21 @@ namespace TooMany.Cli.UserInterface
 
 		private static bool AnyMatch(string? expected, IEnumerable<string> actual, bool ignoreCase)
 		{
-			if (expected is null)
-				return false;
+			if (expected is null) return false;
 
-			var comparer = ignoreCase
-				? StringComparison.InvariantCultureIgnoreCase
-				: StringComparison.InvariantCulture;
-
-			bool IsMatch(string tag) => string.Equals(tag, expected, comparer);
+			bool IsMatch(string tag) => GetMatcherFor(tag, ignoreCase)(expected);
 
 			return actual.Any(IsMatch);
 		}
+
+		private static readonly ConcurrentDictionary<(string, bool), Func<string?, bool>> Matchers
+			= new();
+
+		private static Func<string?, bool> GetMatcherFor(string pattern, bool ignoreCase) =>
+			Matchers.GetOrAdd((pattern, ignoreCase), NewMatcherFor);
+
+		private static Func<string?, bool> NewMatcherFor(
+			(string Pattern, bool IgnoreCase) filter) =>
+			Wildcard.Matcher(filter.Pattern, filter.IgnoreCase);
 	}
 }

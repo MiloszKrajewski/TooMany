@@ -64,8 +64,9 @@ Target.create "Release:GitHub" (fun _ ->
 )
 
 Target.create "Publish" (fun _ ->
-    let outDir = "./.output/app" 
-    let publish name = Shell.run "dotnet" (sprintf "publish src/%s --no-self-contained -c Release -o %s" name outDir)
+    let outDir = "./.output/app"
+    let options = "-c Release --no-self-contained -p:PublishSingleFile=true -p:RuntimeIdentifier=win-x64"
+    let publish name = Shell.run "dotnet" (sprintf "publish src/%s -o %s %s" name outDir options)
     outDir |> Shell.cleanDir
     publish "TooMany.Cli"
     publish "TooMany.Host"

@@ -6,21 +6,12 @@
     <TargetFramework>net5</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <!-- COMMENT TO DEBUG >>> -->
-    <!--
-    <PublishSingleFile>true</PublishSingleFile>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    -->
-    <!-- <<< COMMENT TO DEBUG -->
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpRemoting.Client\HttpRemoting.Client.csproj" />
     <ProjectReference Include="..\K4os.Json.Messages\K4os.Json.Messages.csproj" />
     <ProjectReference Include="..\K4os.Shared\K4os.Shared.csproj" />
     <ProjectReference Include="..\TooMany.Messages\TooMany.Messages.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Proto.Actor" Version="0.9.0" />
   </ItemGroup>
   <Import Project="..\..\Common.targets" />
   <Import Project="..\..\.paket\Paket.Restore.targets" />

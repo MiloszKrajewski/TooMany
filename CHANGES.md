@@ -1,8 +1,12 @@
-## 0.4.5-beta (2020/12/29)
-* Moved to Spectre.Console for command line arguments
+## 0.4.6-beta (2021/01/04)
+* filtering for logs and monitor
+* tags expression now handles wildcards
+
+## 0.4.5-beta (2021/01/03)
+* moved to Spectre.Console for command line arguments
 
 ## 0.4.4-beta (2020/12/29)
-* Added "Open UI" context menu item
+* added "Open UI" context menu item
 
 ## 0.4.3-beta (2020/12/29)
 * re-release with new updated metadata

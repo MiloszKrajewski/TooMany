@@ -19,20 +19,24 @@ namespace TooMany.Cli.UserInterface
 		public static bool IsWildcard(string pattern) =>
 			pattern.Contains('*') || pattern.Contains('?');
 
-		public static Func<string, bool> Matcher(string pattern, bool ignoreCase = false)
+		public static Func<string?, bool> Matcher(string? pattern, bool ignoreCase = false)
 		{
+			if (pattern is null)
+			{
+				return _ => false;
+			}
+
 			if (IsWildcard(pattern))
 			{
 				var wildcard = new Wildcard(pattern, ignoreCase);
-				return s => wildcard.IsMatch(s);
+				return s => s != null && wildcard.IsMatch(s);
 			}
 
-			if (ignoreCase)
-			{
-				return s => string.Equals(s, pattern, StringComparison.InvariantCultureIgnoreCase);
-			}
+			var comparison = ignoreCase
+				? StringComparison.InvariantCultureIgnoreCase
+				: StringComparison.InvariantCulture;
 
-			return s => string.Equals(s, pattern, StringComparison.InvariantCulture);
+			return s => string.Equals(s, pattern, comparison);
 		}
 	}
 }
