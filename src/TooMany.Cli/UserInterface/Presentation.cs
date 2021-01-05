@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using Spectre.Console;
 using TooMany.Messages;
 
@@ -75,11 +77,15 @@ namespace TooMany.Cli.UserInterface
 
 		private static void TaskInfo(Table table, TaskResponse task)
 		{
+			var executable = TruncatePath(task.Executable, 30);
+			var arguments = TruncateString(task.Arguments.Trim(), 30);
+			var directory = TruncatePath(task.Directory, 30);
+			
 			table.AddRow(
 				$"[yellow]{task.Name.EscapeMarkup()}[/]",
-				$"[white]{task.Executable.EscapeMarkup()}[/]",
-				$"[white]{task.Arguments.EscapeMarkup()}[/]",
-				$"[white]{task.Directory.EscapeMarkup()}[/]",
+				$"[white]{executable.EscapeMarkup()}[/]",
+				$"[white]{arguments.EscapeMarkup()}[/]",
+				$"[white]{directory.EscapeMarkup()}[/]",
 				StateToAnsi(task),
 				$"[white]{RunningTime(task)}[/]",
 				$"[white]{task.Tags.Join(",").EscapeMarkup()}[/]"
@@ -194,5 +200,29 @@ namespace TooMany.Cli.UserInterface
 			time.TotalHours > 1 ? $"{time.TotalHours:0}h {time.Minutes:0}m" :
 			time.TotalMinutes > 1 ? $"{time.TotalMinutes:0}m {time.Seconds:0}s" :
 			$"{time.TotalSeconds:0}s";
+
+		public static string TruncateString(string? text, int length, bool tail = false)
+		{
+			if (text is null) return string.Empty;
+			if (text.Length <= length) return text;
+
+			return tail
+				? "..." + text.Substring(text.Length - length + 3, length - 3)
+				: text.Substring(0, length - 3) + "...";
+		}
+
+		public static string TruncatePath(string? path, int length)
+		{
+			if (path is null) return string.Empty;
+			if (path.Length <= length) return path;
+
+			[DllImport("shlwapi.dll")]
+			static extern bool PathCompactPathEx(
+				[Out] StringBuilder pszOut, string szPath, int cchMax, int dwFlags);
+
+			var sb = new StringBuilder(length);
+			PathCompactPathEx(sb, path, length, 0);
+			return sb.ToString();
+		}
 	}
 }
