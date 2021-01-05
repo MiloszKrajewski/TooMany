@@ -1,3 +1,6 @@
+## 0.4.7-beta (2021/01/05)
+* added column width limits in compact view 
+
 ## 0.4.6-beta (2021/01/04)
 * filtering for logs and monitor
 * tags expression now handles wildcards
