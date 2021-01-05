@@ -10,8 +10,8 @@ namespace TooMany.Cli.Commands
 		[Description("Names of tasks (wildcards are allowed, use '*' for all)")]
 		public string[] Names { get; set; } = Array.Empty<string>();
 
-		[CommandOption("-t|--tags <EXPRESSION>")]
-		[Description("Tags filter expression (wildcards and logical operations are allowed, ie: \"~(a*|b)&c\")")]
-		public string? Tags { get; set; }
+		[CommandOption("--expression <EXPRESSION>")]
+		[Description("Task filter expression (wildcards and logical operations are allowed, ie: \"~(a*|#b)&#c\")")]
+		public string? Expression { get; set; }
 	}
 }

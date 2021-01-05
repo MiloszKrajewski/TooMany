@@ -24,16 +24,16 @@ namespace TooMany.Cli.Commands
 		public async Task<TaskResponse[]> GetTasks(ManyTasksSettings settings)
 		{
 			var names = settings.Names.ToArray();
-			var tags = settings.Tags;
+			var expression = settings.Expression;
 
 			var many =
 				names.Length != 1 ||
 				names.Any(Wildcard.IsWildcard) ||
-				!string.IsNullOrWhiteSpace(tags);
+				!string.IsNullOrWhiteSpace(expression);
 
 			if (many)
 			{
-				return FilterTasks(names, tags, await Host.GetTasks());
+				return FilterTasks(names, expression, await Host.GetTasks());
 			}
 			else
 			{
@@ -79,27 +79,31 @@ namespace TooMany.Cli.Commands
 
 		
 		private static TaskResponse[] FilterTasks(
-			string[] names, string? tags, TaskResponse[] tasks)
+			string[] names, string? expression, TaskResponse[] tasks)
 		{
 			AnsiConsole.WriteLine();
 			
-			var tagsMatch = TagExpression.Matcher(tags);
+			var tagsMatch = TagExpression.Matcher(expression);
 			if (tagsMatch is null)
 			{
-				Presentation.Warn($"'{tags}' is not valid tag expression");
+				Presentation.Warn($"'{expression}' is not valid tag expression");
 				return Array.Empty<TaskResponse>();
 			}
 
 			var filtered = new HashSet<TaskResponse>();
-			foreach (var name in names)
+			foreach (var pattern in names)
 			{
-				var nameMatch = Wildcard.Matcher(name, true);
+				var nameMatch = Wildcard.Matcher(pattern, true);
 
 				foreach (var task in tasks)
 				{
 					if (filtered.Contains(task)) continue;
-					if (!nameMatch(task.Name)) continue;
-					if (!tagsMatch(task.Tags)) continue;
+
+					var name = task.Name;
+					if (!nameMatch(name)) continue;
+					
+					var tags = task.Tags.NotNull().Select(t => $"#{t}").ToArray();
+					if (!tagsMatch(tags.Prepend(name))) continue;
 
 					filtered.Add(task);
 				}
@@ -110,16 +114,18 @@ namespace TooMany.Cli.Commands
 
 		protected void ShowUnknownOptions(CommandContext context)
 		{
-			var parsed = context.Remaining.Parsed.Select(g => g.Key).ToArray();
-			if (parsed.Length > 0) 
-				Presentation.Warn($"Unknown options: {parsed.Join(", ")}");
+			// NOTE: it is not handled as expected by Spectre
+			// var parsed = context.Remaining.Parsed.Select(g => g.Key).ToArray();
+			// if (parsed.Length > 0) 
+			// 	Presentation.Warn($"Unknown options: {parsed.Join(", ")}");
 		}
 
 		protected void ShowIgnoredArguments(CommandContext context)
 		{
-			var remaining = context.Remaining.Raw.ToArray();
-			if (remaining.Length > 0)
-				Presentation.Warn($"Unknown arguments: {remaining.Join(", ")}");
+			// NOTE: it is not handled as expected by Spectre
+			// var remaining = context.Remaining.Raw.ToArray();
+			// if (remaining.Length > 0)
+			// 	Presentation.Warn($"Unknown arguments: {remaining.Join(", ")}");
 		}
 
 		protected static Func<LogEntryResponse, bool> BuildLogFilter(

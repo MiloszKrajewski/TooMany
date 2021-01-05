@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace TooMany.Cli.UserInterface
@@ -19,12 +20,14 @@ namespace TooMany.Cli.UserInterface
 		public static bool IsWildcard(string pattern) =>
 			pattern.Contains('*') || pattern.Contains('?');
 
-		public static Func<string?, bool> Matcher(string? pattern, bool ignoreCase = false)
+		public static Func<string?, bool> Matcher(
+			string? pattern, bool ignoreCase, bool useCache = false)
 		{
 			if (pattern is null)
-			{
-				return _ => false;
-			}
+				return NullMatcher;
+			
+			if (useCache)
+				return GetMatcher(pattern, ignoreCase);
 
 			if (IsWildcard(pattern))
 			{
@@ -38,5 +41,17 @@ namespace TooMany.Cli.UserInterface
 
 			return s => string.Equals(s, pattern, comparison);
 		}
+
+		private static readonly ConcurrentDictionary<(string, bool), Func<string?, bool>> Matchers
+			= new();
+		
+		private static bool NullMatcher(string? text) => text is null;
+		
+		private static Func<string?, bool> GetMatcher(string pattern, bool ignoreCase) => 
+			Matchers.GetOrAdd((pattern, ignoreCase), NewMatcher);
+
+		private static Func<string?, bool> NewMatcher((string Pattern, bool IgnoreCase) filter) =>
+			Matcher(filter.Pattern, filter.IgnoreCase);
+
 	}
 }

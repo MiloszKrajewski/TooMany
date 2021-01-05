@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using K4os.BoolEx;
 using System.Linq;
 using System.Text.RegularExpressions;
-using K4os.BoolEx;
 using K4os.BoolEx.Parsing;
 
 namespace TooMany.Cli.UserInterface
@@ -12,7 +11,7 @@ namespace TooMany.Cli.UserInterface
 	{
 		public class TagParser: ExpressionParser
 		{
-			public override Regex IdentRegex => new Regex("(\\w|\\d|_|\\*|\\?)+");
+			public override Regex IdentRegex => new Regex("#?(\\w|\\d|_|\\*|\\?)+");
 		}
 
 		private static readonly ExpressionParser Parser = new TagParser();
@@ -45,19 +44,9 @@ namespace TooMany.Cli.UserInterface
 		{
 			if (expected is null) return false;
 
-			bool IsMatch(string tag) => GetMatcherFor(tag, ignoreCase)(expected);
+			bool IsMatch(string tag) => Wildcard.Matcher(tag, ignoreCase, true)(expected);
 
 			return actual.Any(IsMatch);
 		}
-
-		private static readonly ConcurrentDictionary<(string, bool), Func<string?, bool>> Matchers
-			= new();
-
-		private static Func<string?, bool> GetMatcherFor(string pattern, bool ignoreCase) =>
-			Matchers.GetOrAdd((pattern, ignoreCase), NewMatcherFor);
-
-		private static Func<string?, bool> NewMatcherFor(
-			(string Pattern, bool IgnoreCase) filter) =>
-			Wildcard.Matcher(filter.Pattern, filter.IgnoreCase);
 	}
 }

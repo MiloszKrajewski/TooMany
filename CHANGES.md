@@ -1,3 +1,9 @@
+## 0.4.10-beta (2021/01/05)
+* moving columns around to reduce neck pain
+
+## 0.4.9-beta (2021/01/05)
+* filter expression for tags now requires #
+
 ## 0.4.8-beta (2021/01/05)
 * added option to use shell to execute commands
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace TooMany.Cli.Commands
 	[Description("Define, or redefine a task")]
 	public class DefineTaskCommand: HostCommand<DefineTaskCommand.Settings>
 	{
-		private static readonly Regex KeyValuePattern = 
+		private static readonly Regex KeyValuePattern =
 			new Regex("(?<key>[^=]+)(=(?<value>.*))?");
 
 		public class Settings: CommandSettings
@@ -21,7 +22,7 @@ namespace TooMany.Cli.Commands
 			[CommandArgument(0, "<TASK>")]
 			[Description("Name of tasks")]
 			public string Name { get; set; } = null!;
-			
+
 			[CommandOption("-s|--shell")]
 			[Description("Use shell to execute command")]
 			public bool UseShell { get; set; }
@@ -29,19 +30,19 @@ namespace TooMany.Cli.Commands
 			[CommandOption("-e|--environment <KEY=VALUE>")]
 			[Description("Environment variable")]
 			public string[] Environment { get; set; } = Array.Empty<string>();
-			
+
 			[CommandOption("-d|--directory <DIRECTORY>")]
 			[Description("Working directory")]
 			public string Directory { get; set; } = string.Empty;
-			
+
 			[CommandOption("-t|--tag <TAG>")]
 			[Description("Assign tag to task")]
 			public string[] Tags { get; set; } = Array.Empty<string>();
-			
+
 			[CommandArgument(1, "<EXECUTABLE>")]
 			[Description("Executable path")]
 			public string Executable { get; set; } = string.Empty;
-			
+
 			[CommandArgument(2, "[ARGUMENTS]")]
 			[Description("Arguments for executable")]
 			public string[] Arguments { get; set; } = Array.Empty<string>();
@@ -53,34 +54,35 @@ namespace TooMany.Cli.Commands
 		{
 			ShowUnknownOptions(context);
 			// ShowIgnoredArguments(context);
-			
+
 			var arguments = settings.Arguments.Concat(context.Remaining.Raw);
-			
+			var directory = FullDirectoryPath(settings.Directory);
+
 			var request = new TaskRequest {
 				Executable = settings.Executable,
 				UseShell = settings.UseShell,
 				Arguments = ToArguments(arguments),
-				Directory = settings.Directory,
+				Directory = directory,
 				Tags = settings.Tags.ToList(),
 				Environment = ToEnvironment(settings.Environment),
 			};
-			
+
 			var response = await Host.CreateTask(settings.Name, request);
-			
+
 			Presentation.TaskDetails(response);
 
 			return 0;
 		}
-		
+
+		private static string FullDirectoryPath(string? directory) =>
+			!string.IsNullOrWhiteSpace(directory)
+				? Path.GetFullPath(directory)
+				: directory.NotNull();
+
 		private static string ToArguments(IEnumerable<string> arguments) =>
 			string.Join(' ', arguments.Select(ToArgument));
 
-		private static string ToArgument(string argument) => Quote(argument, false);
-
-		private static string Quote(string text, bool force = false) =>
-			force || (text.Contains(' ') || text.Contains('\t'))
-				? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
-				: text;
+		private static string ToArgument(string argument) => argument.Quote();
 
 		private static Dictionary<string, string?> ToEnvironment(
 			IEnumerable<string> keyValuePairs) =>
@@ -102,6 +104,5 @@ namespace TooMany.Cli.Commands
 
 			return (key, value);
 		}
-
 	}
 }

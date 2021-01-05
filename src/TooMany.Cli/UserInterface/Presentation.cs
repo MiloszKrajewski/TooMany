@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using Spectre.Console;
 using TooMany.Messages;
 
@@ -46,12 +44,12 @@ namespace TooMany.Cli.UserInterface
 		public static void LogState(string task, TaskResponse? message)
 		{
 			var time = DateTime.Now;
-			var state = message is null ? "[fuchsia]Removed[/]" : StateToAnsi(message);
+			var state = message is null ? Markup("fuchsia", "Removed") : StateToAnsi(message);
 
 			Write(ConsoleColor.Gray, $"[{task} {time:s}] ");
 			Write(ConsoleColor.White, task);
 			Write(ConsoleColor.Gray, " is ");
-			AnsiConsole.Markup(state);
+			AnsiConsole.Render(state);
 			NewLine();
 		}
 
@@ -60,13 +58,12 @@ namespace TooMany.Cli.UserInterface
 			var table = new Table { Border = TableBorder.Simple };
 
 			table.AddColumn("[silver]Name[/]");
-			table.AddColumn("[white]Shell[/]", c => c.Alignment = Justify.Center);
+			table.AddColumn("[white]Tags[/]");
+			table.AddColumn("[white]State[/]");
+			table.AddColumn("[white]Uptime[/]");
 			table.AddColumn("[white]Executable[/]");
 			table.AddColumn("[white]Arguments[/]");
 			table.AddColumn("[white]Directory[/]");
-			table.AddColumn("[white]State[/]");
-			table.AddColumn("[white]Uptime[/]");
-			table.AddColumn("[white]Tags[/]");
 
 			foreach (var task in tasks.OrderBy(t => t.Name))
 			{
@@ -78,21 +75,25 @@ namespace TooMany.Cli.UserInterface
 
 		private static void TaskInfo(Table table, TaskResponse task)
 		{
-			var executable = TruncatePath(task.Executable, 30);
-			var arguments = TruncateString(task.Arguments.Trim(), 30);
-			var directory = TruncatePath(task.Directory, 30);
-			
+			var (executable, arguments) = FixExecutableAndArguments(task, 30, 40);
+			var directory = task.Directory.NotNull().Trim().TruncatePath(30);
+
+			static Markup Yellow(string value) => Markup("yellow", value);
+			static Markup White(string value) => Markup("white", value);
+
 			table.AddRow(
-				$"[yellow]{task.Name.EscapeMarkup()}[/]",
-				$"[green]{(task.UseShell ? "*" : "")}[/]",
-				$"[white]{executable.EscapeMarkup()}[/]",
-				$"[white]{arguments.EscapeMarkup()}[/]",
-				$"[white]{directory.EscapeMarkup()}[/]",
+				Yellow(task.Name),
+				White(TagsCsv(task)),
 				StateToAnsi(task),
-				$"[white]{RunningTime(task)}[/]",
-				$"[white]{task.Tags.Join(",").EscapeMarkup()}[/]"
+				White(RunningTime(task)),
+				executable,
+				arguments,
+				White(directory)
 			);
 		}
+
+		private static string TagsCsv(TaskResponse task) => 
+			task.Tags.OrderBy(x => x).Select(t => $"#{t}").Join(",");
 
 		public static void TaskDetails(IEnumerable<TaskResponse> tasks)
 		{
@@ -124,31 +125,51 @@ namespace TooMany.Cli.UserInterface
 
 		private static void TaskDetails(Table table, TaskResponse task)
 		{
-			table.AddRow("[olive]Name[/]", $"[yellow]{task.Name.EscapeMarkup()}[/]");
-			table.AddRow("[silver]Shell[/]", task.UseShell ? "[green]Yes[/]" : "[white]No[/]");
-			table.AddRow("[silver]Executable[/]", $"[white]{task.Executable.EscapeMarkup()}[/]");
-			table.AddRow("[silver]Arguments[/]", $"[white]{task.Arguments.EscapeMarkup()}[/]");
-			table.AddRow("[silver]Directory[/]", $"[white]{task.Directory.EscapeMarkup()}[/]");
-			table.AddRow("[silver]State[/]", StateToAnsi(task));
+			var (executable, arguments) = FixExecutableAndArguments(task, 128, 1024);
+			static Markup Silver(string text) => Markup("silver", text);
 
-			if (task.StartedTime.HasValue && task.ActualState == TaskState.Started)
-			{
-				var uptime = DateTime.UtcNow.Subtract(task.StartedTime.Value);
-				table.AddRow("[silver]Uptime[/]", $"[white]{RunningTime(uptime)}[/]");
-			}
+			table.AddRow(Markup("olive", "Name"), Markup("yellow", task.Name));
+			table.AddRow(Silver("Executable"), executable);
+			table.AddRow(Silver("Arguments"), arguments);
+			table.AddRow(Silver("Directory"), Markup("white", task.Directory));
 
 			if (task.Environment.Count > 0)
 			{
 				var environmentTable = EnvironmentInfo(task.Environment);
-				table.AddRow(new Markup("[silver]Variables[/]"), environmentTable);
+				table.AddRow(Markup("silver", "Variables"), environmentTable);
 			}
 
 			if (task.Tags.Count > 0)
 			{
-				var tags = task.Tags.Join(",");
-				table.AddRow("[silver]Tags[/]", $"[white]{tags.EscapeMarkup()}[/]");
+				var tags = TagsCsv(task);
+				table.AddRow(Markup("silver", "Tags"), Markup("white", tags));
+			}
+			
+			table.AddRow(Silver("State"), StateToAnsi(task));
+
+			if (task.StartedTime.HasValue && task.ActualState == TaskState.Started)
+			{
+				var uptime = DateTime.UtcNow.Subtract(task.StartedTime.Value);
+				table.AddRow(Markup("silver", "Uptime"), Markup("white", RunningTime(uptime)));
 			}
 		}
+
+		private static (Markup Executable, Markup Arguments) FixExecutableAndArguments(
+			TaskResponse task, int executableWidth, int argumentWidth)
+		{
+			var shell = task.UseShell;
+			var executable = shell
+				? Markup("green", "(shell)")
+				: Markup("white", task.Executable.TruncatePath(executableWidth));
+			var arguments = (shell
+					? $"{task.Executable.Quote()} {task.Arguments}"
+					: task.Arguments
+				).PipeTo(x => Markup("white", x.TruncateString(argumentWidth)));
+			return (executable, arguments);
+		}
+
+		private static Markup Markup(string color, string value) =>
+			new Markup($"[{color}]{value.Trim().EscapeMarkup()}[/]");
 
 		private static Table EnvironmentInfo(Dictionary<string, string?> environment)
 		{
@@ -171,25 +192,27 @@ namespace TooMany.Cli.UserInterface
 			return table;
 		}
 
-		private static string StateToAnsi(TaskResponse task)
+		private static Markup StateToAnsi(TaskResponse task)
 		{
 			if (task.ExpectedState == task.ActualState)
 				return StateToAnsi(task.ActualState);
 
+			static Markup Yellow(string value) => Markup("yellow", value);
+
 			return (task.ExpectedState, task.ActualState) switch {
-				(TaskState.Stopped, TaskState.Started) => "[yellow]Stopping[/]",
-				(TaskState.Started, TaskState.Stopped) => "[yellow]Starting[/]",
-				(TaskState.Started, TaskState.Failed) => "[yellow]Restarting[/]",
+				(TaskState.Stopped, TaskState.Started) => Yellow("Stopping"),
+				(TaskState.Started, TaskState.Stopped) => Yellow("Starting"),
+				(TaskState.Started, TaskState.Failed) => Yellow("Restarting"),
 				_ => StateToAnsi(task.ActualState),
 			};
 		}
 
-		private static string StateToAnsi(TaskState state) =>
+		private static Markup StateToAnsi(TaskState state) =>
 			state switch {
-				TaskState.Started => "[green]Running[/]",
-				TaskState.Stopped => "[grey]Stopped[/]",
-				TaskState.Failed => "[red]Failed[/]",
-				_ => "[yellow]Unknown[/]"
+				TaskState.Started => Markup("green", "Running"),
+				TaskState.Stopped => Markup("grey", "Stopped"),
+				TaskState.Failed => Markup("red", "Failed"),
+				_ => Markup("yellow", "Unknown")
 			};
 
 		public static string RunningTime(TaskResponse task) =>
@@ -203,29 +226,5 @@ namespace TooMany.Cli.UserInterface
 			time.TotalHours > 1 ? $"{time.TotalHours:0}h {time.Minutes:0}m" :
 			time.TotalMinutes > 1 ? $"{time.TotalMinutes:0}m {time.Seconds:0}s" :
 			$"{time.TotalSeconds:0}s";
-
-		public static string TruncateString(string? text, int length, bool tail = false)
-		{
-			if (text is null) return string.Empty;
-			if (text.Length <= length) return text;
-
-			return tail
-				? "..." + text.Substring(text.Length - length + 3, length - 3)
-				: text.Substring(0, length - 3) + "...";
-		}
-
-		public static string TruncatePath(string? path, int length)
-		{
-			if (path is null) return string.Empty;
-			if (path.Length <= length) return path;
-
-			[DllImport("shlwapi.dll")]
-			static extern bool PathCompactPathEx(
-				[Out] StringBuilder pszOut, string szPath, int cchMax, int dwFlags);
-
-			var sb = new StringBuilder(length);
-			PathCompactPathEx(sb, path, length, 0);
-			return sb.ToString();
-		}
 	}
 }
