@@ -13,6 +13,7 @@ namespace TooMany.WebServer.Messages
 			new DefineTask {
 				Name = name,
 				Executable = task.Executable ?? throw new ArgumentException("Executable is empty"),
+				UseShell = task.UseShell,
 				Arguments = task.Arguments ?? string.Empty,
 				Directory = task.Directory ?? string.Empty,
 				Environment = task.Environment.EmptyIfNull().ToImmutableDictionary(),
@@ -29,6 +30,7 @@ namespace TooMany.WebServer.Messages
 			new TaskResponse {
 				Name = snapshot.Name,
 				Executable = snapshot.Executable,
+				UseShell = snapshot.UseShell,
 				Arguments = snapshot.Arguments,
 				Directory = snapshot.Directory,
 				ExpectedState = snapshot.ExpectedState,

@@ -294,6 +294,7 @@ namespace TooMany.Actors.Worker
 			new TaskDefinition {
 				Name = request.Name,
 				Executable = request.Executable,
+				UseShell = request.UseShell,
 				Arguments = request.Arguments,
 				Directory = request.Directory,
 				Environment = request.Environment.ToDictionary(),

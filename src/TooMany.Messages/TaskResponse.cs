@@ -12,6 +12,9 @@ namespace TooMany.Messages
 
 		[JsonProperty("executable")]
 		public string Executable { get; set; } = string.Empty;
+		
+		[JsonProperty("use_shell")]
+		public bool UseShell { get; set; }
 
 		[JsonProperty("arguments")]
 		public string Arguments { get; set; } = string.Empty;

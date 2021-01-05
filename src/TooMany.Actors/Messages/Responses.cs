@@ -22,6 +22,9 @@ namespace TooMany.Actors.Messages
 
 		[JsonProperty("executable")]
 		public string Executable { get; set; } = string.Empty;
+		
+		[JsonProperty("use_shell")]
+		public bool UseShell { get; set; }
 
 		[JsonProperty("arguments")]
 		public string Arguments { get; set; } = string.Empty;
@@ -43,7 +46,7 @@ namespace TooMany.Actors.Messages
 		public ImmutableArray<string> Tags { get; set; } =
 			ImmutableArray<string>.Empty;
 
-		[Newtonsoft.Json.JsonConstructor, Obsolete("Serialization only")]
+		[JsonConstructor, Obsolete("Serialization only")]
 		protected TaskSnapshot() { }
 		
 		public TaskSnapshot(
@@ -65,6 +68,7 @@ namespace TooMany.Actors.Messages
 			Name = task.Name;
 			Directory = task.Directory;
 			Executable = task.Executable;
+			UseShell = task.UseShell;
 			Arguments = task.Arguments;
 			ExpectedState = task.ExpectedState;
 			ActualState = actualState;

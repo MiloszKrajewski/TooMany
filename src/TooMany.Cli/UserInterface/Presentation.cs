@@ -60,6 +60,7 @@ namespace TooMany.Cli.UserInterface
 			var table = new Table { Border = TableBorder.Simple };
 
 			table.AddColumn("[silver]Name[/]");
+			table.AddColumn("[white]Shell[/]", c => c.Alignment = Justify.Center);
 			table.AddColumn("[white]Executable[/]");
 			table.AddColumn("[white]Arguments[/]");
 			table.AddColumn("[white]Directory[/]");
@@ -83,6 +84,7 @@ namespace TooMany.Cli.UserInterface
 			
 			table.AddRow(
 				$"[yellow]{task.Name.EscapeMarkup()}[/]",
+				$"[green]{(task.UseShell ? "*" : "")}[/]",
 				$"[white]{executable.EscapeMarkup()}[/]",
 				$"[white]{arguments.EscapeMarkup()}[/]",
 				$"[white]{directory.EscapeMarkup()}[/]",
@@ -123,6 +125,7 @@ namespace TooMany.Cli.UserInterface
 		private static void TaskDetails(Table table, TaskResponse task)
 		{
 			table.AddRow("[olive]Name[/]", $"[yellow]{task.Name.EscapeMarkup()}[/]");
+			table.AddRow("[silver]Shell[/]", task.UseShell ? "[green]Yes[/]" : "[white]No[/]");
 			table.AddRow("[silver]Executable[/]", $"[white]{task.Executable.EscapeMarkup()}[/]");
 			table.AddRow("[silver]Arguments[/]", $"[white]{task.Arguments.EscapeMarkup()}[/]");
 			table.AddRow("[silver]Directory[/]", $"[white]{task.Directory.EscapeMarkup()}[/]");

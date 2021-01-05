@@ -21,6 +21,10 @@ namespace TooMany.Cli.Commands
 			[CommandArgument(0, "<TASK>")]
 			[Description("Name of tasks")]
 			public string Name { get; set; } = null!;
+			
+			[CommandOption("-s|--shell")]
+			[Description("Use shell to execute command")]
+			public bool UseShell { get; set; }
 
 			[CommandOption("-e|--environment <KEY=VALUE>")]
 			[Description("Environment variable")]
@@ -33,7 +37,7 @@ namespace TooMany.Cli.Commands
 			[CommandOption("-t|--tag <TAG>")]
 			[Description("Assign tag to task")]
 			public string[] Tags { get; set; } = Array.Empty<string>();
-
+			
 			[CommandArgument(1, "<EXECUTABLE>")]
 			[Description("Executable path")]
 			public string Executable { get; set; } = string.Empty;
@@ -54,6 +58,7 @@ namespace TooMany.Cli.Commands
 			
 			var request = new TaskRequest {
 				Executable = settings.Executable,
+				UseShell = settings.UseShell,
 				Arguments = ToArguments(arguments),
 				Directory = settings.Directory,
 				Tags = settings.Tags.ToList(),
@@ -70,14 +75,12 @@ namespace TooMany.Cli.Commands
 		private static string ToArguments(IEnumerable<string> arguments) =>
 			string.Join(' ', arguments.Select(ToArgument));
 
-		private static string ToArgument(string argument)
-		{
-			var spaces = argument.Contains(' ') || argument.Contains('\t');
-			return !spaces ? argument : Quote(argument);
-		}
+		private static string ToArgument(string argument) => Quote(argument, false);
 
-		private static string Quote(string argument) => 
-			"\"" + argument.Replace("\\", "\\\\").Replace("\"", "\\") + "\"";
+		private static string Quote(string text, bool force = false) =>
+			force || (text.Contains(' ') || text.Contains('\t'))
+				? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+				: text;
 
 		private static Dictionary<string, string?> ToEnvironment(
 			IEnumerable<string> keyValuePairs) =>

@@ -1,3 +1,6 @@
+## 0.4.8-beta (2021/01/05)
+* added option to use shell to execute commands
+
 ## 0.4.7-beta (2021/01/05)
 * added column width limits in compact view 
 

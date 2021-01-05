@@ -26,8 +26,8 @@ namespace TooMany.Actors.Worker.Processes
 			_killer = killer;
 			_logAction = logAction;
 			_info = new ProcessStartInfo {
-				FileName = definition.Executable,
-				Arguments = definition.Arguments,
+				FileName = BuildExecutable(definition),
+				Arguments = BuildArguments(definition),
 				UseShellExecute = false,
 				CreateNoWindow = true,
 				WindowStyle = ProcessWindowStyle.Hidden,
@@ -37,6 +37,19 @@ namespace TooMany.Actors.Worker.Processes
 			};
 			UpdateEnvironment(_info.Environment, definition.Environment);
 		}
+
+		private static string BuildExecutable(TaskDefinition definition) => 
+			!definition.UseShell ? definition.Executable : "cmd";
+
+		private static string BuildArguments(TaskDefinition definition) => 
+			!definition.UseShell 
+				? definition.Arguments 
+				: $"/c {Quote(definition.Executable)} {definition.Arguments}";
+
+		private static string Quote(string text, bool force = false) =>
+			force || (text.Contains(' ') || text.Contains('\t'))
+				? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
+				: text;
 
 		private static void UpdateEnvironment(
 			IDictionary<string, string> current, IDictionary<string, string?> expected)
