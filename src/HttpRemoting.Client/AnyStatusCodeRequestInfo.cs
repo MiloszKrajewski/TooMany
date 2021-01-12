@@ -12,10 +12,9 @@ namespace HttpRemoting.Client
 	{
 		private readonly IRequestInfo _inner;
 		public AnyStatusCodeRequestInfo(IRequestInfo inner) => _inner = inner;
-		
 		public bool AllowAnyStatusCode => true;
-
 		public HttpMethod Method => _inner.Method;
+		public string? BaseAddress => _inner.BaseAddress;
 		public string? BasePath => _inner.BasePath;
 		public string Path => _inner.Path;
 		public CancellationToken CancellationToken => _inner.CancellationToken;

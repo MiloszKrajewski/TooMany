@@ -63,7 +63,7 @@ namespace TooMany.Cli.Commands
 				UseShell = settings.UseShell,
 				Arguments = ToArguments(arguments),
 				Directory = directory,
-				Tags = settings.Tags.ToList(),
+				Tags = ExpandTags(settings.Tags).ToList().NullIfEmpty(),
 				Environment = ToEnvironment(settings.Environment),
 			};
 

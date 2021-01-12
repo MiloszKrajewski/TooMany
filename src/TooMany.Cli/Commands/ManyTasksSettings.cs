@@ -4,7 +4,13 @@ using Spectre.Console.Cli;
 
 namespace TooMany.Cli.Commands
 {
-	public class ManyTasksSettings: CommandSettings
+	public interface IManyTasksSettings
+	{
+		string[] Names { get; }
+		string? Expression { get; }
+	}
+
+	public class ManyTasksSettings: CommandSettings, IManyTasksSettings
 	{
 		[CommandArgument(0, "<TASK...>")]
 		[Description("Names of tasks (wildcards are allowed, use '*' for all)")]

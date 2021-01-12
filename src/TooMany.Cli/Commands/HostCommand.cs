@@ -14,6 +14,7 @@ namespace TooMany.Cli.Commands
 {
 	public abstract class HostCommand<T>: AsyncCommand<T> where T: CommandSettings
 	{
+		private static readonly string[] AllNames = new[] { "*" };
 		protected IHostInterface Host { get; }
 
 		protected HostCommand(IHostInterface host)
@@ -21,9 +22,11 @@ namespace TooMany.Cli.Commands
 			Host = host;
 		}
 		
-		public async Task<TaskResponse[]> GetTasks(ManyTasksSettings settings)
+		public async Task<TaskResponse[]> GetTasks(
+			IManyTasksSettings settings, bool listAllIfNoNames = false)
 		{
-			var names = settings.Names.ToArray();
+			var names = settings.Names;
+			if (names.Length == 0 && listAllIfNoNames) names = AllNames;
 			var expression = settings.Expression;
 
 			var many =
@@ -139,5 +142,8 @@ namespace TooMany.Cli.Commands
 
 			return e => NotEmpty(e) && MatchesAny(e);
 		}
+
+		protected static string[] ExpandTags(IEnumerable<string> tags) =>
+			TagExpression.ExpandTags(tags);
 	}
 }

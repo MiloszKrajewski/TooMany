@@ -1,3 +1,8 @@
+## 0.4.12-beta (2021/01/11)
+* list command no longer needs *
+* info command separated from list
+* spec command added
+
 ## 0.4.10-beta (2021/01/05)
 * moving columns around to reduce neck pain
 

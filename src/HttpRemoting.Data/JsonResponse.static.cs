@@ -46,7 +46,7 @@ namespace HttpRemoting.Data
 			var body = Expression.Call(null, actualMethod, resultArg, errorArg);
 			var lambda = Expression.Lambda<Constructor>(body, resultArg, errorArg);
 			return lambda.Compile();
-//
+
 // #warning this can be much faster with complied lambda
 // 			return (result, error) =>
 // 				(IJsonResponse) actualMethod.Invoke(null, new[] { result, error });

@@ -4,11 +4,11 @@ using Spectre.Console.Cli;
 
 namespace TooMany.Cli.Utilities
 {
-	internal class CompositeTypeRegistrar: ITypeRegistrar
+	internal class SharedTypeRegistrar: ITypeRegistrar
 	{
 		private readonly IServiceCollection _collection;
 
-		public CompositeTypeRegistrar(IServiceCollection collection) => _collection = collection;
+		public SharedTypeRegistrar(IServiceCollection collection) => _collection = collection;
 
 		public void Register(Type service, Type implementation)
 		{
@@ -21,13 +21,13 @@ namespace TooMany.Cli.Utilities
 		}
 
 		public ITypeResolver Build() =>
-			new CompositeTypeResolver(_collection.BuildServiceProvider());
+			new InternalTypeResolver(_collection.BuildServiceProvider());
 
-		internal class CompositeTypeResolver: ITypeResolver
+		internal class InternalTypeResolver: ITypeResolver
 		{
 			private readonly IServiceProvider _provider;
 
-			public CompositeTypeResolver(IServiceProvider provider) => _provider = provider;
+			public InternalTypeResolver(IServiceProvider provider) => _provider = provider;
 
 			public object? Resolve(Type? type) => type is null ? null : _provider.GetService(type);
 		}

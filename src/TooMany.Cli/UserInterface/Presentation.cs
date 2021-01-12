@@ -154,6 +154,54 @@ namespace TooMany.Cli.UserInterface
 			}
 		}
 
+		public static void TaskSpecs(IEnumerable<TaskResponse> tasks)
+		{
+			foreach (var task in tasks) TaskSpec(task);
+		}
+
+		private static void TaskSpec(TaskResponse task)
+		{
+			var space = new Markup(" ");
+			
+			// 2many define <name> -s -t <tags...> -d <folder> <executable> -- <arguments...>
+			IEnumerable<Markup> Compose()
+			{
+				yield return Markup("grey", "2many define");
+				yield return Markup("yellow", task.Name.Quote());
+
+				if (task.UseShell)
+					yield return Markup("grey", "-s");
+
+				var tags = task.Tags.Join(",");
+				if (!string.IsNullOrWhiteSpace(tags))
+				{
+					yield return Markup("grey", "-t");
+					yield return Markup("white", tags);
+				}
+
+				if (!string.IsNullOrWhiteSpace(task.Directory))
+				{
+					yield return Markup("grey", "-d");
+					yield return Markup("white", task.Directory.Quote());
+				}
+
+				yield return Markup("yellow", task.Executable.Quote());
+
+				if (!string.IsNullOrWhiteSpace(task.Arguments))
+				{
+					yield return Markup("grey", "--");
+					yield return Markup("yellow", task.Arguments);
+				}
+			}
+
+			foreach (var (i, m) in Compose().WithIndex())
+			{
+				if (i > 0) AnsiConsole.Render(space);
+				AnsiConsole.Render(m);
+			}
+			NewLine();
+		}
+
 		private static (Markup Executable, Markup Arguments) FixExecutableAndArguments(
 			TaskResponse task, int executableWidth, int argumentWidth)
 		{

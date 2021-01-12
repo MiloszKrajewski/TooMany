@@ -10,11 +10,15 @@ namespace TooMany.Cli.Commands
 	[Description("Lists tasks")]
 	public class ListTasksCommand: HostCommand<ListTasksCommand.Settings>
 	{
-		public class Settings: ManyTasksSettings
+		public class Settings: CommandSettings, IManyTasksSettings
 		{
-			[CommandOption("-d|--details")]
-			[Description("Shows a little bit more details about tasks")]
-			public bool Details { get; set; }
+			[CommandArgument(0, "[TASK...]")]
+			[Description("Names of tasks (wildcards are allowed, use '*' for all)")]
+			public string[] Names { get; set; } = Array.Empty<string>();
+
+			[CommandOption("--expression <EXPRESSION>")]
+			[Description("Task filter expression (wildcards and logical operations are allowed, ie: \"~(a*|#b)&#c\")")]
+			public string? Expression { get; set; }
 		}
 
 		public ListTasksCommand(IHostInterface host): base(host) { }
@@ -24,16 +28,9 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings);
+			var tasks = await GetTasks(settings, true);
 
-			if (settings.Details)
-			{
-				Presentation.TaskDetails(tasks);
-			}
-			else
-			{
-				Presentation.TaskInfo(tasks);
-			}
+			Presentation.TaskInfo(tasks);
 
 			return 0;
 		}

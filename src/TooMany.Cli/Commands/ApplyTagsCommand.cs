@@ -14,12 +14,12 @@ namespace TooMany.Cli.Commands
 	{
 		public class Settings: ManyTasksSettings
 		{
-			[CommandOption("-s|--set <FLAG>")]
-			[Description("Flag to set")]
+			[CommandOption("-s|--set <TAGS>")]
+			[Description("Tags to set")]
 			public string[] Set { get; set; } = Array.Empty<string>();
 
-			[CommandOption("-c|--clear <FLAG>")]
-			[Description("Flags to clear")]
+			[CommandOption("-c|--clear <TAGS>")]
+			[Description("Tags to clear")]
 			public string[] Clear { get; set; } = Array.Empty<string>();
 		}
 
@@ -43,8 +43,8 @@ namespace TooMany.Cli.Commands
 		private async Task<TaskResponse> UpdateTags(TaskResponse task, Settings settings)
 		{
 			var tags = new HashSet<string>(task.Tags, StringComparer.InvariantCultureIgnoreCase);
-			tags.UnionWith(settings.Set);
-			tags.ExceptWith(settings.Clear);
+			tags.UnionWith(ExpandTags(settings.Set));
+			tags.ExceptWith(ExpandTags(settings.Clear));
 
 			if (tags.SetEquals(task.Tags))
 				return task;

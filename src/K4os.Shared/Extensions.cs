@@ -83,7 +83,7 @@ namespace System
 
 		public static IEnumerable<T> EmptyIfNull<T>(this IEnumerable<T>? sequence) =>
 			sequence ?? Array.Empty<T>();
-
+		
 		public static ICollection<T> EmptyIfNull<T>(this ICollection<T>? sequence) =>
 			sequence ?? Array.Empty<T>();
 
@@ -92,7 +92,7 @@ namespace System
 
 		public static T? NullIfEmpty<T>(this T? sequence) where T: class, ICollection =>
 			sequence is null || sequence.Count <= 0 ? default : sequence;
-
+		
 		public static Dictionary<K, V> ToDictionary<K, V>(
 			this IEnumerable<KeyValuePair<K, V>> dictionary,
 			Func<K, K>? cloneKey = null,
@@ -112,7 +112,7 @@ namespace System
 			string.Join(separator, sequence);
 
 		public static string Quote(this string text, bool force = false) =>
-			force || (text.Contains(' ') || text.Contains('\t'))
+			force || (text.Contains(' ') || text.Contains('\t') || string.IsNullOrWhiteSpace(text))
 				? "\"" + text.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\""
 				: text;
 

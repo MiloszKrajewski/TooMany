@@ -100,10 +100,12 @@ namespace TooMany.Cli
 		private static async Task<int> Execute(
 			ServiceCollection services, string[] args)
 		{
-			var app = new CommandApp(new CompositeTypeRegistrar(services));
+			var app = new CommandApp(new SharedTypeRegistrar(services));
 			app.Configure(
 				config => {
 					config.AddCommand<ListTasksCommand>("list");
+					config.AddCommand<TaskDetailsCommand>("info");
+					config.AddCommand<TaskSpecsCommand>("spec");
 					config.AddCommand<GetLogsCommand>("logs");
 					config.AddCommand<StartTaskCommand>("start");
 					config.AddCommand<StopTaskCommand>("stop");

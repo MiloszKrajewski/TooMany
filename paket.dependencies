@@ -35,7 +35,8 @@ nuget Proto.Remote 0.9
 
 nuget Newtonsoft.Json
 nuget K4os.Json.KnownTypes
-nuget RestEase 1.5.0
+nuget RestEase
+nuget RestEase.SourceGenerator
 nuget K4os.Text.BaseX
 
 nuget K4os.RoutR
