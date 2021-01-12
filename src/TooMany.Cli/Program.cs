@@ -2,6 +2,8 @@
 using System.IO;
 using System.Net.Http;
 using System.Linq;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using HttpRemoting.Client;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using TooMany.Cli.Commands;
+using TooMany.Cli.UserInterface;
 using TooMany.Cli.Utilities;
 using SystemProcess = System.Diagnostics.Process;
 
@@ -64,33 +67,25 @@ namespace TooMany.Cli
 
 			services.AddTransient(p => ConfigureHttpRemoting(p, configuration));
 			services.AddTransient(p => ConfigureSignalR(p, configuration));
-
-			// services.AddTransient<ICommandHandler<GetLogsCommand>, GetLogsHandler>();
-			// services.AddTransient<ICommandHandler<ListTaskCommand>, TaskInfoHandler>();
-			// services.AddTransient<ICommandHandler<TaskInfoCommand>, TaskInfoHandler>();
-			// services.AddTransient<ICommandHandler<DefineTaskCommand>, DefineTaskHandler>();
-			// services.AddTransient<ICommandHandler<StartTaskCommand>, StartStopTaskHandler>();
-			// services.AddTransient<ICommandHandler<StopTaskCommand>, StartStopTaskHandler>();
-			// services.AddTransient<ICommandHandler<RemoveTaskCommand>, RemoveTaskHandler>();
-			// services.AddTransient<ICommandHandler<ApplyTagsCommand>, ApplyTagsHandler>();
-			// services.AddTransient<ICommandHandler<MonitorCommand>, MonitorHandler>();
 		}
 
 		private static IHostInterface ConfigureHttpRemoting(
 			IServiceProvider provider, IConfiguration configuration)
 		{
+			var addr = configuration.GetValue("Host:Server:Addr", "127.0.0.1");
 			var port = configuration.GetValue("Host:Server:Port", 31337);
 			var factory = provider.GetRequiredService<IHttpClientFactory>();
 			var client = factory.CreateClient();
-			client.BaseAddress = new Uri($"http://localhost:{port}");
+			client.BaseAddress = new Uri($"http://{addr}:{port}");
 			return HttpRemotingFactory.Create<IHostInterface>(client);
 		}
 
 		private static HubConnection ConfigureSignalR(
 			IServiceProvider provider, IConfiguration configuration)
 		{
+			var addr = configuration.GetValue("Host:Server:Addr", "127.0.0.1");
 			var port = configuration.GetValue("Host:Server:Port", 31337);
-			var uri = new Uri($"http://localhost:{port}/monitor");
+			var uri = new Uri($"http://{addr}:{port}/monitor");
 			return new HubConnectionBuilder()
 				.WithUrl(uri)
 				.AddNewtonsoftJsonProtocol()
@@ -101,6 +96,7 @@ namespace TooMany.Cli
 			ServiceCollection services, string[] args)
 		{
 			var app = new CommandApp(new SharedTypeRegistrar(services));
+
 			app.Configure(
 				config => {
 					config.AddCommand<ListTasksCommand>("list");
@@ -116,9 +112,7 @@ namespace TooMany.Cli
 					config.AddCommand<RemoveTaskCommand>("remove");
 				});
 
-			await app.RunAsync(args);
-
-			return 0;
+			return await app.RunAsync(args);
 		}
 	}
 }

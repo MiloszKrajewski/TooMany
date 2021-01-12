@@ -8,6 +8,11 @@ GET {{server}}/api/v1/fail
 
 GET {{server}}/api/v1/now
 
+### Version endpoint
+
+GET {{server}}/api/v1/version
+
+
 ### Create task
 
 POST {{server}}/api/v1/task/taskX

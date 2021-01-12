@@ -14,14 +14,16 @@ namespace TooMany.Cli.Commands
 {
 	public abstract class HostCommand<T>: AsyncCommand<T> where T: CommandSettings
 	{
-		private static readonly string[] AllNames = new[] { "*" };
+		// ReSharper disable once StaticMemberInGenericType
+		private static readonly string[] AllNames = { "*" };
+
 		protected IHostInterface Host { get; }
 
 		protected HostCommand(IHostInterface host)
 		{
 			Host = host;
 		}
-		
+
 		public async Task<TaskResponse[]> GetTasks(
 			IManyTasksSettings settings, bool listAllIfNoNames = false)
 		{
@@ -53,12 +55,12 @@ namespace TooMany.Cli.Commands
 				}
 			}
 		}
-		
+
 		protected async Task<TaskResponse[]> GetNamedTasks(string[] names)
 		{
 			if (names.Length == 0)
 				return Array.Empty<TaskResponse>();
-
+			
 			var many = names.Length > 1;
 
 			if (many)
@@ -80,12 +82,9 @@ namespace TooMany.Cli.Commands
 			}
 		}
 
-		
 		private static TaskResponse[] FilterTasks(
 			string[] names, string? expression, TaskResponse[] tasks)
 		{
-			AnsiConsole.WriteLine();
-			
 			var tagsMatch = TagExpression.Matcher(expression);
 			if (tagsMatch is null)
 			{
@@ -104,9 +103,9 @@ namespace TooMany.Cli.Commands
 
 					var name = task.Name;
 					if (!nameMatch(name)) continue;
-					
-					var tags = task.Tags.NotNull().Select(t => $"#{t}").ToArray();
-					if (!tagsMatch(tags.Prepend(name))) continue;
+
+					var tags = task.Tags.NotNull().Select(t => $"#{t}").Prepend(name).ToArray();
+					if (!tagsMatch(tags)) continue;
 
 					filtered.Add(task);
 				}

@@ -63,7 +63,7 @@ namespace TooMany.Cli.UserInterface
 		{
 			if (expected is null) return false;
 
-			bool IsMatch(string tag) => Wildcard.Matcher(tag, ignoreCase, true)(expected);
+			bool IsMatch(string tag) => Wildcard.Matcher(expected, ignoreCase, true)(tag);
 
 			return actual.Any(IsMatch);
 		}

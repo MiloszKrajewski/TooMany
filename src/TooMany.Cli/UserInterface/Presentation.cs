@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Spectre.Console;
 using TooMany.Messages;
 
 namespace TooMany.Cli.UserInterface
 {
-	public class Presentation
+	public static class Presentation
 	{
 		private static void NewLine() => AnsiConsole.WriteLine();
 
@@ -92,7 +93,7 @@ namespace TooMany.Cli.UserInterface
 			);
 		}
 
-		private static string TagsCsv(TaskResponse task) => 
+		private static string TagsCsv(TaskResponse task) =>
 			task.Tags.OrderBy(x => x).Select(t => $"#{t}").Join(",");
 
 		public static void TaskDetails(IEnumerable<TaskResponse> tasks)
@@ -144,7 +145,7 @@ namespace TooMany.Cli.UserInterface
 				var tags = TagsCsv(task);
 				table.AddRow(Markup("silver", "Tags"), Markup("white", tags));
 			}
-			
+
 			table.AddRow(Silver("State"), StateToAnsi(task));
 
 			if (task.StartedTime.HasValue && task.ActualState == TaskState.Started)
@@ -161,8 +162,8 @@ namespace TooMany.Cli.UserInterface
 
 		private static void TaskSpec(TaskResponse task)
 		{
-			var space = new Markup(" ");
-			
+			var space = new Text(" ");
+
 			// 2many define <name> -s -t <tags...> -d <folder> <executable> -- <arguments...>
 			IEnumerable<Markup> Compose()
 			{
@@ -199,6 +200,7 @@ namespace TooMany.Cli.UserInterface
 				if (i > 0) AnsiConsole.Render(space);
 				AnsiConsole.Render(m);
 			}
+
 			NewLine();
 		}
 
@@ -274,5 +276,18 @@ namespace TooMany.Cli.UserInterface
 			time.TotalHours > 1 ? $"{time.TotalHours:0}h {time.Minutes:0}m" :
 			time.TotalMinutes > 1 ? $"{time.TotalMinutes:0}m {time.Seconds:0}s" :
 			$"{time.TotalSeconds:0}s";
+
+		public static Task WaitWith(this Task task, string text) =>
+			AnsiConsole.Status().Spinner(Spinner.Known.Default).StartAsync(text, _ => task);
+
+		public static async Task<T> WaitWith<T>(this Task<T> task, string text)
+		{
+			var result = default(T);
+			await AnsiConsole
+				.Status()
+				.Spinner(Spinner.Known.Default)
+				.StartAsync(text, async _ => result = await task);
+			return result!;
+		}
 	}
 }

@@ -23,9 +23,7 @@ namespace TooMany.Cli.Commands
 
 		protected HubConnection Hub { get; }
 
-		public MonitorCommand(
-			IHostInterface host,
-			HubConnection hub): base(host)
+		public MonitorCommand(IHostInterface host, HubConnection hub): base(host)
 		{
 			Hub = hub;
 		}
@@ -36,7 +34,7 @@ namespace TooMany.Cli.Commands
 			ShowIgnoredArguments(context);
 
 			var matcher = BuildLogFilter(settings.Filters);
-
+			
 			Hub.On(
 				"Log",
 				(string task, LogEntryResponse message) => OnLog(task, message, matcher));
@@ -48,7 +46,7 @@ namespace TooMany.Cli.Commands
 			await Hub.StartAsync();
 
 			(await Host.GetTasks()).ForEach(t => OnTask(t.Name, t));
-
+			
 			try
 			{
 				await Console.In.ReadLineAsync();

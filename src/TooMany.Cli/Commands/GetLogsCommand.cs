@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using Spectre.Console.Cli;
@@ -29,11 +30,16 @@ namespace TooMany.Cli.Commands
 			ShowIgnoredArguments(context);
 
 			var filter = BuildLogFilter(settings.Filters);
-			var tasks = await GetTasks(settings);
+			
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+
 			var entries = await tasks
 				.ToObservable()
 				.SelectMany(GetTaskLog).SelectMany(x => x)
-				.ToArray();
+				.ToArray()
+				.ToTask()
+				.WaitWith("Getting logs...");
+			
 			entries
 				.Where(e => filter(e.Log))
 				.OrderBy(e => e.Log.Timestamp)

@@ -1,7 +1,6 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
@@ -25,14 +24,18 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings);
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+
 			if (tasks.Length <= 0) return 0;
 
 			var found = tasks.Select(t => t.Name).ToArray();
 
-			await Task.WhenAll(found.Select(n => Host.StartTask(n, settings.Force)));
+			await Task.WhenAll(found.Select(n => Host.StartTask(n, settings.Force)))
+				.WaitWith("Starting tasks...");
 
-			Presentation.TaskInfo(await GetNamedTasks(found));
+			var refreshed = await GetNamedTasks(found).WaitWith("Refreshing task state...");
+
+			Presentation.TaskInfo(refreshed);
 
 			return 0;
 		}

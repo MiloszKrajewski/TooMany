@@ -29,17 +29,19 @@ namespace TooMany.Cli.Commands
 		{
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
-			
-			var tasks = await GetTasks(settings);
+
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+
 			if (tasks.Length <= 0) return 0;
 
-			var responses = await Task.WhenAll(tasks.Select(t => UpdateTags(t, settings)));
+			var responses = await Task.WhenAll(tasks.Select(t => UpdateTags(t, settings)))
+				.WaitWith("Updating tags...");
 
 			Presentation.TaskInfo(responses);
 
 			return 0;
 		}
-		
+
 		private async Task<TaskResponse> UpdateTags(TaskResponse task, Settings settings)
 		{
 			var tags = new HashSet<string>(task.Tags, StringComparer.InvariantCultureIgnoreCase);

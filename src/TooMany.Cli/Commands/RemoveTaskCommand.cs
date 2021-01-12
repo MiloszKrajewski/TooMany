@@ -23,7 +23,7 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var names = settings.Names.ToArray();
+			var names = settings.Names;
 			if (names.Any(Wildcard.IsWildcard) && !settings.Force)
 			{
 				Presentation.Error(
@@ -31,12 +31,13 @@ namespace TooMany.Cli.Commands
 				return 0;
 			}
 
-			var tasks = await GetTasks(settings);
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
 			if (tasks.Length <= 0) return 0;
 
 			Presentation.TaskInfo(tasks);
 
-			await Task.WhenAll(tasks.Select(t => Host.RemoveTask(t.Name)));
+			await Task.WhenAll(tasks.Select(t => Host.RemoveTask(t.Name)))
+				.WaitWith("Removing tasks...");
 
 			return 0;
 		}

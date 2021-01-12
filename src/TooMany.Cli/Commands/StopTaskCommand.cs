@@ -19,14 +19,17 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings);
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+
 			if (tasks.Length <= 0) return 0;
 
 			var found = tasks.Select(t => t.Name).ToArray();
 
-			await Task.WhenAll(found.Select(n => Host.StopTask(n)));
+			await Task.WhenAll(found.Select(n => Host.StopTask(n))).WaitWith("Stopping tasks...");
 
-			Presentation.TaskInfo(await GetNamedTasks(found));
+			var refreshed = await GetNamedTasks(found).WaitWith("Refreshing task states...");
+
+			Presentation.TaskInfo(refreshed);
 
 			return 0;
 		}

@@ -1,3 +1,10 @@
+## 0.4.14-beta (2021/01/12)
+* added in progress spinner
+* improved rest call performance
+
+## 0.4.13-beta (2021/01/12)
+* fixed a bug causing filtering with wildcards not working
+
 ## 0.4.12-beta (2021/01/11)
 * list command no longer needs *
 * info command separated from list

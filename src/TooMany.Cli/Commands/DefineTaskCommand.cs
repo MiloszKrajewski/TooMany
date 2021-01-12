@@ -67,7 +67,8 @@ namespace TooMany.Cli.Commands
 				Environment = ToEnvironment(settings.Environment),
 			};
 
-			var response = await Host.CreateTask(settings.Name, request);
+			var response = await Host.CreateTask(settings.Name, request)
+				.WaitWith("Updating task definition...");
 
 			Presentation.TaskDetails(response);
 

@@ -38,6 +38,5 @@ namespace TooMany.Messages
 		[JsonProperty("tags")]
 		public List<string> Tags { get; set; } =
 			new List<string>();
-
 	}
 }

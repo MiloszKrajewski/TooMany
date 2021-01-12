@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
@@ -36,6 +37,9 @@ namespace TooMany.WebServer
 
 		[HttpGet("fail")]
 		public DateTime Fail() => throw new BadRequest();
+
+		[HttpGet("version")]
+		public string Version() => "0.0.0";
 
 		[HttpPost("task/{name}")]
 		public async Task<IJsonResponse<TaskResponse>> CreateTask(

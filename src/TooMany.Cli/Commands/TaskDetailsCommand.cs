@@ -19,7 +19,7 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings);
+			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
 
 			Presentation.TaskDetails(tasks);
 
