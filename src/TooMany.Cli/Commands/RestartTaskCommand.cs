@@ -19,7 +19,7 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+			var tasks = await GetTasks(settings).WithSpinner("Getting task list...");
 			if (tasks.Length <= 0) return 0;
 
 			var found = tasks
@@ -28,9 +28,9 @@ namespace TooMany.Cli.Commands
 				.ToArray();
 
 			await Task.WhenAll(found.Select(n => Host.StartTask(n, true)))
-				.WaitWith("Restarting task...");
+				.WithSpinner("Restarting task...");
 
-			var refreshed = await GetNamedTasks(found).WaitWith("Refreshing task states...");
+			var refreshed = await GetNamedTasks(found).WithSpinner("Refreshing task states...");
 			
 			Presentation.TaskInfo(refreshed);
 

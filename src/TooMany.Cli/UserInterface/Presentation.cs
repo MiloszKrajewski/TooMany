@@ -170,8 +170,8 @@ namespace TooMany.Cli.UserInterface
 				yield return Markup("grey", "2many define");
 				yield return Markup("yellow", task.Name.Quote());
 
-				if (task.UseShell)
-					yield return Markup("grey", "-s");
+				if (!task.UseShell)
+					yield return Markup("grey", "-x");
 
 				var tags = task.Tags.Join(",");
 				if (!string.IsNullOrWhiteSpace(tags))
@@ -277,17 +277,23 @@ namespace TooMany.Cli.UserInterface
 			time.TotalMinutes > 1 ? $"{time.TotalMinutes:0}m {time.Seconds:0}s" :
 			$"{time.TotalSeconds:0}s";
 
-		public static Task WaitWith(this Task task, string text) =>
-			AnsiConsole.Status().Spinner(Spinner.Known.Default).StartAsync(text, _ => task);
+		private static readonly TimeSpan NoFlickDelay = TimeSpan.FromMilliseconds(25);
 
-		public static async Task<T> WaitWith<T>(this Task<T> task, string text)
+		public static async Task WithSpinner(this Task task, string text)
 		{
-			var result = default(T);
+			var done = await Task.WhenAny(task, Task.Delay(NoFlickDelay));
+			if (done == task) return;
+
 			await AnsiConsole
 				.Status()
 				.Spinner(Spinner.Known.Default)
-				.StartAsync(text, async _ => result = await task);
-			return result!;
+				.StartAsync(text, _ => task);
+		}
+
+		public static async Task<T> WithSpinner<T>(this Task<T> task, string text)
+		{
+			await WithSpinner((Task) task, text);
+			return await task;
 		}
 	}
 }

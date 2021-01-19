@@ -31,13 +31,13 @@ namespace TooMany.Cli.Commands
 				return 0;
 			}
 
-			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+			var tasks = await GetTasks(settings).WithSpinner("Getting task list...");
 			if (tasks.Length <= 0) return 0;
 
 			Presentation.TaskInfo(tasks);
 
 			await Task.WhenAll(tasks.Select(t => Host.RemoveTask(t.Name)))
-				.WaitWith("Removing tasks...");
+				.WithSpinner("Removing tasks...");
 
 			return 0;
 		}

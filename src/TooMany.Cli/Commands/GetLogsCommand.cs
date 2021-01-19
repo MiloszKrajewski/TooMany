@@ -31,14 +31,14 @@ namespace TooMany.Cli.Commands
 
 			var filter = BuildLogFilter(settings.Filters);
 			
-			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+			var tasks = await GetTasks(settings).WithSpinner("Getting task list...");
 
 			var entries = await tasks
 				.ToObservable()
 				.SelectMany(GetTaskLog).SelectMany(x => x)
 				.ToArray()
 				.ToTask()
-				.WaitWith("Getting logs...");
+				.WithSpinner("Getting logs...");
 			
 			entries
 				.Where(e => filter(e.Log))

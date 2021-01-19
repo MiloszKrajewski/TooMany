@@ -61,6 +61,7 @@ namespace TooMany.Actors.Worker
 				LogEntry e => OnLogAdded(e),
 				GetLog m => OnGetLog(context, m),
 				SyncState _ => OnSyncState(context),
+				// ----
 				_ => Task.CompletedTask
 			};
 

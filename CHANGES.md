@@ -1,3 +1,9 @@
+## 0.4.16-beta (2021/01/19)
+* removed --shell (now default), added -direct-execute switch
+
+## 0.4.15-beta (2021/01/12)
+* prevent status flick
+
 ## 0.4.14-beta (2021/01/12)
 * added in progress spinner
 * improved rest call performance

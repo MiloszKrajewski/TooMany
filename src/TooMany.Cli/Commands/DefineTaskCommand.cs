@@ -23,9 +23,9 @@ namespace TooMany.Cli.Commands
 			[Description("Name of tasks")]
 			public string Name { get; set; } = null!;
 
-			[CommandOption("-s|--shell")]
-			[Description("Use shell to execute command")]
-			public bool UseShell { get; set; }
+			[CommandOption("-x|--direct-execute")]
+			[Description("Do not use shell to execute command")]
+			public bool DirectExecute { get; set; }
 
 			[CommandOption("-e|--environment <KEY=VALUE>")]
 			[Description("Environment variable")]
@@ -57,10 +57,11 @@ namespace TooMany.Cli.Commands
 
 			var arguments = settings.Arguments.Concat(context.Remaining.Raw);
 			var directory = FullDirectoryPath(settings.Directory);
+			var useShell = !settings.DirectExecute;
 
 			var request = new TaskRequest {
 				Executable = settings.Executable,
-				UseShell = settings.UseShell,
+				UseShell = useShell,
 				Arguments = ToArguments(arguments),
 				Directory = directory,
 				Tags = ExpandTags(settings.Tags).ToList().NullIfEmpty(),
@@ -68,7 +69,7 @@ namespace TooMany.Cli.Commands
 			};
 
 			var response = await Host.CreateTask(settings.Name, request)
-				.WaitWith("Updating task definition...");
+				.WithSpinner("Updating task definition...");
 
 			Presentation.TaskDetails(response);
 

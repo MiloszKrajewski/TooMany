@@ -30,12 +30,12 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var tasks = await GetTasks(settings).WaitWith("Getting task list...");
+			var tasks = await GetTasks(settings).WithSpinner("Getting task list...");
 
 			if (tasks.Length <= 0) return 0;
 
 			var responses = await Task.WhenAll(tasks.Select(t => UpdateTags(t, settings)))
-				.WaitWith("Updating tags...");
+				.WithSpinner("Updating tags...");
 
 			Presentation.TaskInfo(responses);
 
