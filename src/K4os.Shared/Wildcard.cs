@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
-namespace TooMany.Cli.UserInterface
+namespace K4os.Shared
 {
 	public class Wildcard
 	{
@@ -17,18 +16,29 @@ namespace TooMany.Cli.UserInterface
 
 		public bool IsMatch(string text) => _rx.IsMatch(text);
 
-		public static bool IsWildcard(string pattern) =>
-			pattern.Contains('*') || pattern.Contains('?');
+		public static bool IsWildcard(string? pattern)
+		{
+			if (string.IsNullOrWhiteSpace(pattern)) 
+				return false;
 
-		public static Func<string?, bool> Matcher(
-			string? pattern, bool ignoreCase, bool useCache = false)
+			var length = pattern!.Length;
+			for (var i = 0; i < length; i++)
+			{
+				var isGlob = pattern[i] switch { '*' or '?' => true, _ => false };
+				if (isGlob) return true;
+			}
+
+			return false;
+		}
+
+		public static Func<string?, bool> Matcher(string? pattern, bool ignoreCase)
 		{
 			if (pattern is null)
 				return NullMatcher;
 			
-			if (useCache)
-				return GetMatcher(pattern, ignoreCase);
-
+			if (pattern == "*")
+				return AllMatcher;
+			
 			if (IsWildcard(pattern))
 			{
 				var wildcard = new Wildcard(pattern, ignoreCase);
@@ -41,17 +51,9 @@ namespace TooMany.Cli.UserInterface
 
 			return s => string.Equals(s, pattern, comparison);
 		}
-
-		private static readonly ConcurrentDictionary<(string, bool), Func<string?, bool>> Matchers
-			= new();
 		
 		private static bool NullMatcher(string? text) => text is null;
 		
-		private static Func<string?, bool> GetMatcher(string pattern, bool ignoreCase) => 
-			Matchers.GetOrAdd((pattern, ignoreCase), NewMatcher);
-
-		private static Func<string?, bool> NewMatcher((string Pattern, bool IgnoreCase) filter) =>
-			Matcher(filter.Pattern, filter.IgnoreCase);
-
+		private static bool AllMatcher(string? _) => true;
 	}
 }

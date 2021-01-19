@@ -5,7 +5,6 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
-using Spectre.Console;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 using TooMany.Messages;
@@ -14,59 +13,42 @@ namespace TooMany.Cli.Commands
 {
 	public abstract class HostCommand<T>: AsyncCommand<T> where T: CommandSettings
 	{
-		// ReSharper disable once StaticMemberInGenericType
-		private static readonly string[] AllNames = { "*" };
-
 		protected IHostInterface Host { get; }
 
-		protected HostCommand(IHostInterface host)
+		protected HostCommand(IHostInterface host) { Host = host; }
+
+		public bool IsExpression(string task)
 		{
-			Host = host;
+			var wildcards = new[] { '*', '?', '|', '&', '~', '#' };
+			return task.Any(c => wildcards.Contains(c));
 		}
 
 		public async Task<TaskResponse[]> GetTasks(
 			IManyTasksSettings settings, bool listAllIfNoNames = false)
 		{
-			var names = settings.Names;
-			if (names.Length == 0 && listAllIfNoNames) names = AllNames;
-			var expression = settings.Expression;
+			var tasks = settings.Tasks;
 
-			var many =
-				names.Length != 1 ||
-				names.Any(Wildcard.IsWildcard) ||
-				!string.IsNullOrWhiteSpace(expression);
-
-			if (many)
-			{
-				return FilterTasks(names, expression, await Host.GetTasks());
-			}
-			else
-			{
-				var name = names.Single();
-
-				try
-				{
-					return new[] { await Host.GetTask(name) };
-				}
-				catch (HttpRemotingException e) when (e.StatusCode == HttpStatusCode.NotFound)
-				{
-					Presentation.Error($"Tasks '{name}' not found");
-					return Array.Empty<TaskResponse>();
-				}
-			}
+			return (tasks.Length switch {
+				0 when listAllIfNoNames => await Host.GetTasks(),
+				0 => Array.Empty<TaskResponse>(),
+				1 => await Host.GetTasks(tasks.First()),
+				_ => await Host.GetTasks(tasks.Select(n => $"({n})").Join("|"))
+			}).OrderBy(t => t.Name).ToArray();
 		}
 
 		protected async Task<TaskResponse[]> GetNamedTasks(string[] names)
 		{
 			if (names.Length == 0)
 				return Array.Empty<TaskResponse>();
-			
+
 			var many = names.Length > 1;
 
 			if (many)
 			{
 				var filter = names.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
-				return (await Host.GetTasks()).Where(t => filter.Contains(t.Name)).ToArray();
+				return (await Host.GetTasks())
+					.Where(t => filter.Contains(t.Name))
+					.OrderBy(t => t.Name).ToArray();
 			}
 
 			var name = names.Single();
@@ -80,38 +62,6 @@ namespace TooMany.Cli.Commands
 				Presentation.Error($"Tasks '{name}' not found");
 				return Array.Empty<TaskResponse>();
 			}
-		}
-
-		private static TaskResponse[] FilterTasks(
-			string[] names, string? expression, TaskResponse[] tasks)
-		{
-			var tagsMatch = TagExpression.Matcher(expression);
-			if (tagsMatch is null)
-			{
-				Presentation.Warn($"'{expression}' is not valid tag expression");
-				return Array.Empty<TaskResponse>();
-			}
-
-			var filtered = new HashSet<TaskResponse>();
-			foreach (var pattern in names)
-			{
-				var nameMatch = Wildcard.Matcher(pattern, true);
-
-				foreach (var task in tasks)
-				{
-					if (filtered.Contains(task)) continue;
-
-					var name = task.Name;
-					if (!nameMatch(name)) continue;
-
-					var tags = task.Tags.NotNull().Select(t => $"#{t}").Prepend(name).ToArray();
-					if (!tagsMatch(tags)) continue;
-
-					filtered.Add(task);
-				}
-			}
-
-			return filtered.OrderBy(t => t.Name).ToArray();
 		}
 
 		protected void ShowUnknownOptions(CommandContext context)

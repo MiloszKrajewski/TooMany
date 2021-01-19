@@ -1,3 +1,6 @@
+## 0.4.20-beta (2021/01/19)
+* server side expression filtering
+
 ## 0.4.16-beta (2021/01/19)
 * removed --shell (now default), added -direct-execute switch
 

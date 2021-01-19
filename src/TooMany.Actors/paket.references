@@ -5,9 +5,12 @@ System.Interactive
 Microsoft.Extensions.DependencyInjection.Abstractions
 Microsoft.Extensions.Logging.Abstractions
 Microsoft.Extensions.Hosting
+Microsoft.Extensions.Caching.Memory
 
 K4os.Json.KnownTypes
 K4os.Text.BaseX
 
 Proto.Actor
 Proto.Persistence
+
+K4os.BoolEx.Parsing

@@ -12,5 +12,3 @@ Microsoft.Extensions.Configuration.Json
 Microsoft.Extensions.Http
 
 Spectre.Console
-
-K4os.BoolEx.Parsing

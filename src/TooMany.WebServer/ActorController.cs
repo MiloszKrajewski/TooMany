@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using K4os.Json.Messages.Interfaces;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Proto;
 using TooMany.Actors;
@@ -12,13 +11,15 @@ namespace TooMany.WebServer
 {
 	public class ActorController: ControllerBase
 	{
+		private static readonly TimeSpan DefaultRequestTimeout = TimeSpan.FromSeconds(30);
+		
 		protected RootContext Context { get; }
 		protected TimeSpan Timeout { get; }
 
 		public ActorController(ActorSystem system, TimeSpan? timeout = null)
 		{
 			Context = system.Root;
-			Timeout = timeout ?? TimeSpan.FromSeconds(15);
+			Timeout = timeout ?? DefaultRequestTimeout;
 		}
 
 		protected async Task<IResponse> RequestAsync(
@@ -43,7 +44,7 @@ namespace TooMany.WebServer
 
 		protected static JsonResponseErrorOnly NotFound(IError error) =>
 			Error(HttpStatusCode.NotFound, error);
-
+		
 		protected static JsonResponseErrorOnly BadRequest(IError error) =>
 			Error(HttpStatusCode.BadRequest, error);
 

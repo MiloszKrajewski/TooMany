@@ -6,18 +6,13 @@ namespace TooMany.Cli.Commands
 {
 	public interface IManyTasksSettings
 	{
-		string[] Names { get; }
-		string? Expression { get; }
+		string[] Tasks { get; }
 	}
 
 	public class ManyTasksSettings: CommandSettings, IManyTasksSettings
 	{
 		[CommandArgument(0, "<TASK...>")]
-		[Description("Names of tasks (wildcards are allowed, use '*' for all)")]
-		public string[] Names { get; set; } = Array.Empty<string>();
-
-		[CommandOption("--expression <EXPRESSION>")]
-		[Description("Task filter expression (wildcards and logical operations are allowed, ie: \"~(a*|#b)&#c\")")]
-		public string? Expression { get; set; }
+		[Description("Names of tasks (wildcards and logical operations are allowed, use '*' for all)")]
+		public string[] Tasks { get; set; } = Array.Empty<string>();
 	}
 }

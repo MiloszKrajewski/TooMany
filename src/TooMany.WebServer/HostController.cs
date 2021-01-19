@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
@@ -51,7 +50,7 @@ namespace TooMany.WebServer
 				TaskAction r => Result(r.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 		
@@ -65,19 +64,20 @@ namespace TooMany.WebServer
 				TaskSnapshot r => Result(r.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 
 		[HttpGet("task")]
-		public async Task<IJsonResponse<TaskResponse[]>> GetTasks()
+		public async Task<IJsonResponse<TaskResponse[]>> GetTasks(
+			[FromQuery] string? filter = null)
 		{
-			var response = await RequestAsync(new GetTasks());
+			var response = await RequestAsync(new GetTasks(filter));
 			return response switch {
 				ManyTasksSnapshot s => Result(s.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 
@@ -89,7 +89,7 @@ namespace TooMany.WebServer
 				TaskSnapshot s => Result(s.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 
@@ -101,7 +101,7 @@ namespace TooMany.WebServer
 				TaskAction r => Result(r.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 		
@@ -114,7 +114,7 @@ namespace TooMany.WebServer
 				TaskSnapshot s => Result(s.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 		
@@ -126,7 +126,7 @@ namespace TooMany.WebServer
 				TaskSnapshot s => Result(s.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 		
@@ -138,11 +138,11 @@ namespace TooMany.WebServer
 				TaskLog l => Result(l.ToResponse()),
 				TaskNotFound e => NotFound(e),
 				IError e => BadRequest(e),
-				{} m => Unexpected(m),
+				var m => Unexpected(m),
 			};
 		}
 
 		private Task<IResponse> RequestAsync(IRequest request) =>
-			RequestAsync(TaskCatalogActor.ActorName, request, TimeSpan.FromSeconds(10));
+			RequestAsync(TaskCatalogActor.ActorName, request, Timeout);
 	}
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using K4os.Shared;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
 
@@ -23,8 +24,8 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var names = settings.Names;
-			if (names.Any(Wildcard.IsWildcard) && !settings.Force)
+			var names = settings.Tasks;
+			if (names.Any(IsExpression) && !settings.Force)
 			{
 				Presentation.Error(
 					"When removing tasks using wildcard '--force' switch is required");

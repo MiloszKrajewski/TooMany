@@ -56,7 +56,16 @@ namespace TooMany.Actors.Messages
 	public class GetLog: TaskRef { }
 
 	[JsonKnownType("GetTasks.v1")]
-	public class GetTasks: GenericRequest { }
+	public class GetTasks: GenericRequest
+	{
+		[JsonProperty("filter")]
+		public string? Filter { get; set; }
+		
+		public GetTasks(string? filter = null)
+		{
+			Filter = filter;
+		}
+	}
 
 	[JsonKnownType("SetTags.v1")]
 	public class SetTags: TaskRef

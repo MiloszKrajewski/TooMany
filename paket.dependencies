@@ -13,6 +13,7 @@ nuget Microsoft.Extensions.Logging.Abstractions
 nuget Microsoft.Extensions.Configuration
 nuget Microsoft.Extensions.Configuration.Binder
 nuget Microsoft.Extensions.Configuration.Abstractions
+nuget Microsoft.Extensions.Caching.Memory
 
 nuget Microsoft.Extensions.Hosting
 nuget Microsoft.Extensions.Http

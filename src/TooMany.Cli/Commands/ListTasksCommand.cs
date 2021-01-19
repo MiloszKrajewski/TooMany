@@ -14,7 +14,7 @@ namespace TooMany.Cli.Commands
 		{
 			[CommandArgument(0, "[TASK...]")]
 			[Description("Names of tasks (wildcards are allowed, use '*' for all)")]
-			public string[] Names { get; set; } = Array.Empty<string>();
+			public string[] Tasks { get; set; } = Array.Empty<string>();
 
 			[CommandOption("--expression <EXPRESSION>")]
 			[Description("Task filter expression (wildcards and logical operations are allowed, ie: \"~(a*|#b)&#c\")")]
