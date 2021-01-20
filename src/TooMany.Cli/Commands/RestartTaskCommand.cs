@@ -12,7 +12,7 @@ namespace TooMany.Cli.Commands
 	{
 		public class Settings: ManyTasksSettings { }
 
-		public RestartTaskCommand(IHostInterface host): base(host) { }
+		public RestartTaskCommand(IHostInterface host, IRawArguments args): base(host, args) { }
 
 		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 		{

@@ -1,3 +1,9 @@
+## 0.4.22-beta (2021/01/20)
+* packages updated
+
+## 0.4.21-beta (2021/01/20)
+* external handling of unparsed args (bypass Spectre)
+
 ## 0.4.20-beta (2021/01/19)
 * server side expression filtering
 

@@ -164,7 +164,7 @@ namespace TooMany.Cli.UserInterface
 		{
 			var space = new Text(" ");
 
-			// 2many define <name> -s -t <tags...> -d <folder> <executable> -- <arguments...>
+			// 2many define <name> -s -t <tags...> -d <folder> -- <executable> <arguments...>
 			IEnumerable<Markup> Compose()
 			{
 				yield return Markup("grey", "2many define");
@@ -185,12 +185,13 @@ namespace TooMany.Cli.UserInterface
 					yield return Markup("grey", "-d");
 					yield return Markup("white", task.Directory.Quote());
 				}
+				
+				yield return Markup("grey", "--");
 
 				yield return Markup("yellow", task.Executable.Quote());
 
 				if (!string.IsNullOrWhiteSpace(task.Arguments))
 				{
-					yield return Markup("grey", "--");
 					yield return Markup("yellow", task.Arguments);
 				}
 			}

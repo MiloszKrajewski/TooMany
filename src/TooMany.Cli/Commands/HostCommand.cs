@@ -15,7 +15,13 @@ namespace TooMany.Cli.Commands
 	{
 		protected IHostInterface Host { get; }
 
-		protected HostCommand(IHostInterface host) { Host = host; }
+		public IRawArguments Args { get; }
+
+		protected HostCommand(IHostInterface host, IRawArguments args)
+		{
+			Host = host;
+			Args = args;
+		}
 
 		public bool IsExpression(string task)
 		{
@@ -72,12 +78,14 @@ namespace TooMany.Cli.Commands
 			// 	Presentation.Warn($"Unknown options: {parsed.Join(", ")}");
 		}
 
-		protected void ShowIgnoredArguments(CommandContext context)
+		protected void ShowIgnoredArguments(CommandContext _)
 		{
-			// NOTE: it is not handled as expected by Spectre
-			// var remaining = context.Remaining.Raw.ToArray();
-			// if (remaining.Length > 0)
-			// 	Presentation.Warn($"Unknown arguments: {remaining.Join(", ")}");
+			// NOTE: it is not handled as expected by Spectre so I'm handling it myself
+			// one day we will use CommandContext
+			var remaining = Args.Tail;
+			if (remaining.Length > 0)
+				Presentation.Warn(
+					$"Unknown arguments: {remaining.Select(a => a.Quote()).Join(" ")}");
 		}
 
 		protected static Func<LogEntryResponse, bool> BuildLogFilter(

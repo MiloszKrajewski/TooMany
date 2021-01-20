@@ -47,7 +47,7 @@ nuget K4os.BoolEx
 nuget K4os.BoolEx.Parsing
 
 # nuget CommandLineParser
-nuget Spectre.Console 0.36.1-preview.0.9
+nuget Spectre.Console
  
 nuget Serilog
 nuget Serilog.Sinks.File

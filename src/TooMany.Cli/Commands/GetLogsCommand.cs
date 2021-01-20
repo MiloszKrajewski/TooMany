@@ -15,7 +15,7 @@ namespace TooMany.Cli.Commands
 	[Description("Get logs of tasks")]
 	public class GetLogsCommand: HostCommand<GetLogsCommand.Settings>
 	{
-		public GetLogsCommand(IHostInterface host): base(host) { }
+		public GetLogsCommand(IHostInterface host, IRawArguments args): base(host, args) { }
 
 		public class Settings: ManyTasksSettings
 		{

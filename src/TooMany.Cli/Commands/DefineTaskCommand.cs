@@ -39,30 +39,29 @@ namespace TooMany.Cli.Commands
 			[Description("Assign tag to task")]
 			public string[] Tags { get; set; } = Array.Empty<string>();
 
-			[CommandArgument(1, "<EXECUTABLE>")]
-			[Description("Executable path")]
-			public string Executable { get; set; } = string.Empty;
-
-			[CommandArgument(2, "[ARGUMENTS]")]
-			[Description("Arguments for executable")]
+			[CommandArgument(1, "[ARGUMENTS]")]
+			[Description("Arguments (executable and arguments)")]
 			public string[] Arguments { get; set; } = Array.Empty<string>();
 		}
 
-		public DefineTaskCommand(IHostInterface host): base(host) { }
+		public DefineTaskCommand(IHostInterface host, IRawArguments args): base(host, args) { }
 
 		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 		{
 			ShowUnknownOptions(context);
 			// ShowIgnoredArguments(context);
 
-			var arguments = settings.Arguments.Concat(context.Remaining.Raw);
+			var arguments = settings.Arguments.Concat(Args.Tail.NotNull()).ToArray();
 			var directory = FullDirectoryPath(settings.Directory);
 			var useShell = !settings.DirectExecute;
 
+			if (arguments.Length <= 0)
+				throw new ArgumentException("At least 1 argument is needed");
+
 			var request = new TaskRequest {
-				Executable = settings.Executable,
+				Executable = arguments[0],
 				UseShell = useShell,
-				Arguments = ToArguments(arguments),
+				Arguments = ToArguments(arguments[1..]),
 				Directory = directory,
 				Tags = ExpandTags(settings.Tags).ToList().NullIfEmpty(),
 				Environment = ToEnvironment(settings.Environment),

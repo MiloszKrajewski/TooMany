@@ -17,7 +17,7 @@ namespace TooMany.Cli.Commands
 			public bool Force { get; set; }
 		}
 
-		public RemoveTaskCommand(IHostInterface host): base(host) { }
+		public RemoveTaskCommand(IHostInterface host, IRawArguments args): base(host, args) { }
 
 		public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
 		{

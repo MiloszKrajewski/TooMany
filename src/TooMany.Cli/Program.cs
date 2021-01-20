@@ -2,8 +2,6 @@
 using System.IO;
 using System.Net.Http;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using HttpRemoting.Client;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -12,9 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using TooMany.Cli.Commands;
-using TooMany.Cli.UserInterface;
 using TooMany.Cli.Utilities;
-using SystemProcess = System.Diagnostics.Process;
 
 // ReSharper disable UnusedParameter.Local
 
@@ -23,6 +19,7 @@ namespace TooMany.Cli
 	class Program
 	{
 		private static readonly string AppName = "2many";
+		
 
 		private static readonly string AssemblyPath =
 			#if NET5_0
@@ -45,7 +42,10 @@ namespace TooMany.Cli
 
 				Configure(serviceCollection, configuration);
 
-				return await Execute(serviceCollection, args);
+				var rawArguments = new RawArguments(args);
+				serviceCollection.AddSingleton<IRawArguments>(rawArguments);
+
+				return await Execute(serviceCollection, rawArguments);
 			}
 			catch (Exception e)
 			{
@@ -93,12 +93,13 @@ namespace TooMany.Cli
 		}
 
 		private static async Task<int> Execute(
-			ServiceCollection services, string[] args)
+			ServiceCollection services, IRawArguments args)
 		{
 			var app = new CommandApp(new SharedTypeRegistrar(services));
-
+			
 			app.Configure(
 				config => {
+					config.SetApplicationName("TooMany");
 					config.AddCommand<ListTasksCommand>("list");
 					config.AddCommand<TaskDetailsCommand>("info");
 					config.AddCommand<TaskSpecsCommand>("spec");
@@ -112,7 +113,7 @@ namespace TooMany.Cli
 					config.AddCommand<RemoveTaskCommand>("remove");
 				});
 
-			return await app.RunAsync(args);
+			return await app.RunAsync(args.Head);
 		}
 	}
 }

@@ -90,7 +90,7 @@ namespace TooMany.Actors.Catalog
 
 		private async Task OnGetTasks(IContext context, GetTasks request)
 		{
-			var filter = TryCreateFilter(request);
+			var filter = TaskFilter.TryCreate(request.Filter);
 			if (filter is null)
 			{
 				context.Respond(new InvalidFilter(request, request.Filter));
@@ -104,18 +104,6 @@ namespace TooMany.Actors.Catalog
 				.ToArray();
 
 			context.Respond(new ManyTasksSnapshot(request, tasks.NoNulls()));
-		}
-
-		private static TaskFilter? TryCreateFilter(GetTasks request)
-		{
-			try
-			{
-				return new TaskFilter(request.Filter);
-			}
-			catch (Exception e)
-			{
-				return null;
-			}
 		}
 
 		private async Task<TaskSnapshot?> GetTaskDefinition(IContext context, string name)
