@@ -1,3 +1,6 @@
+## 0.4.23-beta (2021/01/26)
+* Spectre.Console updated to 0.37.1-preview.0.13 (with --version fix)
+
 ## 0.4.22-beta (2021/01/20)
 * packages updated
 

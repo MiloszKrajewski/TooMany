@@ -19,7 +19,6 @@ namespace TooMany.Cli
 	class Program
 	{
 		private static readonly string AppName = "2many";
-		
 
 		private static readonly string AssemblyPath =
 			#if NET5_0
