@@ -28,6 +28,7 @@ namespace TooMany.Actors.Worker
 		private TaskState _actualState = TaskState.Stopped;
 		private DateTime? _startedTime;
 		private bool _rebootRequired;
+		private bool _syncInProgress;
 
 		private IProcessSupervisor? _supervisor;
 
@@ -86,11 +87,20 @@ namespace TooMany.Actors.Worker
 			await UpdateState(context, request, TaskState.Started);
 		}
 
-		private Task OnStopTask(IContext context, StopTask request) =>
-			UpdateState(context, request, TaskState.Stopped);
+		private Task OnStopTask(IContext context, StopTask request)
+		{
+			_rebootRequired = true;
+			return UpdateState(context, request, TaskState.Stopped);
+		}
 
 		private Task OnSyncState(IContext context)
 		{
+			if (_syncInProgress)
+			{
+				ScheduleSync(context);
+				return Task.CompletedTask;
+			}
+
 			var expectedState = _definition?.ExpectedState ?? TaskState.Stopped;
 			var actualState = _actualState;
 
@@ -105,17 +115,7 @@ namespace TooMany.Actors.Worker
 				isRunning ? StopProcess(context) :
 				Task.CompletedTask;
 		}
-
-		public Task StartProcess(IContext context, TaskDefinition definition)
-		{
-			Log.LogInformation($"Starting '{TaskId}'");
-			var supervisor = _processFactory.Create(definition, CreateLogAction(context));
-			var exception = supervisor.Start();
-			return exception is null
-				? OnProcessStarted(context, supervisor)
-				: OnProcessFailed(context, exception);
-		}
-
+		
 		private static Action<LogEntry> CreateLogAction(IInfoContext context)
 		{
 			var root = context.System.Root;
@@ -123,19 +123,71 @@ namespace TooMany.Actors.Worker
 			return e => root.Send(self, e);
 		}
 
-		private async Task StopProcess(IContext context)
+		public Task StartProcess(IContext context, TaskDefinition definition)
+		{
+			_syncInProgress = true;
+			
+			var supervisor = _processFactory.Create(definition, CreateLogAction(context));
+
+			context.ReenterAfter(
+				TryStartProcess(supervisor),
+				result => OnProcessStartedOrFailed(context, supervisor, result.Exception));
+
+			return Task.CompletedTask;
+		}
+
+		private Task<Exception?> TryStartProcess(IProcessSupervisor supervisor)
+		{
+			Log.LogInformation($"Starting '{TaskId}'");
+			return supervisor.Start();
+		}
+
+		private Task StopProcess(IContext context)
 		{
 			if (_supervisor is null)
-				return;
+				return Task.CompletedTask;
 
+			_syncInProgress = true;
+
+			context.ReenterAfter(
+				TryStopProcess(_supervisor),
+				result => OnProcessKilledOrNot(context, result.Result));
+			
+			return Task.CompletedTask;
+		}
+
+		private async Task<bool> TryStopProcess(IProcessSupervisor supervisor)
+		{
 			Log.LogInformation($"Stopping '{TaskId}'");
-			if (await _supervisor.Stop()) return;
+			if (await supervisor.Stop()) return true;
 
 			Log.LogWarning($"Killing '{TaskId}'");
-			if (await _supervisor.Kill()) return;
+			if (await supervisor.Kill()) return true;
 
-			Log.LogError($"Failed to stop '{TaskId}', scheduling retry...");
-			ScheduleSync(context);
+			return false;
+		}
+
+		private Task OnProcessStartedOrFailed(
+			IContext context, IProcessSupervisor supervisor, Exception? exception)
+		{
+			_syncInProgress = false;
+			return exception switch {
+				null => OnProcessStarted(context, supervisor),
+				_ => OnProcessFailed(context, exception.Unwrap()),
+			};
+		}
+		
+		private Task OnProcessKilledOrNot(IContext context, bool stopped)
+		{
+			_syncInProgress = false;
+			
+			if (!stopped)
+			{
+				Log.LogError($"Failed to stop '{TaskId}', scheduling retry...");
+				ScheduleSync(context);
+			}
+
+			return Task.CompletedTask;
 		}
 
 		private Task OnProcessStarted(IContext context, IProcessSupervisor supervisor)
@@ -174,7 +226,7 @@ namespace TooMany.Actors.Worker
 			_supervisor = null;
 			return Notify2(context, ToTaskSnapshot());
 		}
-
+		
 		private static void ScheduleSync(IContext context, bool immediate = false)
 		{
 			var delay = immediate ? 0 : 1;
@@ -242,13 +294,16 @@ namespace TooMany.Actors.Worker
 			return null;
 		}
 
-		private async Task UpdateState(IContext context, IRequest request, TaskState state)
+		private async Task UpdateState(
+			IContext context, IRequest request, TaskState state)
 		{
 			if (_definition is null) return;
 
 			_definition.ExpectedState = state;
+			var immediate = state != TaskState.Started; // start is delayed
+			
 			await Persist();
-			ScheduleSync(context, true);
+			ScheduleSync(context, immediate);
 
 			await Respond3(context, ToTaskSnapshot(request));
 		}

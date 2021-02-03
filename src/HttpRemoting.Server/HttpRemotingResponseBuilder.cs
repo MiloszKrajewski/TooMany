@@ -54,14 +54,12 @@ namespace HttpRemoting.Server
 
 		private static Exception Unwrap(Exception exception)
 		{
-			if (exception is AggregateException aex)
-			{
-				var flat = aex.Flatten();
-				var inner = flat.InnerExceptions;
-				return inner.Count == 1 ? inner[0] : flat;
-			}
+			if (exception is not AggregateException aex) 
+				return exception;
 
-			return exception;
+			var flat = aex.Flatten();
+			var inner = flat.InnerExceptions;
+			return inner.Count == 1 ? inner[0] : flat;
 		}
 
 		// ReSharper disable once SuspiciousTypeConversion.Global

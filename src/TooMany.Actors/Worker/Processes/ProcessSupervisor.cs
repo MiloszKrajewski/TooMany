@@ -62,9 +62,12 @@ namespace TooMany.Actors.Worker.Processes
 			}
 		}
 
-		public Exception? Start()
+		public Task<Exception?> Start() => 
+			Task.Factory.StartNew(StartImpl, TaskCreationOptions.LongRunning);
+
+		private Exception? StartImpl()
 		{
-			if (_proc is { })
+			if (_proc is not null)
 				throw new InvalidOperationException("Same process cannot be started again");
 
 			try

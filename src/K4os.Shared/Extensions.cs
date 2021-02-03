@@ -48,6 +48,20 @@ namespace System
 
 		public static T[] TypedCloneAll<T>(this IEnumerable<T> subject) where T: ICloneable =>
 			subject.Select(x => x.TypedClone()).ToArray();
+		
+		/// <summary>Unwraps AggregateException and extract InnerException (if there is only one).
+		/// Flattens AggregateException otherwise.</summary>
+		/// <param name="exception">The exception.</param>
+		/// <returns>Inner exception, flatten exception or same exception.</returns>
+		public static Exception Unwrap(this Exception exception)
+		{
+			if (exception is not AggregateException aex) 
+				return exception;
+
+			var flat = aex.Flatten();
+			var inner = flat.InnerExceptions;
+			return inner.Count == 1 ? inner[0] : flat;
+		}
 
 		/// <summary>Rethrows the specified exception preserving stack-trace.
 		/// Returning same exception is a syntactic trick to allow "fake" rethrowing it

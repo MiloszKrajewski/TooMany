@@ -5,7 +5,7 @@ namespace TooMany.Actors.Worker.Processes
 {
 	public interface IProcessSupervisor
 	{
-		Exception? Start();
+		Task<Exception?> Start();
 		Task<bool> Stop();
 		Task<bool> Kill();
 		Task<int> Wait();

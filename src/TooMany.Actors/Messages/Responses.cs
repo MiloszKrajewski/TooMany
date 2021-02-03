@@ -93,7 +93,7 @@ namespace TooMany.Actors.Messages
 			Tasks = snapshots.ToArray();
 		}
 	}
-
+	
 	[JsonKnownType("TaskLog.v1")]
 	public class TaskLog: GenericResponse
 	{

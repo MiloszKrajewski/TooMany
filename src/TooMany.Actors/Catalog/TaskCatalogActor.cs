@@ -7,10 +7,10 @@ using K4os.Text.BaseX;
 using Microsoft.Extensions.Logging;
 using Proto;
 using Proto.Persistence;
-using TooMany.Actors.Filter;
 using TooMany.Actors.Messages;
 using TooMany.Actors.Tools;
 using TooMany.Actors.Worker;
+using TooMany.Filters;
 
 namespace TooMany.Actors.Catalog
 {
@@ -90,22 +90,26 @@ namespace TooMany.Actors.Catalog
 
 		private async Task OnGetTasks(IContext context, GetTasks request)
 		{
-			var filter = TaskFilter.TryCreate(request.Filter);
-			if (filter is null)
+			var filter = new TaskFilter(request.Filter);
+			
+			if (!filter.IsValid)
 			{
 				context.Respond(new InvalidFilter(request, request.Filter));
 				return;
 			}
+			
+			bool IsMatch(TaskSnapshot? task) => 
+				filter.IsMatch(task?.Name, task?.Tags);
 
 			var tasks = await _catalog.Tasks.Values
 				.ToObservable()
 				.SelectMany(t => GetTaskDefinition(context, t.Name))
-				.Where(filter.IsMatch)
+				.Where(IsMatch)
 				.ToArray();
 
 			context.Respond(new ManyTasksSnapshot(request, tasks.NoNulls()));
 		}
-
+		
 		private async Task<TaskSnapshot?> GetTaskDefinition(IContext context, string name)
 		{
 			var pid = Find(context, name);

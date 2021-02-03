@@ -30,15 +30,15 @@ namespace TooMany.Cli.Commands
 		}
 
 		public async Task<TaskResponse[]> GetTasks(
-			IManyTasksSettings settings, bool listAllIfNoNames = false)
+			IManyTasksSettings settings, bool includeAllIfBlank = false)
 		{
 			var tasks = settings.Tasks;
 
 			return (tasks.Length switch {
-				0 when listAllIfNoNames => await Host.GetTasks(),
+				0 when includeAllIfBlank => await Host.GetTasks(),
 				0 => Array.Empty<TaskResponse>(),
-				1 => await Host.GetTasks(tasks.First()),
-				_ => await Host.GetTasks(tasks.Select(n => $"({n})").Join("|"))
+				1 => await Host.GetTasks(tasks.Single()),
+				_ => await Host.GetTasks(BuildTaskExpression(tasks) ?? "false"),
 			}).OrderBy(t => t.Name).ToArray();
 		}
 
@@ -87,6 +87,9 @@ namespace TooMany.Cli.Commands
 				Presentation.Warn(
 					$"Unknown arguments: {remaining.Select(a => a.Quote()).Join(" ")}");
 		}
+
+		protected static string? BuildTaskExpression(IEnumerable<string> tasks) =>
+			tasks.Select(n => $"({n})").Join("|").NotBlank();
 
 		protected static Func<LogEntryResponse, bool> BuildLogFilter(
 			IReadOnlyCollection<string> filters)

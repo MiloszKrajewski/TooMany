@@ -66,7 +66,7 @@ namespace TooMany.Actors.Messages
 			Filter = filter;
 		}
 	}
-
+	
 	[JsonKnownType("SetTags.v1")]
 	public class SetTags: TaskRef
 	{

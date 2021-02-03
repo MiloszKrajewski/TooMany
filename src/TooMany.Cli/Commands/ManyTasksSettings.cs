@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using Spectre.Console.Cli;
 
 namespace TooMany.Cli.Commands

@@ -67,7 +67,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-
+		
 		[HttpGet("task")]
 		public async Task<IJsonResponse<TaskResponse[]>> GetTasks(
 			[FromQuery] string? filter = null)

@@ -12,6 +12,7 @@
     <ProjectReference Include="..\HttpRemoting.Client\HttpRemoting.Client.csproj" />
     <ProjectReference Include="..\K4os.Json.Messages\K4os.Json.Messages.csproj" />
     <ProjectReference Include="..\K4os.Shared\K4os.Shared.csproj" />
+    <ProjectReference Include="..\TooMany.Filters\TooMany.Filters.csproj" />
     <ProjectReference Include="..\TooMany.Messages\TooMany.Messages.csproj" />
   </ItemGroup>
   <ItemGroup>

@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using Spectre.Console.Cli;
 using TooMany.Cli.UserInterface;
+using TooMany.Filters;
 using TooMany.Messages;
 
 namespace TooMany.Cli.Commands
@@ -13,8 +15,9 @@ namespace TooMany.Cli.Commands
 	public class MonitorCommand: HostCommand<MonitorCommand.Settings>
 	{
 		private static readonly object Lock = new object();
+		private readonly Dictionary<string, bool> _monitoredTasks = new();
 
-		public class Settings: CommandSettings
+		public class Settings: ManyTasksSettings
 		{
 			[CommandOption("-f|--filter <REGEX>")]
 			[Description("Show only lines matching at least one given regular expression")]
@@ -34,19 +37,20 @@ namespace TooMany.Cli.Commands
 			ShowUnknownOptions(context);
 			ShowIgnoredArguments(context);
 
-			var matcher = BuildLogFilter(settings.Filters);
+			var taskFilter = new TaskFilter(BuildTaskExpression(settings.Tasks));
+			var logFilter = BuildLogFilter(settings.Filters);
 
 			Hub.On(
 				"Log",
-				(string task, LogEntryResponse message) => OnLog(task, message, matcher));
+				(string task, LogEntryResponse message) => OnLog(task, message, logFilter));
 
 			Hub.On(
 				"Task",
-				(string task, TaskResponse message) => OnTask(task, message));
+				(string task, TaskResponse message) => OnTask(task, message, taskFilter));
 
 			await Hub.StartAsync();
 
-			(await Host.GetTasks()).ForEach(t => OnTask(t.Name, t));
+			(await Host.GetTasks()).ForEach(t => OnTask(t.Name, t, taskFilter));
 
 			try
 			{
@@ -60,17 +64,27 @@ namespace TooMany.Cli.Commands
 			return 0;
 		}
 
-		private static void OnLog(
+		private void OnLog(
 			string task, LogEntryResponse message, Func<LogEntryResponse, bool> filter)
 		{
 			if (!filter(message)) return;
 
-			lock (Lock) Presentation.LogEvent(task, message);
+			lock (Lock)
+			{
+				_monitoredTasks.TryGetValue(task, out var active);
+				if (active) Presentation.LogEvent(task, message);
+			}
 		}
 
-		private static void OnTask(string task, TaskResponse message)
+		private void OnTask(string task, TaskResponse? message, TaskFilter filter)
 		{
-			lock (Lock) Presentation.LogState(task, message);
+			lock (Lock)
+			{
+				var monitor = filter.IsMatch(message?.Name, message?.Tags);
+				_monitoredTasks[task] = monitor;
+				if (message is null) _monitoredTasks.Remove(task);
+				Presentation.LogState(task, message);
+			}
 		}
 	}
 }

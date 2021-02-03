@@ -98,7 +98,7 @@ namespace TooMany.Cli
 			
 			app.Configure(
 				config => {
-					config.SetApplicationName("TooMany");
+					config.SetApplicationName("2many");
 					config.AddCommand<ListTasksCommand>("list");
 					config.AddCommand<TaskDetailsCommand>("info");
 					config.AddCommand<TaskSpecsCommand>("spec");

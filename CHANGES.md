@@ -1,3 +1,9 @@
+## 0.4.25-beta (2021/02/03)
+* monitoring can filtered by task
+
+## 0.4.24-beta (2021/02/02)
+* improved performance when starting processes
+
 ## 0.4.23-beta (2021/01/26)
 * Spectre.Console updated to 0.37.1-preview.0.13 (with --version fix)
 
