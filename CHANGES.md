@@ -1,4 +1,7 @@
-## 0.4.25-beta (2021/02/03)
+## 0.4.28-beta (2021/02/05)
+* deferred startup (debouncing sync message)
+
+## 0.4.26-beta (2021/02/03)
 * monitoring can filtered by task
 
 ## 0.4.24-beta (2021/02/02)
