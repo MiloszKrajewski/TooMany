@@ -29,6 +29,7 @@ namespace TooMany.Actors.Worker
 		private DateTime? _startedTime;
 		private bool _rebootRequired;
 		private bool _syncInProgress;
+		private Guid _recentSyncId;
 
 		private IProcessSupervisor? _supervisor;
 
@@ -61,9 +62,9 @@ namespace TooMany.Actors.Worker
 				// ----
 				LogEntry e => OnLogAdded(e),
 				GetLog m => OnGetLog(context, m),
-				SyncState _ => OnSyncState(context),
+				SyncState m => OnSyncState(context, m),
 				// ----
-				_ => Task.CompletedTask
+				_ => Task.CompletedTask,
 			};
 
 		private async Task OnLogAdded(LogEntry entry)
@@ -93,8 +94,11 @@ namespace TooMany.Actors.Worker
 			return UpdateState(context, request, TaskState.Stopped);
 		}
 
-		private Task OnSyncState(IContext context)
+		private Task OnSyncState(IContext context, SyncState message)
 		{
+			if (message.SyncId != _recentSyncId)
+				return Task.CompletedTask;
+			
 			if (_syncInProgress)
 			{
 				ScheduleSync(context);
@@ -171,6 +175,8 @@ namespace TooMany.Actors.Worker
 			IContext context, IProcessSupervisor supervisor, Exception? exception)
 		{
 			_syncInProgress = false;
+			ScheduleSync(context);
+			
 			return exception switch {
 				null => OnProcessStarted(context, supervisor),
 				_ => OnProcessFailed(context, exception.Unwrap()),
@@ -180,13 +186,11 @@ namespace TooMany.Actors.Worker
 		private Task OnProcessKilledOrNot(IContext context, bool stopped)
 		{
 			_syncInProgress = false;
+			ScheduleSync(context);
 			
 			if (!stopped)
-			{
 				Log.LogError($"Failed to stop '{TaskId}', scheduling retry...");
-				ScheduleSync(context);
-			}
-
+			
 			return Task.CompletedTask;
 		}
 
@@ -227,16 +231,17 @@ namespace TooMany.Actors.Worker
 			return Notify2(context, ToTaskSnapshot());
 		}
 		
-		private static void ScheduleSync(IContext context, bool immediate = false)
+		private void ScheduleSync(IContext context)
 		{
-			var delay = immediate ? 0 : 1;
-			context.SendLater(context.Self!, TimeSpan.FromSeconds(delay), () => new SyncState());
+			var syncId = Guid.NewGuid();
+			_recentSyncId = syncId;
+			context.SendLater(context.Self!, TimeSpan.FromSeconds(1), () => new SyncState(syncId));
 		}
 
 		private async Task OnStarted(IContext context)
 		{
 			await RestoreState(context);
-			ScheduleSync(context, true);
+			ScheduleSync(context);
 		}
 
 		private Task OnStopping(IContext context) =>
@@ -260,7 +265,6 @@ namespace TooMany.Actors.Worker
 				: Respond3(context, ToTaskUpdated(request, id)));
 
 			await StopProcess(context);
-			ScheduleSync(context, true);
 		}
 
 		private async Task OnSetTags(IContext context, SetTags request)
@@ -300,10 +304,9 @@ namespace TooMany.Actors.Worker
 			if (_definition is null) return;
 
 			_definition.ExpectedState = state;
-			var immediate = state != TaskState.Started; // start is delayed
 			
 			await Persist();
-			ScheduleSync(context, immediate);
+			ScheduleSync(context);
 
 			await Respond3(context, ToTaskSnapshot(request));
 		}

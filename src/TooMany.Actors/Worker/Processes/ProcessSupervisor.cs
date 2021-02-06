@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace TooMany.Actors.Worker.Processes
 {
 	public class ProcessSupervisor: IProcessSupervisor
 	{
+		// I'm not sure if this is good idea at all, so for now I just make
+		// this limit quite high, so most of the time it acts like there is no limit
+		private static readonly SemaphoreSlim RateLimit = new(16);
+
 		private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
 		private static readonly TimeSpan LongInterval = TimeSpan.FromMilliseconds(333);
 		private static readonly TimeSpan ShortInterval = TimeSpan.FromMilliseconds(33);
@@ -62,14 +67,32 @@ namespace TooMany.Actors.Worker.Processes
 			}
 		}
 
-		public Task<Exception?> Start() => 
-			Task.Factory.StartNew(StartImpl, TaskCreationOptions.LongRunning);
+		public async Task<Exception?> Start()
+		{
+			// it will start process regardless
+			// but at least it will try waiting for semaphore
+			var acquired = await RateLimit.WaitAsync(WaitTimeout);
+			
+			try
+			{
+				// as this might be slow make sure
+				// to create new thread for new process
+				// rather than using one from pool
+				return await Task.Factory.StartNew(
+					StartImpl, TaskCreationOptions.LongRunning);
+			}
+			finally
+			{
+				if (acquired)
+					RateLimit.Release();
+			}
+		}
 
 		private Exception? StartImpl()
 		{
 			if (_proc is not null)
 				throw new InvalidOperationException("Same process cannot be started again");
-
+			
 			try
 			{
 				var proc = new Process { StartInfo = _info };
