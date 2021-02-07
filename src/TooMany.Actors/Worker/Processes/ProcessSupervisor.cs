@@ -1,32 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TooMany.Actors.Worker.Processes
 {
 	public class ProcessSupervisor: IProcessSupervisor
 	{
-		// I'm not sure if this is good idea at all, so for now I just make
-		// this limit quite high, so most of the time it acts like there is no limit
-		private static readonly SemaphoreSlim RateLimit = new(16);
-
 		private static readonly TimeSpan WaitTimeout = TimeSpan.FromSeconds(5);
 		private static readonly TimeSpan LongInterval = TimeSpan.FromMilliseconds(333);
 		private static readonly TimeSpan ShortInterval = TimeSpan.FromMilliseconds(33);
 
+		protected ILogger Log { get; }
+
 		private readonly IProcessKiller _killer;
 		private readonly Action<LogEntry> _logAction;
 
+		private readonly string _name;
 		private readonly ProcessStartInfo _info;
 		private Process? _proc;
 
 		public ProcessSupervisor(
+			ILoggerFactory loggerFactory,
 			IProcessKiller killer,
 			TaskDefinition definition,
 			Action<LogEntry> logAction)
 		{
+			Log = loggerFactory.CreateLogger(GetType());
 			_killer = killer;
 			_logAction = logAction;
 			_info = new ProcessStartInfo {
@@ -40,14 +41,15 @@ namespace TooMany.Actors.Worker.Processes
 				RedirectStandardOutput = true,
 			};
 			UpdateEnvironment(_info.Environment, definition.Environment);
+			_name = definition.Name;
 		}
 
-		private static string BuildExecutable(TaskDefinition definition) => 
+		private static string BuildExecutable(TaskDefinition definition) =>
 			!definition.UseShell ? definition.Executable : "cmd";
 
-		private static string BuildArguments(TaskDefinition definition) => 
-			!definition.UseShell 
-				? definition.Arguments 
+		private static string BuildArguments(TaskDefinition definition) =>
+			!definition.UseShell
+				? definition.Arguments
 				: $"/c {Quote(definition.Executable)} {definition.Arguments}";
 
 		private static string Quote(string text, bool force = false) =>
@@ -67,37 +69,24 @@ namespace TooMany.Actors.Worker.Processes
 			}
 		}
 
-		public async Task<Exception?> Start()
-		{
-			// it will start process regardless
-			// but at least it will try waiting for semaphore
-			var acquired = await RateLimit.WaitAsync(WaitTimeout);
-			
-			try
-			{
-				// as this might be slow make sure
-				// to create new thread for new process
-				// rather than using one from pool
-				return await Task.Factory.StartNew(
-					StartImpl, TaskCreationOptions.LongRunning);
-			}
-			finally
-			{
-				if (acquired)
-					RateLimit.Release();
-			}
-		}
+		public async Task<Exception?> Start() =>
+			// as this might be slow make sure
+			// to create new thread for new process
+			// rather than using one from pool
+			await Task.Factory.StartNew(StartImpl, TaskCreationOptions.LongRunning);
 
 		private Exception? StartImpl()
 		{
 			if (_proc is not null)
 				throw new InvalidOperationException("Same process cannot be started again");
-			
+
 			try
 			{
 				var proc = new Process { StartInfo = _info };
 				proc.ErrorDataReceived += (_, args) => OnErrorReceived(args.Data);
 				proc.OutputDataReceived += (_, args) => OnOutputReceived(args.Data);
+				
+				Log.LogInformation("Starting process: '{0}'", _name);
 				proc.Start();
 				proc.BeginOutputReadLine();
 				proc.BeginErrorReadLine();
@@ -106,20 +95,21 @@ namespace TooMany.Actors.Worker.Processes
 			}
 			catch (Exception e)
 			{
+				Log.LogError("Process failed: '{0}'", _name);
 				return e;
 			}
 		}
 
-		private void Log(bool error, string? text)
+		private void OnOutputReceived(string? text) => LogOutput(false, text);
+
+		private void OnErrorReceived(string? text) => LogOutput(true, text);
+
+		private void LogOutput(bool error, string? text)
 		{
 			if (text is null) return;
 
 			_logAction(new LogEntry(error, text));
 		}
-
-		private void OnOutputReceived(string? text) => Log(false, text);
-
-		private void OnErrorReceived(string? text) => Log(true, text);
 
 		public async Task<bool> Stop()
 		{
@@ -150,9 +140,11 @@ namespace TooMany.Actors.Worker.Processes
 		{
 			var proc = _proc;
 			if (proc is null) return 0;
-			if (proc.HasExited) return proc.ExitCode;
 
-			await Wait(_proc, LongInterval);
+			if (!proc.HasExited)
+				await Wait(_proc, LongInterval);
+
+			Log.LogInformation("Process finished: '{0}'", _name);
 			return proc.ExitCode;
 		}
 

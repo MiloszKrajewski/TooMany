@@ -99,7 +99,7 @@ namespace TooMany.Actors.Worker
 			if (message.SyncId != _recentSyncId)
 				return Task.CompletedTask;
 			
-			if (_syncInProgress)
+			if (IsSyncInProgress)
 			{
 				ScheduleSync(context);
 				return Task.CompletedTask;
@@ -129,7 +129,7 @@ namespace TooMany.Actors.Worker
 
 		public Task StartProcess(IContext context, TaskDefinition definition)
 		{
-			_syncInProgress = true;
+			OnSyncStarted();
 			
 			var supervisor = _processFactory.Create(definition, CreateLogAction(context));
 
@@ -151,7 +151,7 @@ namespace TooMany.Actors.Worker
 			if (_supervisor is null)
 				return Task.CompletedTask;
 
-			_syncInProgress = true;
+			OnSyncStarted();
 
 			context.ReenterAfter(
 				TryStopProcess(_supervisor),
@@ -174,7 +174,7 @@ namespace TooMany.Actors.Worker
 		private Task OnProcessStartedOrFailed(
 			IContext context, IProcessSupervisor supervisor, Exception? exception)
 		{
-			_syncInProgress = false;
+			OnSyncFinished();
 			ScheduleSync(context);
 			
 			return exception switch {
@@ -185,7 +185,7 @@ namespace TooMany.Actors.Worker
 		
 		private Task OnProcessKilledOrNot(IContext context, bool stopped)
 		{
-			_syncInProgress = false;
+			OnSyncFinished();
 			ScheduleSync(context);
 			
 			if (!stopped)
@@ -317,6 +317,20 @@ namespace TooMany.Actors.Worker
 			context.Stop(context.Self!);
 			var definition = _definition ?? NewDefinition(request);
 			return Respond3(context, ToTaskRemoved(request, id, definition));
+		}
+		
+		private bool IsSyncInProgress => _syncInProgress;
+
+		private void OnSyncStarted()
+		{
+			Log.LogInformation("Sync for process '{0}' started", TaskId);
+			_syncInProgress = true;
+		}
+		
+		private void OnSyncFinished()
+		{
+			Log.LogInformation("Sync for process '{0}' finished", TaskId);
+			_syncInProgress = false;
 		}
 
 		private async Task<bool> Respond3<T>(IContext context, T snapshot) where T: TaskSnapshot

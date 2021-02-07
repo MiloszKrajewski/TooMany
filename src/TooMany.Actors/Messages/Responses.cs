@@ -5,6 +5,7 @@ using System.Linq;
 using K4os.Json.KnownTypes;
 using K4os.Json.Messages;
 using K4os.Json.Messages.Interfaces;
+using K4os.Json.TolerantEnum;
 using Newtonsoft.Json;
 using TooMany.Actors.Worker;
 using TooMany.Messages;
@@ -29,10 +30,10 @@ namespace TooMany.Actors.Messages
 		[JsonProperty("arguments")]
 		public string Arguments { get; set; } = string.Empty;
 
-		[JsonProperty("expected_state")]
+		[JsonProperty("expected_state"), JsonConverter(typeof(TolerantEnumConverter))]
 		public TaskState ExpectedState { get; set; } = TaskState.Stopped;
 
-		[JsonProperty("actual_state")]
+		[JsonProperty("actual_state"), JsonConverter(typeof(TolerantEnumConverter))]
 		public TaskState ActualState { get; set; } = TaskState.Stopped;
 
 		[JsonProperty("started_time")]

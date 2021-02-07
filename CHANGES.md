@@ -1,3 +1,7 @@
+## 0.4.29-beta (2021/02/07)
+* removed throttling startup
+* better logging around infinite "SyncInProgress" (bug still not fixed)
+
 ## 0.4.28-beta (2021/02/05)
 * deferred startup (debouncing sync message)
 
