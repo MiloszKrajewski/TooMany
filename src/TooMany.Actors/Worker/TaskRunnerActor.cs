@@ -90,7 +90,8 @@ namespace TooMany.Actors.Worker
 
 		private Task OnStopTask(IContext context, StopTask request)
 		{
-			_rebootRequired = true;
+			var isRunning = _actualState == TaskState.Started;
+			if (isRunning) _rebootRequired = true;
 			return UpdateState(context, request, TaskState.Stopped);
 		}
 
@@ -149,7 +150,11 @@ namespace TooMany.Actors.Worker
 		private Task StopProcess(IContext context)
 		{
 			if (_supervisor is null)
+			{
+				// if we stop a stopped task, then reboot is not required
+				_rebootRequired = false;
 				return Task.CompletedTask;
+			}
 
 			OnSyncStarted();
 

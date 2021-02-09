@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -83,13 +85,12 @@ namespace TooMany.Actors.Worker.Processes
 			try
 			{
 				var proc = new Process { StartInfo = _info };
-				proc.ErrorDataReceived += (_, args) => OnErrorReceived(args.Data);
-				proc.OutputDataReceived += (_, args) => OnOutputReceived(args.Data);
 				
 				Log.LogInformation("Starting process: '{0}'", _name);
 				proc.Start();
-				proc.BeginOutputReadLine();
-				proc.BeginErrorReadLine();
+				LoopRead(proc.StandardOutput, false).Forget();
+				LoopRead(proc.StandardError, true).Forget();
+				
 				_proc = proc;
 				return null;
 			}
@@ -100,17 +101,55 @@ namespace TooMany.Actors.Worker.Processes
 			}
 		}
 
-		private void OnOutputReceived(string? text) => LogOutput(false, text);
-
-		private void OnErrorReceived(string? text) => LogOutput(true, text);
+		private async Task LoopRead(TextReader reader, bool error)
+		{
+			try
+			{
+				while (true)
+				{
+					var line = await reader.ReadLineAsync();
+					if (line is null) break;
+					LogOutput(error, line);
+				}
+			}
+			catch
+			{
+				Log.LogError("Reading output stream for '{0}' failed", _name);
+			}
+		}
 
 		private void LogOutput(bool error, string? text)
 		{
 			if (text is null) return;
 
-			_logAction(new LogEntry(error, text));
+			_logAction(new LogEntry(error, Sanitize(text)));
 		}
 
+		private static string Sanitize(string text)
+		{
+			StringBuilder? sb = null;
+			var head = 0;
+			var length = text.Length;
+
+			StringBuilder Builder() => sb ??= new StringBuilder(length);
+			StringBuilder? Flush(int a, int b) => b > a ? Builder().Append(text, a, b - a) : sb;
+			void Append(char c) => Builder().Append(c);
+
+			for (var curr = 0; curr < length; curr++)
+			{
+				var c = text[curr];
+				var space = c is '\t' or '\f';
+				var flush = space || c is '\n' or '\r';
+				if (!flush) continue;
+
+				Flush(head, curr);
+				head = curr + 1;
+				if (space) Append(' ');
+			}
+			
+			return sb == null ? text : Flush(head, text.Length)?.ToString() ?? string.Empty;
+		}
+		
 		public async Task<bool> Stop()
 		{
 			var proc = _proc;
@@ -139,7 +178,11 @@ namespace TooMany.Actors.Worker.Processes
 		public async Task<int> Wait()
 		{
 			var proc = _proc;
-			if (proc is null) return 0;
+			if (proc is null)
+			{
+				Log.LogWarning("Process already finished: '{0}'", _name);
+				return 0;
+			}
 
 			if (!proc.HasExited)
 				await Wait(_proc, LongInterval);

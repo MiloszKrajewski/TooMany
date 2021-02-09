@@ -113,14 +113,20 @@ namespace TooMany.Host
 			HostBuilderContext context, ILoggingBuilder builder)
 		{
 			const string outputTemplate =
-				"{Timestamp:HH:mm:ss} [{Level:u4}] ({SourceContext:l}) {Message:lj}{NewLine}{Exception}";
+				"{Timestamp:yyyy-MM-dd HH:mm:ss.fff} " + 
+				"[{Level:u4}] ({SourceContext:l}) " +
+				"{Message:lj}{NewLine}{Exception}";
+
 			var outputFilename = Path.Combine(ApplicationDataPath, $"{AppName}.log");
 			var logger = new LoggerConfiguration()
 				.MinimumLevel.Warning()
 				.MinimumLevel.Override(nameof(TooMany), LogEventLevel.Verbose)
 				.MinimumLevel.Override(nameof(HttpRemoting), LogEventLevel.Verbose)
 				.Enrich.FromLogContext()
-				.WriteTo.File(outputFilename, outputTemplate: outputTemplate)
+				.WriteTo.File(
+					outputFilename, 
+					outputTemplate: outputTemplate, 
+					rollingInterval: RollingInterval.Day)
 				.CreateLogger();
 			builder.AddSerilog(logger);
 		}

@@ -1,3 +1,10 @@
+## 0.4.34-beta (2021/02/09)
+* sanitizing jagged standard error & output
+* turning word-wrap off in monitor
+
+## 0.4.32-beta (2021/02/08)
+* removed bug which caused some tasks being never restarted
+
 ## 0.4.29-beta (2021/02/07)
 * removed throttling startup
 * better logging around infinite "SyncInProgress" (bug still not fixed)

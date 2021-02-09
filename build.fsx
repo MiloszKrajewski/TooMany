@@ -23,7 +23,7 @@ open Tools
 let solutions = Proj.settings |> Config.keys "Build"
 let packages = Proj.settings |> Config.keys "Pack"
 
-let clean () = !! "**/bin/" ++ "**/obj/" |> Shell.deleteDirs
+let clean () = !! "**/bin" ++ "**/obj" |> Shell.deleteDirs
 let build () = solutions |> Proj.buildMany
 let restore () = solutions |> Proj.restoreMany
 let test () = Proj.testAll ()

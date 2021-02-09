@@ -9,18 +9,25 @@ namespace TooMany.Cli.UserInterface
 {
 	public static class Presentation
 	{
-		private static void NewLine() => AnsiConsole.WriteLine();
+		private static void NewLine() => Console.WriteLine();
 
 		private static void Write(ConsoleColor color, string? text)
 		{
-			AnsiConsole.Foreground = Color.FromConsoleColor(color);
-			if (text != null) AnsiConsole.Write(text);
+			Console.ForegroundColor = color;
+			if (text != null) Console.Write(text);
 		}
 
 		private static void WriteLine(ConsoleColor color, string? text)
 		{
 			Write(color, text);
 			NewLine();
+		}
+		
+		private static void WriteTimestamp(string task, DateTime time)
+		{
+			Write(ConsoleColor.DarkGray, $"[{time:s} ");
+			Write(ConsoleColor.White, task);
+			Write(ConsoleColor.DarkGray, "] ");
 		}
 
 		public static void Error(string text) => WriteLine(ConsoleColor.Red, text);
@@ -32,12 +39,12 @@ namespace TooMany.Cli.UserInterface
 			var color = message.Channel switch {
 				LogChannel.StdErr => ConsoleColor.Red,
 				LogChannel.StdOut => ConsoleColor.Cyan,
-				_ => ConsoleColor.Gray
+				_ => ConsoleColor.Gray,
 			};
 			var time = message.Timestamp.ToLocalTime();
 			var text = message.Text;
 
-			Write(ConsoleColor.DarkGray, $"[{task} {time:s}] ");
+			WriteTimestamp(task, time);
 			Write(color, text);
 			NewLine();
 		}
@@ -47,7 +54,7 @@ namespace TooMany.Cli.UserInterface
 			var time = DateTime.Now;
 			var state = message is null ? Markup("fuchsia", "Removed") : StateToAnsi(message);
 
-			Write(ConsoleColor.Gray, $"[{task} {time:s}] ");
+			WriteTimestamp(task, time);
 			Write(ConsoleColor.White, task);
 			Write(ConsoleColor.Gray, " is ");
 			AnsiConsole.Render(state);
