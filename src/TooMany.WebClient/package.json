@@ -17,13 +17,12 @@
     "*.{css,vue}": "stylelint"
   },
   "dependencies": {
-    "@microsoft/signalr": "^5.0.1",
-    "@nuxt/typescript-runtime": "^2.0.0",
-    "@nuxtjs/composition-api": "^0.17.0",
-    "@nuxtjs/pwa": "^3.0.2",
+    "@microsoft/signalr": "^5.0.4",
+    "@nuxtjs/composition-api": "^0.22.1",
+    "@nuxtjs/pwa": "^3.3.5",
     "@types/uuid": "^8.3.0",
-    "core-js": "^3.6.5",
-    "nuxt": "^2.14.6",
+    "core-js": "^3.9.1",
+    "nuxt": "^2.15.3",
     "uuid": "^8.3.2",
     "vue-fragment": "^1.5.1"
   },
