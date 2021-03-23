@@ -1,0 +1,227 @@
+{
+	"list": {
+		"description": "List tasks",
+		"command": ["name", "arguments.task"],
+		"usage": "2many list [TASK...] [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			}
+		}
+	},
+	"info": {
+		"description": "Task details",
+		"command": ["name", "arguments.task"],
+		"usage": "2many info <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			}
+		}
+	},
+	"spec": {
+		"description": "Task details",
+		"command": ["name", "arguments.task"],
+		"usage": "2many spec <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			}
+		}
+	},
+	"logs": {
+		"description": "Get logs of tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many logs <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"filter": {
+				"alias": "f",
+				"description": "Show only lines matching at least one given regular expression",
+				"arguments": ["<REGEX>"]
+			}
+		}
+	},
+	"start": {
+		"description": "Start tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many start <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"force": {
+				"alias": "f",
+				"description": "Forces running tasks to restart"
+			}
+		}
+	},
+	"stop": {
+		"description": "Stop tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many stop <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			}
+		}
+	},
+	"restart": {
+		"description": "Restart tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many restart <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			}
+		}
+	},
+	"monitor": {
+		"description": "Monitor tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many monitor <TASK...> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Names of tasks (wildcards and logical operations are allowed, use '*' for all)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"filter": {
+				"alias": "f",
+				"description": "Show only lines matching at least one given regular expression"
+			}
+		}
+	},
+	"define": {
+		"description": "Define, or redefine a task",
+		"command": ["name", "arguments.task", "arguments.arguments", "options"],
+		"usage": "2many define <TASK> [ARGUMENTS] [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Name"
+			},
+			"arguments": {
+				"description": "Arguments (executable and arguments)"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"direct-execute": {
+				"alias": "x",
+				"description": "Do not use shell to execute command"
+			},
+			"environment": {
+				"alias": "e",
+				"description": "Environment variable",
+				"arguments": ["<KEY=VALUE>"]
+			},
+			"directory": {
+				"alias": "d",
+				"description": "Working directory",
+				"arguments": ["<DIRECTORY>"]
+			},
+			"tag": {
+				"alias": "t",
+				"description": "Assign tag to task",
+				"arguments": ["<TAG>"]
+			}
+		}
+	},
+	"tag": {
+		"description": "Apply tags (set and clear) to tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many define <TASK> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Name"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"set": {
+				"alias": "s",
+				"description": "Tags to set",
+				"arguments": ["<TAGS>"]
+			},
+			"clear": {
+				"alias": "c",
+				"description": "Tags to clear",
+				"arguments": ["<TAGS>"]
+			}
+		}
+	},
+	"remove": {
+		"description": "Remove tasks",
+		"command": ["name", "arguments.task", "options"],
+		"usage": "2many define <TASK> [OPTIONS]",
+		"arguments": {
+			"task": {
+				"description": "Name"
+			}
+		},
+		"options": {
+			"help": {
+				"alias": "h",
+				"description": "Prints help information"
+			},
+			"force": {
+				"alias": "f",
+				"description": "Confirms removal when using wildcards"
+			}
+		}
+	}
+}
