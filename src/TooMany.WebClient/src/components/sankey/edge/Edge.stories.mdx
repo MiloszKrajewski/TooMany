@@ -1,0 +1,19 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks';
+import Edge from './Edge';
+
+<Meta title="Sankey/Edge" component={Edge} />
+
+<Canvas>
+	<Story name="Basic">
+		<svg>
+			<Edge
+				id="basic"
+				left={{ top: { x: 10, y: 10 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: 100 }, bottom: { x: 0, y: -40 } }}
+				isHighlighted={false}
+			>
+				A Basic Edge
+			</Edge>
+		</svg>
+	</Story>
+</Canvas>
