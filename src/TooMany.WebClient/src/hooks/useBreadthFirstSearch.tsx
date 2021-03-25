@@ -59,12 +59,12 @@ function useBreadthFirstSearch(
 		if (!adjacencyList[current.id]) {
 			continue;
 		}
-		adjacencyList[current.id].forEach((neighbor) => {
+		for (const neighbor of adjacencyList[current.id]) {
 			if (!visited[neighbor]) {
 				visited[neighbor] = true;
 				queue.push({ id: neighbor, depth: current.depth + 1 });
 			}
-		});
+		}
 	}
 	return result;
 }
