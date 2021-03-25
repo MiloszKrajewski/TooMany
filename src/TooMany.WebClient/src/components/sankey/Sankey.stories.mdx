@@ -1,0 +1,20 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs/blocks';
+import Sankey from './Sankey';
+
+<Meta title="Sankey" component={Sankey} />
+
+<Canvas>
+	<Story name="Basic">
+		<Sankey
+			edges={[
+				['something0', 'something1'],
+				['something1', 'messageService'],
+				['something2', 'messageService'],
+				['messageService', 'all'],
+				['messageService', 'req'],
+				['busyBot'],
+				['contacts'],
+			]}
+		/>
+	</Story>
+</Canvas>

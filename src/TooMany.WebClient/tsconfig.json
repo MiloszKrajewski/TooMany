@@ -18,7 +18,8 @@
 		"paths": {
 			"@tm/*": ["./src/*"],
 			"@types/*": ["./src/types/*"],
-			"@components/*": ["./src/components/*"]
+			"@components/*": ["./src/components/*"],
+			"@hooks/*": ["./src/hooks/*"]
 		}
 	},
 	"include": ["./src"]

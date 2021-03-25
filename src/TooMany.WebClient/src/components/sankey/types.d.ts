@@ -20,10 +20,12 @@ interface INode {
 	inputs?: NodeId[];
 	outputs?: NodeId[];
 	label: string;
+	column: number;
 }
 
 interface ISankeyProps {
 	edges: IEdge[];
+	nodes: INode[];
 }
 
 interface IEdgeProps {
