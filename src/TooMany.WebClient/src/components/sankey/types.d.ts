@@ -13,7 +13,9 @@ interface IPosition {
 }
 
 // IEdge includes full and orphan relationships
-type IEdge = [string, string] | [string];
+type IValidEdge = [string, string];
+type ISoloEdge = [string];
+export type IEdge = IValidEdge | ISoloEdge;
 
 interface INode {
 	id: NodeId;
@@ -29,11 +31,14 @@ interface ISankeyProps {
 }
 
 interface IEdgeProps {
+	className?: string;
 	id: EdgeId;
 	left: IPosition;
 	right: IPosition;
-	isHighlighted: boolean;
+	isHighlighted?: boolean;
 	color?: string;
+	onMouseEnter?: (id: EdgeId) => void;
+	onMouseLeave?: (id: EdgeId) => void;
 }
 
 interface INodeButtonProps {
@@ -41,6 +46,11 @@ interface INodeButtonProps {
 	onClick(id: NodeId): void;
 }
 
-interface INodeProps extends INode {
+interface INodeProps {
+	className?: string;
+	id: NodeId;
+	inputs?: NodeId[];
+	outputs?: NodeId[];
 	children?: React.ReactNode;
+	label?: string;
 }

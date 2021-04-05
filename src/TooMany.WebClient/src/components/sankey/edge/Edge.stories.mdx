@@ -10,10 +10,60 @@ import Edge from './Edge';
 				id="basic"
 				left={{ top: { x: 10, y: 10 }, bottom: { x: 0, y: 40 } }}
 				right={{ top: { x: 100, y: 100 }, bottom: { x: 0, y: -40 } }}
-				isHighlighted={false}
 			>
-				A Basic Edge
+				A basic Edge
 			</Edge>
+		</svg>
+	</Story>
+	<Story name="Highlighted">
+		<svg>
+			<Edge
+				id="highlighted"
+				left={{ top: { x: 10, y: 10 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: 100 }, bottom: { x: 0, y: -40 } }}
+				isHighlighted
+			>
+				A highlighted Edge
+			</Edge>
+		</svg>
+	</Story>
+	<Story name="Multiple">
+		<svg>
+			<Edge
+				id="multiple-1"
+				left={{ top: { x: 10, y: 10 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: 100 }, bottom: { x: 0, y: -40 } }}
+			>
+				Edge 1
+			</Edge>
+			<Edge
+				id="multiple-2"
+				left={{ top: { x: 10, y: 110 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: -100 }, bottom: { x: 0, y: -40 } }}
+				color="green"
+			>
+				Edge 2
+			</Edge>
+		</svg>
+	</Story>
+	<Story name="Multiple z-index">
+		<svg>
+			<Edge
+				id="multipleZ-1"
+				left={{ top: { x: 10, y: 10 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: 100 }, bottom: { x: 0, y: -40 } }}
+			>
+				Edge 1
+			</Edge>
+			<Edge
+				id="multipleZ-2"
+				left={{ top: { x: 10, y: 110 }, bottom: { x: 0, y: 40 } }}
+				right={{ top: { x: 100, y: -100 }, bottom: { x: 0, y: -40 } }}
+				color="green"
+			>
+				Edge 2
+			</Edge>
+			<use xlinkHref="#multipleZ-1" className="pointer-events-none" />
 		</svg>
 	</Story>
 </Canvas>

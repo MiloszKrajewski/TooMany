@@ -1,26 +1,44 @@
 import type { IEdgeProps } from '../types';
+import type { MouseEvent } from 'react';
 
 export default ({
+	className = '',
 	id,
 	left,
 	right,
 	color = 'red',
-	isHighlighted,
+	isHighlighted = false,
+	onMouseEnter,
+	onMouseLeave,
 }: IEdgeProps) => {
 	let colorDepth = '100';
-	let opacity = '25';
-	let zIndex = '0';
+	let opacity = '60';
 	const highlightedColor = '400';
 	const highlightedOpacity = '100';
-	const highlightedZIndex = '50';
 	if (isHighlighted) {
 		colorDepth = highlightedColor;
 		opacity = highlightedOpacity;
-		zIndex = highlightedZIndex;
 	}
+
+	const onMouseEnterById =
+		typeof onMouseEnter === 'undefined'
+			? undefined
+			: (e: MouseEvent) => {
+					e.preventDefault();
+					onMouseEnter(id);
+			  };
+	const onMouseLeaveById =
+		typeof onMouseLeave === 'undefined'
+			? undefined
+			: (e: MouseEvent) => {
+					e.preventDefault();
+					onMouseLeave(id);
+			  };
 
 	return (
 		<path
+			onMouseEnter={onMouseEnterById}
+			onMouseLeave={onMouseLeaveById}
 			d={`
                 m ${left.top.x},${left.top.y}
                 l ${left.bottom.x},${left.bottom.y}
@@ -35,10 +53,9 @@ export default ({
                 transition-all
                 text-${color}-${colorDepth}
                 hover:text-${color}-${highlightedColor}
-                bg-opacity-${opacity}
-                hover:bg-opacity-${highlightedOpacity}
-                z-${zIndex}
-                hover:z-${highlightedZIndex}
+                opacity-${opacity}
+                hover:opacity-${highlightedOpacity}
+				${className}
             `}
 		/>
 	);
