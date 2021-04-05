@@ -18,7 +18,6 @@ function useAdjacencyList(edges: Types.Edge[]) {
 function useStartOfGraph(relationships: Types.Edge[]) {
 	return useMemo<string[]>(() => {
 		const start: Record<string, boolean> = {};
-		const end: Record<string, boolean> = {};
 		for (const [a] of relationships) {
 			if (typeof a !== 'undefined') {
 				if (!start[a]) {
@@ -40,32 +39,25 @@ function useBreadthFirstSearch(
 	adjacencyList: Types.AdjacencyList,
 ) {
 	return useMemo(() => {
-		const depthById: Record<string, number> = {};
+		const result: Types.EdgeWithDepth[] = [];
 		const visited: Record<string, boolean> = {};
-		const queue = start.map((id) => ({ id, depth: 0 }));
+		const queue = start.map((id) => {
+			visited[id] = true;
+			return { id, depth: 0 };
+		});
 
 		while (queue.length > 0) {
 			let current = queue.shift() || { id: '', depth: 0 };
-			depthById[current.id] = current.depth;
+			result.push({ id: current.id, depth: current.depth });
 			if (!adjacencyList[current.id]) {
 				continue;
 			}
 			for (const neighbor of adjacencyList[current.id]) {
-				const vId = `${current.id}/${neighbor}`;
-				if (visited[vId] && depthById[neighbor]) {
-					const diff = depthById[current.id] - depthById[neighbor];
-					if (diff > 0) {
-						depthById[neighbor] += current.depth;
-						continue;
-					}
+				if (!visited[neighbor]) {
+					visited[neighbor] = true;
+					queue.push({ id: neighbor, depth: current.depth + 1 });
 				}
-				visited[vId] = true;
-				queue.push({ id: neighbor, depth: current.depth + 1 });
 			}
-		}
-		const result: Types.EdgeWithDepth[] = [];
-		for (const [id, depth] of Object.entries(depthById)) {
-			result.push({ id, depth });
 		}
 		return result;
 	}, [start, adjacencyList]);
