@@ -3,7 +3,8 @@ import type { ReactNode } from 'react';
 
 import Edge from './edge/Edge';
 import Node from './node/Node';
-import useBreadthFirstSearch from '../../hooks/useBreadthFirstSearch';
+import useBreadthFirstSearch from '../../hooks/graph-traversal/useBreadthFirstSearch';
+import useAdjacencyList from '../../hooks/graph-traversal/useAdjacencyList';
 import { useState, useMemo, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 interface IColumnNode {
@@ -120,7 +121,8 @@ const Edges = ({
 };
 
 export default ({ edges = [] }: ISankeyProps) => {
-	const [orphans, nodes] = useBreadthFirstSearch(edges);
+	const adjacencyList = useAdjacencyList(edges);
+	const [orphans, nodes] = useBreadthFirstSearch(adjacencyList, edges);
 	const [updates, edgeUpdateCount] = useState(0);
 	const nodeLords = useRef<Record<string, ReactNode>>({});
 
