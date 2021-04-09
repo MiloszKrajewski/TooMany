@@ -1,4 +1,6 @@
-export default ({ children }) => (
+import type { ReactNode } from 'react';
+
+export default ({ children }: { children?: ReactNode }) => (
 	<button
 		type="button"
 		className={`
