@@ -1,40 +1,21 @@
 import './App.css';
-import Nav from '@components/navigation/Nav';
-import Form from '@components/task/editor/Form';
-
-import SignalR from './SignalR';
-import { useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from 'react-query';
-import useTaskList from '@hooks/API/useTaskList';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { ReactNode, useEffect } from 'react';
+import Home from '@tm/pages/Home';
+import Editor from '@tm/pages/Editor';
+import Terminal from '@tm/pages/Terminal';
+import SignalR from './SignalR';
 import useScreenType from '@hooks/useScreenType';
+import Nav from '@components/navigation/Nav';
 
-function Home() {
-	const { data = [], isLoading, isError } = useTaskList();
-	if (isLoading) {
-		return <h1>loading...</h1>;
-	}
-	if (isError) {
-		return <h1>Error!</h1>;
-	}
-	const {
-		name,
-		executable,
-		arguments: args,
-		directory,
-		environment,
-		tags,
-	} = data[0];
+function Layout({ children }: { children: ReactNode }) {
 	return (
-		<div>
-			<Form
-				name={name}
-				executable={executable}
-				arguments={args}
-				directory={directory}
-				envVars={environment}
-				tags={tags}
-			/>
+		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
+			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
+				<Nav />
+			</aside>
+			<main className="col-start-2 col-end-9">{children}</main>
 		</div>
 	);
 }
@@ -46,30 +27,55 @@ function AppContent() {
 			SignalR.stop();
 		};
 	}, []);
-	const list = useTaskList();
-	console.log(list);
 
 	const screenType = useScreenType();
 	console.log(screenType);
 
 	return (
-		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
-			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
-				<header>
-					<button>create</button>
-				</header>
-				<Nav />
-			</aside>
-			<main className="col-start-2 col-end-9">
-				<Routes>
-					<Route path="/" element={<Home />} />
-				</Routes>
-			</main>
-		</div>
+		<Routes>
+			<Route
+				path="/"
+				element={
+					<Layout>
+						<Home />
+					</Layout>
+				}
+			/>
+			<Route
+				path="/editor"
+				element={
+					<Layout>
+						<Editor />
+					</Layout>
+				}
+			/>
+			<Route
+				path="/editor/:name"
+				element={
+					<Layout>
+						<Editor />
+					</Layout>
+				}
+			/>
+			<Route
+				path="/terminal/:type/:name"
+				element={
+					<Layout>
+						<Terminal />
+					</Layout>
+				}
+			/>
+		</Routes>
 	);
 }
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			suspense: true,
+		},
+	},
+});
 function App() {
 	return (
 		<QueryClientProvider client={queryClient}>
