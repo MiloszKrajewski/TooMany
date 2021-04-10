@@ -20,7 +20,7 @@ export default () => {
 			allTasks.flatMap((task) => {
 				if (type === 'task') {
 					for (const tag of task.tags) {
-						if (!tag) continue;
+						if (!tag || isTagAssociated[tag] === true) continue;
 						isTagAssociated[tag] = task.name === name;
 					}
 				}

@@ -19,7 +19,7 @@ export default () => {
 		return allTasks.map((task) => {
 			if (type === 'tag') {
 				for (const tag of task.tags) {
-					if (!tag) continue;
+					if (!tag || isTaskAssociated[task.name] === true) continue;
 					isTaskAssociated[task.name] = tag === name;
 				}
 			}
