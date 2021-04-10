@@ -4,7 +4,7 @@ import type * as Task from '@tm/types/task';
 
 export default function () {
 	const fetcher = useFetcher();
-	return useQuery<Task.Meta>('list', async () => {
+	return useQuery<Task.Meta>('task', async () => {
 		const result = await fetcher.getRequest<Task.Meta>(`${env.apiV1Url}/task`);
 		return result;
 	});
