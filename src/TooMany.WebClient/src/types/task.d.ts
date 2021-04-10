@@ -1,4 +1,4 @@
-import { StdSteams } from '../enums/cli';
+import { StdStreams } from '../enums/cli';
 
 export interface IMeta {
 	name: string;
@@ -15,7 +15,7 @@ export type Meta = IMeta[];
 
 export interface ILog {
 	id: string;
-	channel: StdSteams;
+	channel: StdStreams;
 	text: string;
 	timestamp: string;
 	time: number;
