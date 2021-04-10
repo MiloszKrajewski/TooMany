@@ -10,9 +10,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import useScreenType from '@hooks/useScreenType';
 
 function Home() {
-	const { data = [], isLoading } = useTaskList();
+	const { data = [], isLoading, isError } = useTaskList();
 	if (isLoading) {
 		return <h1>loading...</h1>;
+	}
+	if (isError) {
+		return <h1>Error!</h1>;
 	}
 	const {
 		name,
@@ -47,7 +50,7 @@ function AppContent() {
 	console.log(list);
 
 	const screenType = useScreenType();
-	console.log(list);
+	console.log(screenType);
 
 	return (
 		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
