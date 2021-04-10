@@ -6,7 +6,6 @@ module.exports = {
 	},
 	extends: ['prettier', 'plugin:prettier/recommended'],
 	plugins: ['prettier'],
-	// add your custom rules here
 	rules: {
 		camelcase: 'off',
 	},
