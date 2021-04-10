@@ -9,6 +9,7 @@ export interface IMeta {
 	actual_state: string;
 	environment: Record<string, string>;
 	tags: string[];
+	use_shell: boolean;
 }
 
 export type Meta = IMeta[];
