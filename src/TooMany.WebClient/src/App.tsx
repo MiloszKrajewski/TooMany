@@ -1,54 +1,79 @@
-import { useState } from 'react';
 import './App.css';
 import Nav from '@components/navigation/Nav';
-import logo from './assets/icon.png';
+import Form from '@components/task/editor/Form';
 
-function App() {
-	const [count, setCount] = useState(0);
+import SignalR from './SignalR';
+import { useEffect } from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import useTaskList from '@hooks/API/useTaskList';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import useScreenType from '@hooks/useScreenType';
+
+function Home() {
+	const { data = [], isLoading } = useTaskList();
+	if (isLoading) {
+		return <h1>loading...</h1>;
+	}
+	const {
+		name,
+		executable,
+		arguments: args,
+		directory,
+		environment,
+		tags,
+	} = data[0];
+	return (
+		<div>
+			<Form
+				name={name}
+				executable={executable}
+				arguments={args}
+				directory={directory}
+				envVars={environment}
+				tags={tags}
+			/>
+		</div>
+	);
+}
+
+function AppContent() {
+	useEffect(() => {
+		SignalR.start();
+		return () => {
+			SignalR.stop();
+		};
+	}, []);
+	const list = useTaskList();
+	console.log(list);
+
+	const screenType = useScreenType();
+	console.log(list);
 
 	return (
-		<div className="bg-white dark:bg-gray-800">
-			<div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
-				<div className="flex-shrink-0">
-					<img className="h-12 w-12" src={logo} alt="ChitChat Logo" />
-				</div>
-				<div>
-					<div className="text-xl font-medium text-black">ChitChat</div>
-					<p className="text-gray-500">You have a new message!</p>
-				</div>
-			</div>
-			<Nav />
-			<header className="App-header">
-				<p>Hello Vite + React!</p>
-				<p>
-					<button onClick={() => setCount((count) => count + 1)}>
-						count is: {count}
-					</button>
-				</p>
-				<p>
-					Edit <code>App.tsx</code> and save to test HMR updates.
-				</p>
-				<p>
-					<a
-						className="App-link"
-						href="https://reactjs.org"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Learn React
-					</a>
-					{' | '}
-					<a
-						className="App-link"
-						href="https://vitejs.dev/guide/features.html"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Vite Docs
-					</a>
-				</p>
-			</header>
+		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
+			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
+				<header>
+					<button>create</button>
+				</header>
+				<Nav />
+			</aside>
+			<main className="col-start-2 col-end-9">
+				<Routes>
+					<Route path="/" element={<Home />} />
+				</Routes>
+			</main>
 		</div>
+	);
+}
+
+const queryClient = new QueryClient();
+function App() {
+	return (
+		<QueryClientProvider client={queryClient}>
+			<Router>
+				<AppContent />
+			</Router>
+		</QueryClientProvider>
 	);
 }
 

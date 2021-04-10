@@ -1,10 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import {
 	HubConnection,
+	HubConnectionState,
 	HubConnectionBuilder,
 	LogLevel,
 } from '@microsoft/signalr';
-import { Realtime } from '@tm/types/index';
+
+import type * as Realtime from '@tm/types/realtime';
 
 export enum Channel {
 	Log = 'Log',
@@ -24,6 +26,9 @@ class SignalR {
 
 	async start() {
 		try {
+			if (SignalR.connection.state !== HubConnectionState.Disconnected) {
+				throw new Error('Still connected, try again once disconnected');
+			}
 			console.log('Connecting.');
 			await SignalR.connection.start();
 			console.log('Connected.');
@@ -79,6 +84,4 @@ class SignalR {
 	}
 }
 
-export default function () {
-	return SignalR.instance;
-}
+export default SignalR.instance;
