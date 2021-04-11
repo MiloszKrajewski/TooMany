@@ -14,7 +14,7 @@ function Layout({ children }: { children: ReactNode }) {
 
 	return (
 		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
-			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
+			<aside className="col-span-1 bg-gray-200 dark:bg-gray-700">
 				<div className="sticky top-0">
 					<Navigation />
 				</div>

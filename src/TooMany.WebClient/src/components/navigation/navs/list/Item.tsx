@@ -11,23 +11,23 @@ export default function ({
 	isSelected?: boolean;
 	isNoPadding?: boolean;
 }) {
-	let className = 'text-white';
+	let textColor = 'text-white';
+	let padding = '';
 	let leftAdornment = null;
 	if (!isNoPadding) {
-		className += ' pl-3';
+		padding += 'pl-3';
 	}
 	if (isSelected) {
-		className += ' text-purple-500';
+		textColor = 'text-purple-500';
 		leftAdornment = <span>&gt;</span>;
 	}
 	if (isAssociated) {
-		className += ' text-purple-300';
+		textColor = 'text-purple-300';
 		leftAdornment = <span>-</span>;
 	}
 	return (
-		<li className={className}>
-			{leftAdornment}
-			{children}
+		<li className={`${textColor} ${padding}`}>
+			{leftAdornment} {children}
 		</li>
 	);
 }
