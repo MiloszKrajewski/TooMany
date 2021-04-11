@@ -79,13 +79,15 @@ const Form = ({ name = '' }: { name?: string }) => {
 			for (let index = 0; index < environmentVariableCount; index++) {
 				const key = environmentVariableInputs[inputCount++].value;
 				const value = environmentVariableInputs[inputCount++].value;
+				if (!key || !value) continue;
 				environment[key] = value;
 			}
 
 			const tagInputs: HTMLInputElement[] = target.tags?.elements || [];
 			const tags: string[] = Array(tagCount)
 				.fill(null)
-				.map((_, index) => tagInputs[index].value);
+				.map((_, index) => tagInputs[index].value)
+				.filter(Boolean);
 
 			createTask({
 				name: target.taskName.value,
