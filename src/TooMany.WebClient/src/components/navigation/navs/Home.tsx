@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import Link from '@components/link';
 import { Item } from './list';
 
 export default () => {

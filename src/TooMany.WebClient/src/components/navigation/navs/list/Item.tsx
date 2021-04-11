@@ -11,17 +11,17 @@ export default function ({
 	isSelected?: boolean;
 	isNoPadding?: boolean;
 }) {
-	let className = '';
+	let className = 'text-white';
 	let leftAdornment = null;
 	if (!isNoPadding) {
-		className += 'pl-3';
+		className += ' pl-3';
 	}
 	if (isSelected) {
-		className += ' text-purple-400';
+		className += ' text-purple-500';
 		leftAdornment = <span>&gt;</span>;
 	}
 	if (isAssociated) {
-		className += ' text-purple-100';
+		className += ' text-purple-300';
 		leftAdornment = <span>-</span>;
 	}
 	return (

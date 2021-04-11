@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import {
 	HubConnection,
 	HubConnectionState,
@@ -56,7 +55,7 @@ class SignalR {
 		fn: Realtime.onLogFnCallback,
 	): Realtime.onLogFn {
 		const handler: Realtime.onLogFn = (task, data) => {
-			if (id === task || id === null) fn({ ...data, id: uuidv4() });
+			if (id === task || id === null) fn(data);
 		};
 		SignalR.connection.on(Channel.Log, handler);
 		return handler;
@@ -75,6 +74,7 @@ class SignalR {
 
 	offTaskLog(fn: Realtime.onLogFn | null) {
 		if (fn === null) return;
+		console.log('done');
 		SignalR.connection.off(Channel.Log, fn);
 	}
 

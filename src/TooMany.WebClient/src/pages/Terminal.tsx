@@ -2,7 +2,9 @@ import { memo, ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
-import Terminal from '@components/terminal';
+import { TaskTerminal, TagTerminal } from '@components/terminal';
+import SignalR from '@tm/SignalR';
+import { useEffect } from 'react';
 
 function Title({ children }: { children: ReactNode }) {
 	return <h3 className="font-bold">{children}</h3>;
@@ -41,13 +43,22 @@ function Header() {
 }
 
 function TerminalPage() {
-	const { name } = useParams();
+	const { name, type } = useParams();
+	useEffect(() => {
+		// TODO: set task monitor specific instances of SignalR
+		// TODO: move into Task/Tag terminals
+		SignalR.start();
+		return () => {
+			SignalR.stop();
+		};
+	}, []);
 	return (
 		<section className="max-h-screen flex flex-col">
 			<Header />
 			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}>
 				<ScrollToBottom>
-					<Terminal name={name} />
+					{type === 'task' && <TaskTerminal name={name} />}
+					{type === 'tag' && <TagTerminal name={name} />}
 				</ScrollToBottom>
 			</SuspenseQuery>
 		</section>

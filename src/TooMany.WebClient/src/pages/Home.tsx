@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Link } from 'react-router-dom';
+import Link from '@components/link';
 
 function Home() {
 	return (
@@ -11,7 +11,7 @@ function Home() {
 			<br />
 			<p>
 				To create a new task simply{' '}
-				<Link to="/editor" className="text-purple-500">
+				<Link className="text-purple-500" to="/editor">
 					click here
 				</Link>
 				.

@@ -60,8 +60,8 @@ export default function () {
 		getRequest: <T,>(url: string): Promise<T> => {
 			return fetcher<T>(url, 'GET');
 		},
-		putRequest: <T,>(url: string): Promise<T> => {
-			return fetcher<T>(url, 'PUT', headers);
+		putRequest: <T, P>(url: string, payload: P): Promise<T> => {
+			return fetcher<T>(url, 'PUT', headers, JSON.stringify(payload));
 		},
 		deleteRequest: <T,>(url: string): Promise<T> => {
 			return fetcher<T>(url, 'DELETE');

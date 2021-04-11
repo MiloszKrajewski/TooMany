@@ -18,8 +18,6 @@ export interface ILog {
 	text: string;
 	timestamp: string;
 	time: number;
-}
-
-export interface ILogs extends ILog {
 	task: string;
+	formattedTimestamp: string;
 }

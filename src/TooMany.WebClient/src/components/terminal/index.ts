@@ -1,1 +1,2 @@
-export { default } from './Terminal';
+export { default as TaskTerminal } from './TaskTerminal';
+export { default as TagTerminal } from './TagTerminal';

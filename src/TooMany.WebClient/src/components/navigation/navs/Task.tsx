@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import * as Task from '@hooks/API/Task';
-import { Link } from 'react-router-dom';
+import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
 

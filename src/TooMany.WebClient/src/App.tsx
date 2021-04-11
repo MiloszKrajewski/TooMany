@@ -1,11 +1,10 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import Home from '@tm/pages/Home';
 import Editor from '@tm/pages/Editor';
 import Terminal from '@tm/pages/Terminal';
-import SignalR from './SignalR';
 import useScreenType from '@hooks/useScreenType';
 import Navigation from '@components/navigation';
 
@@ -23,13 +22,6 @@ function Layout({ children }: { children: ReactNode }) {
 }
 
 function AppContent() {
-	useEffect(() => {
-		SignalR.start();
-		return () => {
-			SignalR.stop();
-		};
-	}, []);
-
 	const screenType = useScreenType();
 	console.log(screenType);
 
