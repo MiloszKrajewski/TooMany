@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query';
-import useFetcher from '@tm/hooks/useFetcher';
+import useFetcher from './useFetcher';
 
 export default function () {
 	const fetcher = useFetcher();

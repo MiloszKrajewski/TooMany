@@ -5,7 +5,7 @@ import {
 	useQueryClient,
 	useIsFetching,
 } from 'react-query';
-import useFetcher from '@tm/hooks/useFetcher';
+import useFetcher from '../useFetcher';
 import type * as Task from '@tm/types/task';
 import SignalR from '@tm/SignalR';
 import { useEffect, useRef } from 'react';

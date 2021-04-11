@@ -14,6 +14,8 @@ export default defineConfig({
 		alias: {
 			'@tm': path.resolve(__dirname, 'src'),
 			'@types': path.resolve(__dirname, 'src', 'types'),
+			'@enums': path.resolve(__dirname, 'src', 'enums'),
+			'@pages': path.resolve(__dirname, 'src', 'pages'),
 			'@components': path.resolve(__dirname, 'src', 'components'),
 			'@hooks': path.resolve(__dirname, 'src', 'hooks'),
 		},

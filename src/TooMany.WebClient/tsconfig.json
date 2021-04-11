@@ -18,6 +18,8 @@
 		"paths": {
 			"@tm/*": ["./src/*"],
 			"@types/*": ["./src/types/*"],
+			"@enums/*": ["./src/enums/*"],
+			"@pages/*": ["./src/pages/*"],
 			"@components/*": ["./src/components/*"],
 			"@hooks/*": ["./src/hooks/*"]
 		}

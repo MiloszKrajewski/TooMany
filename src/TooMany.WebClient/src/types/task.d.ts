@@ -1,4 +1,4 @@
-import { StdStreams } from '../enums/cli';
+import { StdStreams } from '@enums/cli';
 
 export interface IMeta {
 	name: string;
