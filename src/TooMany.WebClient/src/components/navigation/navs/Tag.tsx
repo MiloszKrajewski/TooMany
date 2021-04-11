@@ -7,6 +7,7 @@ import { useRoutes } from '@hooks/Navigation';
 
 interface ITag {
 	name: string;
+	sortKey: string;
 	isSelected: boolean;
 	isAssociated: boolean;
 }
@@ -39,6 +40,7 @@ export default () => {
 			);
 			return Array.from(uniqueTagNames).map((tagName) => ({
 				name: tagName,
+				sortKey: tagName.toLowerCase(),
 				isSelected: isTag && params.name === tagName,
 				isAssociated: isTask && isTagAssociated[tagName],
 			}));
@@ -56,6 +58,7 @@ export default () => {
 			);
 			return Array.from(uniqueTagNames).map((tagName) => ({
 				name: tagName,
+				sortKey: tagName.toLowerCase(),
 				isSelected: params.name === tagName,
 				isAssociated: isTagAssociated[tagName],
 			}));
@@ -65,10 +68,25 @@ export default () => {
 		);
 		return Array.from(uniqueTagNames).map((tagName) => ({
 			name: tagName,
+			sortKey: tagName.toLowerCase(),
 			isSelected: false,
 			isAssociated: false,
 		}));
 	}, [allTasks, isMonitor, isDefine]);
+
+	const sortedTags = useMemo(
+		() =>
+			tags.sort((a, b) => {
+				if (a.sortKey < b.sortKey) {
+					return -1;
+				}
+				if (a.sortKey > b.sortKey) {
+					return 1;
+				}
+				return 0;
+			}),
+		[tags],
+	);
 
 	const routes = useRoutes();
 
@@ -77,7 +95,7 @@ export default () => {
 	return (
 		<ul>
 			<Header>Tags</Header>
-			{tags.map((t) => (
+			{sortedTags.map((t) => (
 				<Item
 					key={t.name}
 					isSelected={t.isSelected}
