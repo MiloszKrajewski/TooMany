@@ -14,10 +14,11 @@ export default () => {
 	const isTerminal = Navigation.useIsTerminal();
 	const isEditor = Navigation.useIsEditor();
 
-	const { data: allTasks = [], isLoading } = Task.useAllTasks();
+	const { data: allTasks = [], isLoading } = Task.useAll();
 
 	const tags = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
+
 		if (isTerminal) {
 			const { params } = isTerminal;
 			const isTag = params.type === 'tag';

@@ -1,3 +1,3 @@
-export { default as useAllTasks } from './useAllTasks';
-export { default as useTask } from './useTask';
+export { default as useAll } from './useAll';
+export { default as useByName } from './useByName';
 export { default as useCreate } from './useCreate';

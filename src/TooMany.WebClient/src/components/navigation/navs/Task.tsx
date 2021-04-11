@@ -6,15 +6,25 @@ import * as Navigation from '@hooks/Navigation';
 
 interface ITask {
 	name: string;
+	sortKey: string;
 	isSelected: boolean;
 	isAssociated: boolean;
+}
+
+function TaskTypeMap(selectedName: string, name: string) {
+	return {
+		name: name,
+		sortKey: name.toLowerCase(),
+		isSelected: selectedName === name,
+		isAssociated: false,
+	};
 }
 
 export default () => {
 	const isTerminal = Navigation.useIsTerminal();
 	const isEditor = Navigation.useIsEditor();
 
-	const { data: allTasks = [], isLoading } = Task.useAllTasks();
+	const { data: allTasks = [], isLoading } = Task.useAll();
 
 	const tasks = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
@@ -31,38 +41,46 @@ export default () => {
 							}
 							return {
 								name: task.name,
+								sortKey: task.name.toLowerCase(),
 								isSelected: isTask,
 								isAssociated: isTag && isTaskAssociated[task.name],
 							};
 					  }
-					: (task) => ({
-							name: task.name,
-							isSelected: params.name === task.name,
-							isAssociated: false,
-					  }),
+					: (task) => TaskTypeMap(params.name, task.name),
 			);
 		}
 		if (isEditor) {
 			const { params } = isEditor;
-			return allTasks.map((task) => ({
-				name: task.name,
-				isSelected: params.name === task.name,
-				isAssociated: false,
-			}));
+			return allTasks.map((task) => TaskTypeMap(params.name, task.name));
 		}
 		return allTasks.map((task) => ({
 			name: task.name,
+			sortKey: task.name.toLowerCase(),
 			isSelected: false,
 			isAssociated: false,
 		}));
 	}, [allTasks, isTerminal, isEditor]);
+
+	const sortedTasks = useMemo(
+		() =>
+			tasks.sort((a, b) => {
+				if (a.sortKey < b.sortKey) {
+					return -1;
+				}
+				if (a.sortKey > b.sortKey) {
+					return 1;
+				}
+				return 0;
+			}),
+		[tasks],
+	);
 
 	if (isLoading) return <ul></ul>;
 	if (!tasks.length) return <ul></ul>;
 	return (
 		<ul>
 			<Header>Tasks</Header>
-			{tasks.map((t) => (
+			{sortedTasks.map((t) => (
 				<Item
 					isSelected={t.isSelected}
 					isAssociated={t.isAssociated}

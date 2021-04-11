@@ -12,8 +12,6 @@ export interface IMeta {
 	use_shell: boolean;
 }
 
-export type Meta = IMeta[];
-
 export interface ILog {
 	id: string;
 	channel: StdStreams;
@@ -22,9 +20,6 @@ export interface ILog {
 	time: number;
 }
 
-export type Log = ILog[];
-
 export interface ILogs extends ILog {
 	task: string;
 }
-export type Logs = ILogs[];

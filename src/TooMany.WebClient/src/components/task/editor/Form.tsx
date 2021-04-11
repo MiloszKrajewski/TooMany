@@ -1,4 +1,4 @@
-import { FormEventHandler } from 'react';
+import type { FormEventHandler, MouseEventHandler } from 'react';
 import { memo, useState, useCallback } from 'react';
 import * as Task from '@hooks/API/Task';
 import EnvironmentVariables from './EnvironmentVariables';
@@ -11,7 +11,7 @@ const decrement = (x: number) => {
 };
 
 const Form = ({ name = '' }: { name?: string }) => {
-	const { data, isLoading } = Task.useTask(name);
+	const { data, isLoading } = Task.useByName(name);
 	const {
 		executable = '',
 		arguments: args = '',
@@ -23,16 +23,30 @@ const Form = ({ name = '' }: { name?: string }) => {
 	const [environmentVariableCount, setEnvironmentVariableCount] = useState(
 		Object.keys(environmentVariables).length,
 	);
-	const incrementEnvironmentVariableCount = () =>
+	const incrementEnvironmentVariableCount: MouseEventHandler<HTMLButtonElement> = (
+		event,
+	) => {
+		event.preventDefault();
 		setEnvironmentVariableCount(increment);
-	const decrementEnvironmentVariableCount = () =>
+	};
+	const decrementEnvironmentVariableCount: MouseEventHandler<HTMLButtonElement> = (
+		event,
+	) => {
+		event.preventDefault();
 		setEnvironmentVariableCount(decrement);
+	};
 
 	const [tagCount, setTagCount] = useState(tags.length);
-	const incrementTagCount = () => setTagCount(increment);
-	const decrementTagCount = () => setTagCount(decrement);
+	const incrementTagCount: MouseEventHandler<HTMLButtonElement> = (event) => {
+		event.preventDefault();
+		setTagCount(increment);
+	};
+	const decrementTagCount: MouseEventHandler<HTMLButtonElement> = (event) => {
+		event.preventDefault();
+		setTagCount(decrement);
+	};
 
-	const { mutateAsync: createTask } = Task.useCreate();
+	const { mutateAsync: createTask } = Task.useCreate(name);
 	const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
 		(event) => {
 			event.preventDefault();
