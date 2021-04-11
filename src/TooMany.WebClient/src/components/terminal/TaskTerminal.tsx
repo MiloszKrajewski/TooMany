@@ -1,4 +1,4 @@
-import * as Task from '@hooks/API/Task';
+import { Task } from '@hooks/API';
 import Logs from './Logs';
 
 export default function ({ name }: { name: string }) {

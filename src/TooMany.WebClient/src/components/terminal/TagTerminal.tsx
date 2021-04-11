@@ -1,4 +1,4 @@
-import * as Task from '@hooks/API/Task';
+import { Task } from '@hooks/API';
 import { useMemo } from 'react';
 import Logs from './Logs';
 

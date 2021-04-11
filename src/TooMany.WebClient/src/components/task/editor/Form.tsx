@@ -1,6 +1,6 @@
 import type { FormEventHandler, MouseEventHandler } from 'react';
 import { memo, useState, useCallback } from 'react';
-import * as Task from '@hooks/API/Task';
+import { Task } from '@hooks/API';
 import EnvironmentVariables from './EnvironmentVariables';
 import Tags from './Tags';
 
