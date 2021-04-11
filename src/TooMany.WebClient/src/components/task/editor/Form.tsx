@@ -25,7 +25,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 	const [taskName, setTaskName] = useState(name);
 	const onTaskNameChange = useCallback((event) => {
 		const { value = '' } = event.target;
-		setTaskName(value.trim());
+		setTaskName(value);
 	}, []);
 
 	const isEdit = useMemo(() => {
@@ -150,6 +150,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 			</label>
 			<br />
 			<br />
+			Environment Variables:
 			<EnvironmentVariables
 				count={environmentVariableCount}
 				environmentVariables={environmentVariables}
@@ -169,6 +170,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 			</button>
 			<br />
 			<br />
+			Tags:
 			<Tags count={tagCount} tags={tags} />
 			<br />
 			<button className="bg-green-400 w-10" onClick={decrementTagCount}>
@@ -180,8 +182,8 @@ const Form = ({ name = '' }: { name?: string }) => {
 			<br />
 			<br />
 			<input
-				className="bg-green-400 w-min-content w-20 disabled:bg-gray-400"
-				disabled={isDisabled}
+				className="bg-green-400 active:bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:pointer-events-none w-min-content w-20 0 cursor-pointer"
+				disabled={!isEdit && isDisabled}
 				type="submit"
 				value={isEdit ? 'Edit' : 'Create'}
 			/>
