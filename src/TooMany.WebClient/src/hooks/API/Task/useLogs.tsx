@@ -56,6 +56,7 @@ function fetchLog(fetcher: ReturnType<typeof useFetcher>, name?: string) {
 		enabled: typeof name !== 'undefined',
 		refetchOnWindowFocus: false,
 		staleTime: Infinity, // realtime will handle state after mount
+		initial: [],
 	};
 }
 
