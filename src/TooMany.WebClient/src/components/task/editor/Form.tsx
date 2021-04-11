@@ -29,7 +29,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 	}, []);
 
 	const isEdit = useMemo(() => {
-		if (isLoading) return false;
+		if (isLoading || name === '') return false;
 		return taskName === name;
 	}, [isLoading, taskName, name]);
 
