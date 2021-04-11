@@ -1,14 +1,20 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import Home from '@tm/pages/Home';
-import Editor from '@tm/pages/Editor';
-import Terminal from '@tm/pages/Terminal';
+import Define from '@tm/pages/Define';
+import Monitor from '@tm/pages/Monitor';
 import useScreenType from '@hooks/useScreenType';
 import Navigation from '@components/navigation';
+import SignalR from '@tm/SignalR';
+import { useEffect } from 'react';
+import { useRoutes } from '@hooks/Navigation';
 
 function Layout({ children }: { children: ReactNode }) {
+	const screenType = useScreenType();
+	console.log(screenType);
+
 	return (
 		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
 			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
@@ -22,13 +28,18 @@ function Layout({ children }: { children: ReactNode }) {
 }
 
 function AppContent() {
-	const screenType = useScreenType();
-	console.log(screenType);
+	useEffect(() => {
+		SignalR.start();
+		return () => {
+			SignalR.stop();
+		};
+	}, []);
+	const routes = useRoutes();
 
 	return (
 		<Routes>
 			<Route
-				path="/"
+				path={routes.home()}
 				element={
 					<Layout>
 						<Home />
@@ -36,26 +47,26 @@ function AppContent() {
 				}
 			/>
 			<Route
-				path="/editor"
+				path={routes.define()}
 				element={
 					<Layout>
-						<Editor />
+						<Define />
 					</Layout>
 				}
 			/>
 			<Route
-				path="/editor/:name"
+				path={routes.redefine()}
 				element={
 					<Layout>
-						<Editor />
+						<Define />
 					</Layout>
 				}
 			/>
 			<Route
-				path="/terminal/:type/:name"
+				path={routes.monitor()}
 				element={
 					<Layout>
-						<Terminal />
+						<Monitor />
 					</Layout>
 				}
 			/>

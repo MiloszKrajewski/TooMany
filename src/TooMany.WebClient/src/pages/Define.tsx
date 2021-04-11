@@ -4,7 +4,7 @@ import SuspenseQuery from '@components/helpers/SuspenseQuery';
 
 const TaskEditor = lazy(() => import('@components/task/editor'));
 
-const Editor = function () {
+const DefinePage = function () {
 	const { name } = useParams();
 	return (
 		<div className="h-full">
@@ -15,4 +15,4 @@ const Editor = function () {
 	);
 };
 
-export default memo(Editor);
+export default memo(DefinePage);

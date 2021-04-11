@@ -1,2 +1,3 @@
-export { default as useIsEditor } from './useIsEditor';
-export { default as useIsTerminal } from './useIsTerminal';
+export { default as useIsDefine } from './useIsDefine';
+export { default as useIsMonitor } from './useIsMonitor';
+export { default as useRoutes } from './useRoutes';

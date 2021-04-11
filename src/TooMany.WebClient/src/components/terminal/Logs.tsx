@@ -1,6 +1,7 @@
 import { Fragment, ReactNode } from 'react';
 import type * as Task from '@tm/types/task';
 import Link from '@components/link';
+import { useRoutes } from '@hooks/Navigation';
 
 function Header({
 	children,
@@ -50,6 +51,9 @@ export default function ({
 		timestampClassName = 'col-start-4 col-end-6';
 		textClassName = 'col-start-6 col-end-13';
 	}
+
+	const routes = useRoutes();
+
 	return (
 		<div className="grid grid-cols-12">
 			<Header className={channelClassName}>Channel</Header>
@@ -65,7 +69,10 @@ export default function ({
 						<Item index={index} className={taskClassName}>
 							<Link
 								className="text-purple-500"
-								to={`/terminal/task/${log.task}`}
+								to={routes.monitor({
+									type: 'task',
+									name: log.task,
+								})}
 							>
 								{log.task}
 							</Link>

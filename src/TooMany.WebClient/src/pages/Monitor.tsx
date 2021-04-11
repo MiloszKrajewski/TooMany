@@ -3,8 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
 import { TaskTerminal, TagTerminal } from '@components/terminal';
-import SignalR from '@tm/SignalR';
-import { useEffect } from 'react';
+import { useRoutes } from '@hooks/Navigation';
 
 function Title({ children }: { children: ReactNode }) {
 	return <h3 className="font-bold">{children}</h3>;
@@ -20,11 +19,12 @@ function TagHeader() {
 }
 function TaskHeader() {
 	const { name } = useParams();
+	const routes = useRoutes();
 	return (
 		<header>
 			<Title>{name}</Title>
 			<h5>
-				<Link to={`/editor/${name}`}>edit</Link>
+				<Link to={routes.redefine({ name })}>edit</Link>
 			</h5>
 		</header>
 	);
@@ -42,16 +42,8 @@ function Header() {
 	}
 }
 
-function TerminalPage() {
+function MonitorPage() {
 	const { name, type } = useParams();
-	useEffect(() => {
-		// TODO: set task monitor specific instances of SignalR
-		// TODO: move into Task/Tag terminals
-		SignalR.start();
-		return () => {
-			SignalR.stop();
-		};
-	}, []);
 	return (
 		<section className="max-h-screen flex flex-col">
 			<Header />
@@ -65,4 +57,4 @@ function TerminalPage() {
 	);
 }
 
-export default memo(TerminalPage);
+export default memo(MonitorPage);

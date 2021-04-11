@@ -3,6 +3,7 @@ import * as Task from '@hooks/API/Task';
 import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
+import { useRoutes } from '@hooks/Navigation';
 
 interface ITask {
 	name: string;
@@ -21,15 +22,15 @@ function TaskTypeMap(selectedName: string, name: string) {
 }
 
 export default () => {
-	const isTerminal = Navigation.useIsTerminal();
-	const isEditor = Navigation.useIsEditor();
+	const isMonitor = Navigation.useIsMonitor();
+	const isDefine = Navigation.useIsDefine();
 
 	const { data: allTasks = [], isLoading } = Task.useAll();
 
 	const tasks = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
-		if (isTerminal) {
-			const { params } = isTerminal;
+		if (isMonitor) {
+			const { params } = isMonitor;
 			const isTag = params.type === 'tag';
 			const isTask = params.type === 'task';
 			return allTasks.map(
@@ -49,8 +50,8 @@ export default () => {
 					: (task) => TaskTypeMap(params.name, task.name),
 			);
 		}
-		if (isEditor) {
-			const { params } = isEditor;
+		if (isDefine) {
+			const { params } = isDefine;
 			return allTasks.map((task) => TaskTypeMap(params.name, task.name));
 		}
 		return allTasks.map((task) => ({
@@ -59,7 +60,7 @@ export default () => {
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [allTasks, isTerminal, isEditor]);
+	}, [allTasks, isMonitor, isDefine]);
 
 	const sortedTasks = useMemo(
 		() =>
@@ -75,6 +76,8 @@ export default () => {
 		[tasks],
 	);
 
+	const routes = useRoutes();
+
 	if (isLoading) return <ul></ul>;
 	if (!tasks.length) return <ul></ul>;
 	return (
@@ -86,7 +89,9 @@ export default () => {
 					isAssociated={t.isAssociated}
 					key={t.name}
 				>
-					<Link to={`/terminal/task/${t.name}`}>{t.name}</Link>
+					<Link to={routes.monitor({ type: 'task', name: t.name })}>
+						{t.name}
+					</Link>
 				</Item>
 			))}
 		</ul>

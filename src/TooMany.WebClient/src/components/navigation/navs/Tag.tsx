@@ -3,6 +3,7 @@ import * as Task from '@hooks/API/Task';
 import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
+import { useRoutes } from '@hooks/Navigation';
 
 interface ITag {
 	name: string;
@@ -11,16 +12,16 @@ interface ITag {
 }
 
 export default () => {
-	const isTerminal = Navigation.useIsTerminal();
-	const isEditor = Navigation.useIsEditor();
+	const isMonitor = Navigation.useIsMonitor();
+	const isDefine = Navigation.useIsDefine();
 
 	const { data: allTasks = [], isLoading } = Task.useAll();
 
 	const tags = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
 
-		if (isTerminal) {
-			const { params } = isTerminal;
+		if (isMonitor) {
+			const { params } = isMonitor;
 			const isTag = params.type === 'tag';
 			const isTask = params.type === 'task';
 			const uniqueTagNames: Set<string> = new Set(
@@ -42,8 +43,8 @@ export default () => {
 				isAssociated: isTask && isTagAssociated[tagName],
 			}));
 		}
-		if (isEditor) {
-			const { params } = isEditor;
+		if (isDefine) {
+			const { params } = isDefine;
 			const uniqueTagNames: Set<string> = new Set(
 				allTasks.flatMap((task) => {
 					for (const tag of task.tags) {
@@ -67,20 +68,24 @@ export default () => {
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [allTasks, isTerminal, isEditor]);
+	}, [allTasks, isMonitor, isDefine]);
+
+	const routes = useRoutes();
 
 	if (isLoading) return <ul></ul>;
 	if (!tags.length) return <ul></ul>;
 	return (
 		<ul>
 			<Header>Tags</Header>
-			{tags.map((tag) => (
+			{tags.map((t) => (
 				<Item
-					key={tag.name}
-					isSelected={tag.isSelected}
-					isAssociated={tag.isAssociated}
+					key={t.name}
+					isSelected={t.isSelected}
+					isAssociated={t.isAssociated}
 				>
-					<Link to={`/terminal/tag/${tag.name}`}>{tag.name}</Link>
+					<Link to={routes.monitor({ type: 'tag', name: t.name })}>
+						{t.name}
+					</Link>
 				</Item>
 			))}
 		</ul>

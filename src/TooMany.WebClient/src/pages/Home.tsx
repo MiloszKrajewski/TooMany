@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import Link from '@components/link';
+import { useRoutes } from '@hooks/Navigation';
 
-function Home() {
+function HomePage() {
+	const routes = useRoutes();
 	return (
 		<div>
 			<h1>Welcome to TooMany!</h1>
@@ -11,7 +13,7 @@ function Home() {
 			<br />
 			<p>
 				To create a new task simply{' '}
-				<Link className="text-purple-500" to="/editor">
+				<Link className="text-purple-500" to={routes.define()}>
 					click here
 				</Link>
 				.
@@ -20,4 +22,4 @@ function Home() {
 	);
 }
 
-export default memo(Home);
+export default memo(HomePage);
