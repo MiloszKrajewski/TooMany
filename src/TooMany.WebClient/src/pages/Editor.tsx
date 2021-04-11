@@ -2,15 +2,16 @@ import { useParams } from 'react-router-dom';
 import { memo, lazy } from 'react';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 
-const Form = lazy(() => import('@components/task/editor/Form'));
+const TaskEditor = lazy(() => import('@components/task/editor'));
 
 const Editor = function () {
-	const params = useParams();
-	console.log(params);
+	const { name } = useParams();
 	return (
-		<SuspenseQuery fallback={<h1>Loading Tasks...</h1>}>
-			<Form name={params.name} />
-		</SuspenseQuery>
+		<div className="h-full">
+			<SuspenseQuery fallback={<h1>Loading Tasks...</h1>}>
+				<TaskEditor name={name} />
+			</SuspenseQuery>
+		</div>
 	);
 };
 

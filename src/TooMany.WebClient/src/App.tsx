@@ -7,13 +7,15 @@ import Editor from '@tm/pages/Editor';
 import Terminal from '@tm/pages/Terminal';
 import SignalR from './SignalR';
 import useScreenType from '@hooks/useScreenType';
-import Nav from '@components/navigation/Nav';
+import Navigation from '@components/navigation';
 
 function Layout({ children }: { children: ReactNode }) {
 	return (
 		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
 			<aside className="col-span-1 dark:bg-gray-500 bg-opacity-40">
-				<Nav />
+				<div className="sticky top-0">
+					<Navigation />
+				</div>
 			</aside>
 			<main className="col-start-2 col-end-9">{children}</main>
 		</div>
@@ -73,6 +75,7 @@ const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
 			suspense: true,
+			refetchOnReconnect: false, // it's a local app, internet connection doesn't matter
 		},
 	},
 });

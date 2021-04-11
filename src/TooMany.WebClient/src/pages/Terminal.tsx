@@ -1,6 +1,8 @@
 import { memo, ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
+import ScrollToBottom from '@components/helpers/ScrollToBottom';
+import Terminal from '@components/terminal';
 
 function Title({ children }: { children: ReactNode }) {
 	return <h3 className="font-bold">{children}</h3>;
@@ -38,13 +40,18 @@ function Header() {
 	}
 }
 
-function Terminal() {
+function TerminalPage() {
+	const { name } = useParams();
 	return (
-		<section>
+		<section className="max-h-screen flex flex-col">
 			<Header />
-			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}></SuspenseQuery>
+			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}>
+				<ScrollToBottom>
+					<Terminal name={name} />
+				</ScrollToBottom>
+			</SuspenseQuery>
 		</section>
 	);
 }
 
-export default memo(Terminal);
+export default memo(TerminalPage);

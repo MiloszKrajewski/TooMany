@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 
-export default ({ children }: { children?: ReactNode }) => (
-	<button
-		type="button"
-		className={`
+export default function ({ children }: { children?: ReactNode }) {
+	return (
+		<button
+			type="button"
+			className={`
             focus:outline-none
             text-white
             text-sm
@@ -14,7 +15,8 @@ export default ({ children }: { children?: ReactNode }) => (
             hover:bg-blue-600
             hover:shadow-lg
         `}
-	>
-		{children}
-	</button>
-);
+		>
+			{children}
+		</button>
+	);
+}
