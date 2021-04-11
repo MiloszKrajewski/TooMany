@@ -1,4 +1,4 @@
-import type { FormEventHandler, MouseEventHandler } from 'react';
+import { FormEventHandler, MouseEventHandler, useMemo, useRef } from 'react';
 import { memo, useState, useCallback } from 'react';
 import { Task } from '@hooks/API';
 import EnvironmentVariables from './EnvironmentVariables';
@@ -11,7 +11,9 @@ const decrement = (x: number) => {
 };
 
 const Form = ({ name = '' }: { name?: string }) => {
-	const { data, isLoading } = Task.useByName(name);
+	const { data: allTasks = [], isLoading: isAllTasksLoading } = Task.useAll();
+	const { data, isLoading: isTaskLoading } = Task.useByName(name);
+	const isLoading = isAllTasksLoading || isTaskLoading;
 	const {
 		executable = '',
 		arguments: args = '',
@@ -19,6 +21,23 @@ const Form = ({ name = '' }: { name?: string }) => {
 		environment: environmentVariables = {},
 		tags = [],
 	} = data || {};
+
+	const [taskName, setTaskName] = useState(name);
+	const onTaskNameChange = useCallback((event) => {
+		const { value = '' } = event.target;
+		setTaskName(value.trim());
+	}, []);
+
+	const isEdit = useMemo(() => {
+		if (isLoading) return false;
+		return taskName === name;
+	}, [isLoading, taskName, name]);
+
+	const isDisabled = useMemo(() => {
+		if (isLoading || taskName === '') return true;
+		const allTaskNames = allTasks.map((t) => t.name.toLowerCase());
+		return allTaskNames.includes(taskName.toLowerCase());
+	}, [isLoading, taskName, allTasks]);
 
 	const [environmentVariableCount, setEnvironmentVariableCount] = useState(
 		Object.keys(environmentVariables).length,
@@ -92,7 +111,8 @@ const Form = ({ name = '' }: { name?: string }) => {
 					className="text-gray-900"
 					name="taskName"
 					type="text"
-					defaultValue={name}
+					value={taskName}
+					onChange={onTaskNameChange}
 				/>
 			</label>
 			<br />
@@ -160,9 +180,10 @@ const Form = ({ name = '' }: { name?: string }) => {
 			<br />
 			<br />
 			<input
-				className="bg-green-400 w-min-content w-20"
+				className="bg-green-400 w-min-content w-20 disabled:bg-gray-400"
+				disabled={isDisabled}
 				type="submit"
-				value="Submit"
+				value={isEdit ? 'Edit' : 'Create'}
 			/>
 		</form>
 	);
