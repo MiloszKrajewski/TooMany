@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import * as Task from '@hooks/API/Task';
 import { Link } from 'react-router-dom';
 import { Header, Item } from './list';
-import { useParams } from 'react-router-dom';
+import * as Navigation from '@hooks/Navigation';
 
 interface ITask {
 	name: string;
@@ -11,25 +11,51 @@ interface ITask {
 }
 
 export default () => {
-	const { type, name } = useParams();
+	const isTerminal = Navigation.useIsTerminal();
+	const isEditor = Navigation.useIsEditor();
+
 	const { data: allTasks = [], isLoading } = Task.useAllTasks();
 
 	const tasks = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
-		return allTasks.map((task) => {
-			if (type === 'tag') {
-				for (const tag of task.tags) {
-					if (!tag || isTaskAssociated[task.name] === true) continue;
-					isTaskAssociated[task.name] = tag === name;
-				}
-			}
-			return {
+		if (isTerminal) {
+			const { params } = isTerminal;
+			const isTag = params.type === 'tag';
+			const isTask = params.type === 'task';
+			return allTasks.map(
+				isTag
+					? (task) => {
+							for (const tag of task.tags) {
+								if (!tag || isTaskAssociated[task.name] === true) continue;
+								isTaskAssociated[task.name] = tag === params.name;
+							}
+							return {
+								name: task.name,
+								isSelected: isTask,
+								isAssociated: isTag && isTaskAssociated[task.name],
+							};
+					  }
+					: (task) => ({
+							name: task.name,
+							isSelected: params.name === task.name,
+							isAssociated: false,
+					  }),
+			);
+		}
+		if (isEditor) {
+			const { params } = isEditor;
+			return allTasks.map((task) => ({
 				name: task.name,
-				isSelected: type === 'task' && name === task.name,
-				isAssociated: type === 'tag' && isTaskAssociated[task.name],
-			};
-		});
-	}, [allTasks, name, type]);
+				isSelected: params.name === task.name,
+				isAssociated: false,
+			}));
+		}
+		return allTasks.map((task) => ({
+			name: task.name,
+			isSelected: false,
+			isAssociated: false,
+		}));
+	}, [allTasks, isTerminal, isEditor]);
 
 	if (isLoading) return <ul></ul>;
 	if (!tasks.length) return <ul></ul>;
