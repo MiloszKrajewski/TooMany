@@ -1,5 +1,4 @@
 <template>
-	<TerminalProvider>
 		<TaskMetadataProvider>
 			<main>
 				<nav>
@@ -45,7 +44,6 @@
 				</section>
 			</main>
 		</TaskMetadataProvider>
-	</TerminalProvider>
 </template>
 
 <script lang="ts">
@@ -56,7 +54,7 @@ import ThemeEditor from '~/components/theme/Theme.vue';
 import TaskEditor from '~/components/task/Task.vue';
 import ConfigEditor from '~/components/config/Config.vue';
 import TaskMetadataProvider from '~/components/TaskMetadataProvider.vue';
-import TerminalProvider from '~/components/Terminal/TerminalProvider.vue';
+// import TerminalProvider from '~/components/Terminal/TerminalProvider.vue';
 
 enum controls {
 	themeEditor = 'themeEditor',
@@ -68,7 +66,7 @@ enum controls {
 export default defineComponent({
 	components: {
 		TaskMetadataProvider,
-		TerminalProvider,
+		// TerminalProvider,
 		TerminalEditor,
 		ThemeEditor,
 		TaskEditor,
