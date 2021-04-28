@@ -1,3 +1,7 @@
+## 0.4.36-beta (2021/04/28)
+* exposed version on /api/v1/version
+* update to Spectre.Console 0.39
+
 ## 0.4.34-beta (2021/02/09)
 * sanitizing jagged standard error & output
 * turning word-wrap off in monitor

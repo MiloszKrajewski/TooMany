@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using HttpRemoting.Data;
 using HttpRemoting.Server;
@@ -38,7 +39,8 @@ namespace TooMany.WebServer
 		public DateTime Fail() => throw new BadRequest();
 
 		[HttpGet("version")]
-		public string Version() => "0.0.0";
+		public string Version() =>
+			GetThisAssemblyVersion() ?? "0.0.0";
 
 		[HttpPost("task/{name}")]
 		public async Task<IJsonResponse<TaskResponse>> CreateTask(
@@ -53,7 +55,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-		
+
 		[HttpPut("task/{name}/tags")]
 		public async Task<IJsonResponse<TaskResponse>> UpdateTags(
 			[FromRoute] string name, [FromBody] TagsRequest request)
@@ -67,7 +69,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-		
+
 		[HttpGet("task")]
 		public async Task<IJsonResponse<TaskResponse[]>> GetTasks(
 			[FromQuery] string? filter = null)
@@ -104,7 +106,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-		
+
 		[HttpPut("task/{name}/start")]
 		public async Task<IJsonResponse<TaskResponse>> StartTask(
 			string name, [FromQuery] bool? force)
@@ -117,7 +119,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-		
+
 		[HttpPut("task/{name}/stop")]
 		public async Task<IJsonResponse<TaskResponse>> StopTask(string name)
 		{
@@ -129,7 +131,7 @@ namespace TooMany.WebServer
 				var m => Unexpected(m),
 			};
 		}
-		
+
 		[HttpGet("task/{name}/logs")]
 		public async Task<IJsonResponse<LogEntryResponse[]>> GetTaskLog(string name)
 		{
@@ -144,5 +146,11 @@ namespace TooMany.WebServer
 
 		private Task<IResponse> RequestAsync(IRequest request) =>
 			RequestAsync(TaskCatalogActor.ActorName, request, Timeout);
+		
+		private string? GetThisAssemblyVersion() =>
+			Assembly
+				.GetAssembly(GetType())?
+				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+				.InformationalVersion;
 	}
 }
