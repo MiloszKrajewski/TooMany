@@ -75,7 +75,7 @@ Target.create "Publish:GitHub" (fun _ ->
     let user = Proj.settings |> Config.valueOrFail "github" "user"
     let token = Proj.settings |> Config.valueOrFail "github" "token"
     let repository = Proj.settings |> Config.keys "Repository" |> Seq.exactlyOne
-    !! (Proj.outputFolder @@ (sprintf "TooMany-%s-*-setup" Proj.productVersion))
+    !! (Proj.outputFolder @@ (sprintf "TooMany-%s-*-setup.exe" Proj.productVersion))
     |> Proj.publishGitHub repository user token
 )
 
