@@ -34,6 +34,9 @@ function Item({
 	return <div className={`${bg} ${className}`}>{children}</div>;
 }
 
+const maxBuffer = 1000;
+const spliceIndex = 0 - maxBuffer;
+
 export default function ({
 	logs,
 	isTaskNameVisible = false,
@@ -60,7 +63,7 @@ export default function ({
 			{isTaskNameVisible && <Header className={taskClassName}>Task</Header>}
 			<Header className={timestampClassName}>Timestamp</Header>
 			<Header className={textClassName}>Text</Header>
-			{logs.slice(-1000).map((log, index) => (
+			{logs.slice(spliceIndex).map((log, index) => (
 				<Fragment key={`${log.task}/${index}`}>
 					<Item index={index} className={channelClassName}>
 						{log.channel}
