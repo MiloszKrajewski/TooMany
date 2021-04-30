@@ -187,7 +187,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 				className="bg-green-400 active:bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:pointer-events-none w-min-content w-20 0 cursor-pointer"
 				disabled={!isEdit && isDisabled}
 				type="submit"
-				value={isEdit ? 'Edit' : 'Create'}
+				value={isEdit ? 'Save' : 'Create'}
 			/>
 		</form>
 	);
