@@ -1,8 +1,10 @@
 import { useQuery } from 'react-query';
 import useApi from '../useApi';
-import type * as Task from '@tm/types/task';
 
 export default function () {
 	const api = useApi();
-	return useQuery<Task.IMeta[]>('tasks', () => api.task.list());
+	return useQuery<string>(['server', 'version'], () => api.app.version(), {
+		suspense: false,
+		initialData: '0.0.0',
+	});
 }

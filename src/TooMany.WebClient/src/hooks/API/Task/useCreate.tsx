@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from 'react-query';
-import useFetcher from '../useFetcher';
 import type * as Task from '@tm/types/task';
+import useApi from '../useApi';
 
 interface ITask {
 	name: string;
@@ -13,17 +13,10 @@ interface ITask {
 
 export default function (name: string) {
 	const queryClient = useQueryClient();
-	const fetcher = useFetcher();
+	const api = useApi();
 	return useMutation<Task.IMeta, unknown, ITask>(
 		'task',
-		async (payload) => {
-			console.log('create', name);
-			const result = await fetcher.postRequest<Task.IMeta, ITask>(
-				`${env.apiV1Url}/task/${payload.name}`,
-				payload,
-			);
-			return result;
-		},
+		(payload) => api.task.create<ITask>(name, payload),
 		{
 			onSuccess(result) {
 				queryClient.setQueryData<Task.IMeta>(

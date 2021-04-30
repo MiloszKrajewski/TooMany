@@ -5,7 +5,7 @@ import {
 	useQueryClient,
 	useIsFetching,
 } from 'react-query';
-import useFetcher from '../useFetcher';
+import useApi from '../useApi';
 import type * as Task from '@tm/types/task';
 import SignalR from '@tm/SignalR';
 import { useEffect, useRef } from 'react';
@@ -24,7 +24,10 @@ switch (typeof navigator.languages) {
 		break;
 }
 
+type ReturnValue = Task.ILog[];
+
 const stripEmptyLogs = true; // TODO: move to user settings
+const getQueryKey = (name?: string) => ['task', 'log', name];
 
 function transformLog(name: string) {
 	return function (log: Task.ILog) {
@@ -39,31 +42,36 @@ function transformLog(name: string) {
 	};
 }
 
-function fetchLog(fetcher: ReturnType<typeof useFetcher>, name?: string) {
+type UseApi = ReturnType<typeof useApi>;
+type TaskLogsFn = UseApi['task']['logs'];
+function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	return {
-		queryKey: ['task', 'log', name],
-		queryFn: async function (): Promise<Task.ILog[]> {
+		queryKey: getQueryKey(name),
+		queryFn: async function (): Promise<ReturnValue> {
 			console.log('fetch log by name:', name);
-			const logs = await fetcher.getRequest<Task.ILog[]>(
-				`${env.apiV1Url}/task/${name}/logs`,
-			);
+			const logs = await fetcher(name as string);
 			const iLogs = logs.map(transformLog(name || ''));
 			if (stripEmptyLogs) {
 				return iLogs.filter((log) => log.text);
 			}
 			return iLogs;
 		},
-		enabled: typeof name !== 'undefined',
+		enabled: typeof name === 'string',
 		refetchOnWindowFocus: false,
 		staleTime: Infinity, // realtime will handle state after mount
 	};
+}
+
+function useFetchLog(name?: string) {
+	const api = useApi();
+	return fetchLog(api.task.logs, name);
 }
 
 type Name = string | undefined;
 
 export const useRealtime = function (name?: Name) {
 	const id = name || null;
-	const queryKey = ['task', 'log', name];
+	const queryKey = getQueryKey(name);
 	const queryClient = useQueryClient();
 	const isFetchingLogs = useIsFetching(queryKey);
 
@@ -86,9 +94,8 @@ export const useRealtime = function (name?: Name) {
 };
 
 export default function (name: Name) {
-	const fetcher = useFetcher();
 	useRealtime(name);
-	return useQuery<Task.ILog[]>(fetchLog(fetcher, name));
+	return useQuery<ReturnValue>(useFetchLog(name));
 }
 
 export const useMultipleRealtime = function (taskNames?: Name[]) {
@@ -98,10 +105,10 @@ export const useMultipleRealtime = function (taskNames?: Name[]) {
 	useEffect(() => {
 		const fns = names.map((name) => {
 			const id = name || null;
-			const queryKey = ['task', 'log', name];
+			const queryKey = getQueryKey(name);
 			if (queryClient.isFetching() || id === null) return;
 			return SignalR.onTaskLog(id, (log) => {
-				queryClient.setQueryData<Task.ILog[]>(queryKey, (state) => {
+				queryClient.setQueryData<ReturnValue>(queryKey, (state) => {
 					if (stripEmptyLogs && !log.text) {
 						return state || [];
 					}
@@ -121,10 +128,9 @@ export const useMultipleRealtime = function (taskNames?: Name[]) {
 };
 
 export const useMultiple = function (names: Name[]) {
-	const fetcher = useFetcher();
 	useMultipleRealtime(names);
-
-	return useQueries(
-		names.map((name) => fetchLog(fetcher, name)),
-	) as UseQueryResult<Task.ILog[], unknown>[];
+	return useQueries(names.map(useFetchLog)) as UseQueryResult<
+		ReturnValue,
+		unknown
+	>[];
 };
