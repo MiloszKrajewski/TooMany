@@ -1,3 +1,6 @@
+## 0.4.39-beta (2021/04/30)
+* Spectre.Console reverted to 0.37 (regression)
+
 ## 0.4.38-beta (2021/04/28)
 * exposed version on /api/v1/version
 * update to Spectre.Console 0.39
