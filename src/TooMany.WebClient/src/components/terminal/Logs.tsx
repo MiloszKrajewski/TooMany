@@ -60,7 +60,7 @@ export default function ({
 			{isTaskNameVisible && <Header className={taskClassName}>Task</Header>}
 			<Header className={timestampClassName}>Timestamp</Header>
 			<Header className={textClassName}>Text</Header>
-			{logs.slice(-100).map((log, index) => (
+			{logs.slice(-1000).map((log, index) => (
 				<Fragment key={`${log.task}/${index}`}>
 					<Item index={index} className={channelClassName}>
 						{log.channel}
