@@ -4,6 +4,7 @@ import endpoints from './endpoints';
 
 export default function () {
 	const fetcher = useFetcher();
+
 	return {
 		server: {
 			version() {
@@ -27,26 +28,17 @@ export default function () {
 					payload,
 				);
 			},
-			start<Payload>(task: string, payload: Payload) {
+			start(task: string) {
 				console.log('start:', task);
-				return fetcher.putRequest<Task.ILog[], Payload>(
-					endpoints.task.start(task),
-					payload,
-				);
+				return fetcher.putRequest<Task.IMeta>(endpoints.task.start(task));
 			},
-			restart<Payload>(task: string, payload: Payload) {
+			restart(task: string) {
 				console.log('restart:', task);
-				return fetcher.putRequest<Task.ILog[], Payload>(
-					endpoints.task.restart(task),
-					payload,
-				);
+				return fetcher.putRequest<Task.IMeta>(endpoints.task.restart(task));
 			},
-			stop<Payload>(task: string, payload: Payload) {
+			stop(task: string) {
 				console.log('stop:', task);
-				return fetcher.putRequest<void, Payload>(
-					endpoints.task.stop(task),
-					payload,
-				);
+				return fetcher.putRequest<Task.IMeta>(endpoints.task.stop(task));
 			},
 			delete(task: string) {
 				console.log('delete:', task);

@@ -1,6 +1,8 @@
-import { useMutation, useQueryClient } from 'react-query';
+import { useMutation } from 'react-query';
 import type * as Task from '@tm/types/task';
 import useApi from '../useApi';
+import { useAllCache } from './useAll';
+import { useByNameCache } from './useByName';
 
 interface ITask {
 	name: string;
@@ -12,27 +14,16 @@ interface ITask {
 }
 
 export default function (name: string) {
-	const queryClient = useQueryClient();
 	const api = useApi();
+	const setByNameCache = useByNameCache();
+	const setAllCache = useAllCache(name);
 	return useMutation<Task.IMeta, unknown, ITask>(
-		'task',
+		['task', name],
 		(payload) => api.task.create<ITask>(name, payload),
 		{
 			onSuccess(result) {
-				queryClient.setQueryData<Task.IMeta>(
-					['task', result.name],
-					() => result,
-				);
-				queryClient.setQueryData<Task.IMeta[]>('tasks', (tasks = []) => {
-					if (result.name !== name) {
-						return [...tasks, result];
-					}
-					const newTasks: Task.IMeta[] = [];
-					for (const task of tasks) {
-						newTasks.push(task.name === name ? result : task);
-					}
-					return newTasks;
-				});
+				setByNameCache(result);
+				setAllCache(result);
 			},
 		},
 	);

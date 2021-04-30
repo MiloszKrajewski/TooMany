@@ -9,8 +9,8 @@ export default function (name?: string) {
 	const setByNameCache = useByNameCache();
 	const setAllCache = useAllCache(name);
 	return useMutation<Task.IMeta>(
-		['task', name, 'start'],
-		() => api.task.start(name as string),
+		['task', name, 'stop'],
+		() => api.task.stop(name as string),
 		{
 			onSuccess(result) {
 				setByNameCache(result);

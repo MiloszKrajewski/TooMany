@@ -5,12 +5,12 @@ import { useAllCache } from './useAll';
 import { useByNameCache } from './useByName';
 
 export default function (name?: string) {
-	const api = useApi();
 	const setByNameCache = useByNameCache();
 	const setAllCache = useAllCache(name);
+	const api = useApi();
 	return useMutation<Task.IMeta>(
-		['task', name, 'start'],
-		() => api.task.start(name as string),
+		['task', name, 'restart'],
+		() => api.task.restart(name as string),
 		{
 			onSuccess(result) {
 				setByNameCache(result);

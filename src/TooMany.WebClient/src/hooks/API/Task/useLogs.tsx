@@ -27,7 +27,7 @@ switch (typeof navigator.languages) {
 type ReturnValue = Task.ILog[];
 
 const stripEmptyLogs = true; // TODO: move to user settings
-const getQueryKey = (name?: string) => ['task', 'log', name];
+const getQueryKey = (name?: string) => ['task', name, 'log'];
 
 function transformLog(name: string) {
 	return function (log: Task.ILog) {
@@ -48,7 +48,6 @@ function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	return {
 		queryKey: getQueryKey(name),
 		queryFn: async function (): Promise<ReturnValue> {
-			console.log('fetch log by name:', name);
 			const logs = await fetcher(name as string);
 			const iLogs = logs.map(transformLog(name || ''));
 			if (stripEmptyLogs) {
