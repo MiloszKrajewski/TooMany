@@ -1,6 +1,6 @@
 {
 	"name": "too-many",
-	"version": "0.1.0-alpha",
+	"version": "0.2.0-alpha",
 	"scripts": {
 		"dev": "vite",
 		"build": "tsc && vite build",
