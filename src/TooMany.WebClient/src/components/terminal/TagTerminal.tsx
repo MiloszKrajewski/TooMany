@@ -14,7 +14,7 @@ function useTagLogs(name: string) {
 		}
 		return result;
 	}, [name, tasks]);
-	const multipleLogs = Task.logs.useLogs(taskNames);
+	const multipleLogs = Task.Log.useLogs(taskNames);
 	const isLogsLoading = multipleLogs.some((log) => log.isLoading);
 
 	const logs = useMemo(() => {

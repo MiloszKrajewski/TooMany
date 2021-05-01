@@ -2,7 +2,7 @@ import { useQuery } from 'react-query';
 import useApi from '../../useApi';
 
 import type * as Task from '@tm/types/task';
-import type { TaskName } from './types.d';
+import type { TaskName } from './types';
 import { fetchLog } from './helpers';
 import useRealtime from './useRealtime';
 

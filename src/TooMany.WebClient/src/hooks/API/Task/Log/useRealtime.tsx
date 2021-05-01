@@ -4,7 +4,7 @@ import SignalR from '@tm/SignalR';
 import { useEffect } from 'react';
 import settings from './settings';
 
-import type { TaskName } from './types.d';
+import type { TaskName } from './types';
 import { getQueryKey, transformLog } from './helpers';
 
 function useCache() {
