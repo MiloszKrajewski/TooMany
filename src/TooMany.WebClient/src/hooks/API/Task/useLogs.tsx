@@ -43,6 +43,7 @@ function transformLog(name: string) {
 }
 
 type UseApi = ReturnType<typeof useApi>;
+
 type TaskLogsFn = UseApi['task']['logs'];
 function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	return {
@@ -68,23 +69,30 @@ function useFetchLog(name?: string) {
 
 type Name = string | undefined;
 
+function useRealtimeCacheSetter() {
+	const queryClient = useQueryClient();
+	return (log: Task.ILog, name: string) => {
+		queryClient.setQueryData<ReturnValue>(getQueryKey(name), (state) => {
+			if (stripEmptyLogs && !log.text) {
+				return state || [];
+			}
+			const newLog = transformLog(name || '')(log);
+			if (!state) return [newLog];
+			return [...state, newLog];
+		});
+	};
+}
+
 export const useRealtime = function (name?: Name) {
 	const id = name || null;
 	const queryKey = getQueryKey(name);
-	const queryClient = useQueryClient();
+	const realtimeCacheSetter = useRealtimeCacheSetter();
 	const isFetchingLogs = useIsFetching(queryKey);
 
 	useEffect(() => {
 		if (isFetchingLogs || id === null) return;
 		const fn = SignalR.onTaskLog(id, (log) => {
-			queryClient.setQueryData<Task.ILog[]>(queryKey, (state) => {
-				if (stripEmptyLogs && !log.text) {
-					return state || [];
-				}
-				const newLog = transformLog(name || '')(log);
-				if (!state) return [newLog];
-				return [...state, newLog];
-			});
+			realtimeCacheSetter(log, id);
 		});
 		return () => {
 			SignalR.offTaskLog(fn);
@@ -92,29 +100,17 @@ export const useRealtime = function (name?: Name) {
 	}, [isFetchingLogs, name]);
 };
 
-export default function (name: Name) {
-	useRealtime(name);
-	return useQuery<ReturnValue>(useFetchLog(name));
-}
-
 export const useMultipleRealtime = function (taskNames?: Name[]) {
 	const names = taskNames || [];
+	const realtimeCacheSetter = useRealtimeCacheSetter();
 	const queryClient = useQueryClient();
 
 	useEffect(() => {
 		const fns = names.map((name) => {
 			const id = name || null;
-			const queryKey = getQueryKey(name);
 			if (queryClient.isFetching() || id === null) return;
 			return SignalR.onTaskLog(id, (log) => {
-				queryClient.setQueryData<ReturnValue>(queryKey, (state) => {
-					if (stripEmptyLogs && !log.text) {
-						return state || [];
-					}
-					const newLog = transformLog(name || '')(log);
-					if (!state) return [newLog];
-					return [...state, newLog];
-				});
+				realtimeCacheSetter(log, id);
 			});
 		});
 		return () => {
@@ -125,6 +121,11 @@ export const useMultipleRealtime = function (taskNames?: Name[]) {
 		};
 	}, [names]);
 };
+
+export default function (name: Name) {
+	useRealtime(name);
+	return useQuery<ReturnValue>(useFetchLog(name));
+}
 
 export const useMultiple = function (names: Name[]) {
 	useMultipleRealtime(names);
