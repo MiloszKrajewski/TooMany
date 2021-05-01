@@ -8,8 +8,7 @@ import {
 import useApi from '../useApi';
 import type * as Task from '@tm/types/task';
 import SignalR from '@tm/SignalR';
-import { useEffect, useRef } from 'react';
-import type * as Realtime from '@tm/types/realtime';
+import { useEffect } from 'react';
 
 let culture: string;
 switch (typeof navigator.languages) {
@@ -43,7 +42,6 @@ function transformLog(name: string) {
 }
 
 type UseApi = ReturnType<typeof useApi>;
-
 type TaskLogsFn = UseApi['task']['logs'];
 function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	return {
@@ -62,11 +60,6 @@ function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	};
 }
 
-function useFetchLog(name?: string) {
-	const api = useApi();
-	return fetchLog(api.task.logs, name);
-}
-
 type Name = string | undefined;
 
 function useRealtimeCacheSetter() {
@@ -83,54 +76,43 @@ function useRealtimeCacheSetter() {
 	};
 }
 
-export const useRealtime = function (name?: Name) {
-	const id = name || null;
-	const queryKey = getQueryKey(name);
-	const realtimeCacheSetter = useRealtimeCacheSetter();
-	const isFetchingLogs = useIsFetching(queryKey);
-
-	useEffect(() => {
-		if (isFetchingLogs || id === null) return;
-		const fn = SignalR.onTaskLog(id, (log) => {
-			realtimeCacheSetter(log, id);
-		});
-		return () => {
-			SignalR.offTaskLog(fn);
-		};
-	}, [isFetchingLogs, name]);
-};
-
-export const useMultipleRealtime = function (taskNames?: Name[]) {
-	const names = taskNames || [];
+export function useRealtime(names: Name[] = []) {
 	const realtimeCacheSetter = useRealtimeCacheSetter();
 	const queryClient = useQueryClient();
 
 	useEffect(() => {
 		const fns = names.map((name) => {
 			const id = name || null;
-			if (queryClient.isFetching() || id === null) return;
+
+			if (id === null || queryClient.isFetching(getQueryKey(id))) {
+				return;
+			}
+
 			return SignalR.onTaskLog(id, (log) => {
 				realtimeCacheSetter(log, id);
 			});
 		});
 		return () => {
 			for (const fn of fns) {
-				if (!fn) continue;
+				if (typeof fn !== 'function') continue;
 				SignalR.offTaskLog(fn);
 			}
 		};
 	}, [names]);
-};
-
-export default function (name: Name) {
-	useRealtime(name);
-	return useQuery<ReturnValue>(useFetchLog(name));
 }
 
-export const useMultiple = function (names: Name[]) {
-	useMultipleRealtime(names);
-	return useQueries(names.map(useFetchLog)) as UseQueryResult<
-		ReturnValue,
-		unknown
-	>[];
-};
+export default function (name: Name) {
+	useRealtime([name]);
+
+	const api = useApi();
+	return useQuery<ReturnValue>(fetchLog(api.task.logs, name));
+}
+
+export function useMultiple(names: Name[]) {
+	useRealtime(names);
+
+	const api = useApi();
+	return useQueries(
+		names.map((name) => fetchLog(api.task.logs, name)),
+	) as UseQueryResult<ReturnValue, unknown>[];
+}
