@@ -14,17 +14,39 @@ function Title({ children }: { children: ReactNode }) {
 	return <h3 className="font-bold">{children}</h3>;
 }
 
-function TagHeader() {
-	const { name } = useParams();
+function TagHeader({ name }: { name: string }) {
+	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta(
+		false,
+	);
+
+	const { isStarted, names } = useMemo(() => {
+		let isStarted = false;
+		if (isLoadingMetas) return { isStarted, names: [] };
+		const names = metas
+			.filter((meta) => meta.tags.includes(name))
+			.map((meta) => {
+				if (meta.actual_state === 'Started') {
+					isStarted = true;
+				}
+				return meta.name;
+			});
+
+		return { isStarted, names };
+	}, [isLoadingMetas, metas]);
+
 	return (
-		<header>
-			<Title>{name}</Title>
-		</header>
+		<>
+			<header>
+				<Title>{name}</Title>
+				{isStarted ? 'Started' : 'Stopped'}
+			</header>
+			{names.map((name) => (
+				<TaskHeader name={name} />
+			))}
+		</>
 	);
 }
-function TaskHeader() {
-	const { name } = useParams();
-
+function TaskHeader({ name }: { name: string }) {
 	const { data: meta, isLoading: isLoadingMeta } = Task.meta.useMetaByName(
 		name,
 		false,
@@ -34,6 +56,8 @@ function TaskHeader() {
 		actual_state: actualState = 'Error',
 		expected_state: expectedState = 'Error',
 		executable,
+		directory,
+		arguments: args,
 		started_time,
 	} = meta || {};
 
@@ -78,16 +102,24 @@ function TaskHeader() {
 			</div>
 			<ul className="inline-flex mx-2">
 				<li className="mx-2">
-					<div>Actual State:</div>
-					<pre>{isLoadingMeta ? 'Loading' : actualState}</pre>
-				</li>
-				<li className="mx-2">
 					<dt>Expected State:</dt>
 					<pre>{isLoadingMeta ? 'Loading' : expectedState}</pre>
 				</li>
 				<li className="mx-2">
+					<div>Actual State:</div>
+					<pre>{isLoadingMeta ? 'Loading' : actualState}</pre>
+				</li>
+				<li className="mx-2">
 					<dt>Executable:</dt>
 					<pre>{isLoadingMeta ? 'Loading' : executable}</pre>
+				</li>
+				<li className="mx-2">
+					<dt>Directory:</dt>
+					<pre>{isLoadingMeta ? 'Loading' : directory}</pre>
+				</li>
+				<li className="mx-2">
+					<dt>Arguments:</dt>
+					<pre>{isLoadingMeta ? 'Loading' : args}</pre>
 				</li>
 				<li className="mx-2">
 					<dt>Last Start Time:</dt>
@@ -99,12 +131,12 @@ function TaskHeader() {
 }
 
 function Header() {
-	const { type } = useParams();
+	const { type, name } = useParams();
 	switch (type) {
 		case 'task':
-			return <TaskHeader />;
+			return <TaskHeader name={name} />;
 		case 'tag':
-			return <TagHeader />;
+			return <TagHeader name={name} />;
 		default:
 			return null;
 	}
