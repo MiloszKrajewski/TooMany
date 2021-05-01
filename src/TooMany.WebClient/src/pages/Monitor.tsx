@@ -1,5 +1,5 @@
-import { memo, useMemo, useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
+import { memo, useMemo, useEffect, useRef, useState } from 'react';
+import type { ReactNode, MouseEventHandler } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
@@ -15,9 +15,15 @@ function Title({ children }: { children: ReactNode }) {
 }
 
 function TagHeader({ name: tag }: { name: string }) {
+	const [isOpen, setIsOpen] = useState(false);
 	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta(
 		false,
 	);
+
+	const toggleIsOpen: MouseEventHandler<HTMLButtonElement> = (event) => {
+		event.preventDefault();
+		setIsOpen((x) => !x);
+	};
 
 	const { isActuallyToStarted, isExpectedToStarted, names } = useMemo<{
 		isActuallyToStarted: boolean;
@@ -42,6 +48,15 @@ function TagHeader({ name: tag }: { name: string }) {
 					isExpectedToStarted = true;
 				}
 				return meta.name;
+			})
+			.sort((a, b) => {
+				if (a < b) {
+					return -1;
+				}
+				if (a > b) {
+					return 1;
+				}
+				return 0;
 			});
 
 		return { isActuallyToStarted, isExpectedToStarted, names };
@@ -68,7 +83,7 @@ function TagHeader({ name: tag }: { name: string }) {
 
 	return (
 		<>
-			<header className="flex border-b-2 border-gray-200">
+			<header className="flex p-1">
 				<div>
 					<Title>{tag}</Title>
 					<span className="mr-2">
@@ -94,9 +109,28 @@ function TagHeader({ name: tag }: { name: string }) {
 					</li>
 				</ul>
 			</header>
-			{names.map((name) => (
-				<TaskHeader key={name} name={name} />
-			))}
+			<button
+				className={`
+					border-t-2
+					${isOpen ? 'border-b-2' : ''} 
+					border-gray-200
+					focus:outline-none
+				`}
+				onClick={toggleIsOpen}
+			>
+				{isOpen ? '▲' : '▼'}
+			</button>
+			<section
+				className={`
+					divide-y
+					divide-gray-600
+					${isOpen ? '' : 'hidden'}
+				`}
+			>
+				{names.map((name) => (
+					<TaskHeader key={name} name={name} />
+				))}
+			</section>
 		</>
 	);
 }
@@ -134,7 +168,7 @@ function TaskHeader({ name }: { name: string }) {
 	const onRestart = () => restart(name);
 
 	return (
-		<header className="flex">
+		<header className="flex p-1">
 			<div>
 				<Title>{name}</Title>
 				<h5 className="inline-block">

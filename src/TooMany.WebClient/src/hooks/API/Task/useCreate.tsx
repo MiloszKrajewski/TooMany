@@ -14,13 +14,13 @@ interface ITask {
 
 export default function (name: string) {
 	const api = useApi();
-	const setMetasCache = meta.useCache(name);
+	const setMetasCache = meta.useCache();
 	return useMutation<Task.IMeta, unknown, ITask>(
 		['task', name],
-		(payload) => api.task.create<ITask>(name, payload),
+		(payload) => api.task.create<ITask>(payload.name, payload),
 		{
 			onSuccess(result) {
-				setMetasCache(result);
+				setMetasCache(result, name);
 			},
 		},
 	);

@@ -40,7 +40,8 @@ export default function ({
 	}
 
 	return (
-		<div className="grid grid-cols-12">
+		<div className="grid grid-cols-12 divide-y divide-gray-600">
+			<span tabIndex={0} />
 			<Header className={channelClassName}>Channel</Header>
 			{isTaskNameVisible && <Header className={taskClassName}>Task</Header>}
 			<Header className={timestampClassName}>Timestamp</Header>
