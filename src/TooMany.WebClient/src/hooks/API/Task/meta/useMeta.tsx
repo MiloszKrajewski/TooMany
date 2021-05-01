@@ -14,7 +14,6 @@ export default function (suspense = true) {
 export function useCache(taskName: TaskName) {
 	const queryClient = useQueryClient();
 	return (data: Task.IMeta) => {
-		console.log('updating all cache', taskName, data);
 		queryClient.setQueryData<Task.IMeta[]>(getQueryKey(), (tasks = []) => {
 			if (data.name !== taskName) {
 				return [...tasks, data];

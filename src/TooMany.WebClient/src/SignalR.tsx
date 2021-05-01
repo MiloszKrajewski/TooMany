@@ -74,7 +74,6 @@ class SignalR {
 
 	offTaskLog(fn: Realtime.onLogFn | null) {
 		if (fn === null) return;
-		console.log('done');
 		SignalR.connection.off(Channel.Log, fn);
 	}
 

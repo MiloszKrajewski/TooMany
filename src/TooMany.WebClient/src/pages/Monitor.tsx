@@ -41,7 +41,7 @@ function TagHeader({ name }: { name: string }) {
 				{isStarted ? 'Started' : 'Stopped'}
 			</header>
 			{names.map((name) => (
-				<TaskHeader name={name} />
+				<TaskHeader key={name} name={name} />
 			))}
 		</>
 	);
