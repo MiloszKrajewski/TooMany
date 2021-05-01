@@ -12,3 +12,7 @@ TBD
 paket install
 fake build
 ```
+
+# UI
+
+The UI is very much a work in progress, please report any bugs, unexpected behaviours or desired features.
