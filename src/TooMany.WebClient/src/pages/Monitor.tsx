@@ -1,10 +1,14 @@
-import { memo, ReactNode } from 'react';
+import { memo, useMemo, useEffect, useRef } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
 import { TaskTerminal, TagTerminal } from '@components/terminal';
 import { Task } from '@hooks/API';
 import { useRoutes } from '@hooks/Navigation';
+import { getCulture } from '@tm/helpers/culture';
+
+const culture = getCulture();
 
 function Title({ children }: { children: ReactNode }) {
 	return <h3 className="font-bold">{children}</h3>;
@@ -20,6 +24,29 @@ function TagHeader() {
 }
 function TaskHeader() {
 	const { name } = useParams();
+
+	const { data: meta, isLoading: isLoadingMeta } = Task.meta.useMetaByName(
+		name,
+		false,
+	);
+
+	const {
+		actual_state: actualState = 'Error',
+		expected_state: expectedState = 'Error',
+		executable,
+		started_time,
+	} = meta || {};
+
+	const startedTime = useRef('');
+
+	useEffect(() => {
+		if (typeof started_time === 'undefined') return;
+		const value = new Date(started_time).toLocaleString(culture, {
+			hour12: false,
+		});
+		startedTime.current = value;
+	}, [started_time]);
+
 	const routes = useRoutes();
 	const { mutateAsync: start } = Task.useStart(name);
 	const { mutateAsync: stop } = Task.useStop(name);
@@ -29,20 +56,44 @@ function TaskHeader() {
 	const onRestart = () => restart();
 
 	return (
-		<header>
-			<Title>{name}</Title>
-			<h5>
-				<Link to={routes.redefine({ name })}>edit</Link>
-				<button className="mx-1" onClick={onStart}>
-					start
-				</button>
-				<button className="mx-1" onClick={onStop}>
-					stop
-				</button>
-				<button className="mx-1" onClick={onRestart}>
-					restart
-				</button>
-			</h5>
+		<header className="flex">
+			<div>
+				<Title>{name}</Title>
+				<h5 className="inline-block">
+					<Link to={routes.redefine({ name })}>edit</Link>
+				</h5>
+				{isLoadingMeta ? null : (
+					<span className="mx-2">
+						<button className="mx-1" onClick={onStart}>
+							start
+						</button>
+						<button className="mx-1" onClick={onStop}>
+							stop
+						</button>
+						<button className="mx-1" onClick={onRestart}>
+							restart
+						</button>
+					</span>
+				)}
+			</div>
+			<ul className="inline-flex mx-2">
+				<li className="mx-2">
+					<div>Actual State:</div>
+					<pre>{isLoadingMeta ? 'Loading' : actualState}</pre>
+				</li>
+				<li className="mx-2">
+					<dt>Expected State:</dt>
+					<pre>{isLoadingMeta ? 'Loading' : expectedState}</pre>
+				</li>
+				<li className="mx-2">
+					<dt>Executable:</dt>
+					<pre>{isLoadingMeta ? 'Loading' : executable}</pre>
+				</li>
+				<li className="mx-2">
+					<dt>Last Start Time:</dt>
+					<pre>{isLoadingMeta ? 'Loading' : startedTime.current}</pre>
+				</li>
+			</ul>
 		</header>
 	);
 }

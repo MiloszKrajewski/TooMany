@@ -10,6 +10,7 @@ export interface IMeta {
 	environment: Record<string, string>;
 	tags: string[];
 	use_shell: boolean;
+	started_time?: Date;
 }
 
 export interface ILog {

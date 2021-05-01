@@ -1,21 +1,10 @@
 import type * as Task from '@tm/types/task';
 import useApi from '../../useApi';
 import settings from './settings';
+import { getCulture } from '@tm/helpers/culture';
 
+const culture = getCulture();
 export const getQueryKey = (name?: string) => ['task', name, 'log'];
-
-let culture: string;
-switch (typeof navigator.languages) {
-	case 'string':
-		culture = navigator.languages;
-		break;
-	case 'object':
-		culture = navigator.languages[0];
-		break;
-	default:
-		culture = 'en-GB';
-		break;
-}
 
 export function transformLog(name: string) {
 	return function (log: Task.ILog) {

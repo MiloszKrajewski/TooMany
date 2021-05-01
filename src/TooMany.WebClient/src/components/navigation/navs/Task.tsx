@@ -79,7 +79,7 @@ export default () => {
 	const routes = useRoutes();
 
 	if (isLoading) return <ul></ul>;
-	if (!tasks.length) return <ul></ul>;
+	if (!sortedTasks.length) return <ul></ul>;
 	return (
 		<ul>
 			<Header>Tasks</Header>
