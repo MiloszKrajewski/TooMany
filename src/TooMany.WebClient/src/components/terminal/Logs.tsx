@@ -44,15 +44,15 @@ export default function ({
 	logs: Task.ILog[];
 	isTaskNameVisible?: boolean;
 }) {
-	let channelClassName = 'col-start-1 col-end-3';
+	let channelClassName = 'col-start-1 col-end-2';
 	let taskClassName = '';
-	let timestampClassName = 'col-start-3 col-end-5';
-	let textClassName = 'col-start-5 col-end-13';
+	let timestampClassName = 'col-start-2 col-end-4';
+	let textClassName = 'col-start-4 col-end-13 break-words';
 	if (isTaskNameVisible) {
 		channelClassName = 'col-start-1 col-end-2';
 		taskClassName = 'col-start-2 col-end-4';
 		timestampClassName = 'col-start-4 col-end-6';
-		textClassName = 'col-start-6 col-end-13';
+		textClassName = 'col-start-6 col-end-13 break-words';
 	}
 
 	const routes = useRoutes();
