@@ -11,18 +11,19 @@ export default function (suspense = true) {
 	});
 }
 
-export function useCache(taskName: TaskName) {
+export function useCache() {
 	const queryClient = useQueryClient();
-	return (data: Task.IMeta) => {
-		queryClient.setQueryData<Task.IMeta[]>(getQueryKey(), (tasks = []) => {
-			if (data.name !== taskName) {
-				return [...tasks, data];
+	return (meta: Task.IMeta, name: TaskName) => {
+		queryClient.setQueryData<Task.IMeta[]>(getQueryKey(), (state = []) => {
+			if (state === undefined) return [meta];
+			const isCached = state.find((s) => s.name === name);
+			if (!isCached) {
+				return [...state, meta];
 			}
-			const newTasks: Task.IMeta[] = [];
-			for (const task of tasks) {
-				newTasks.push(task.name === data.name ? data : task);
-			}
-			return newTasks;
+			return state.map((s) => {
+				if (s.name !== name) return s;
+				return meta;
+			});
 		});
 	};
 }

@@ -6,12 +6,12 @@ import { useCache as useMetaCache } from './useMeta';
 
 export default function (name: string, suspense = true) {
 	const api = useApi();
-	const metaCache = useMetaCache(name);
+	const metaCache = useMetaCache();
 	return useQuery<Task.IMeta>(
 		getQueryKey(name),
 		async () => {
 			const result = await api.task.meta(name);
-			metaCache(result);
+			metaCache(result, name);
 			return result;
 		},
 		{

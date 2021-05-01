@@ -3,15 +3,15 @@ import type * as Task from '@tm/types/task';
 import useApi from '../useApi';
 import * as meta from './meta';
 
-export default function (name?: string) {
+export default function (name: string) {
 	const api = useApi();
-	const setMetasCache = meta.useCache(name);
-	return useMutation<Task.IMeta>(
-		['task', name, 'start'],
-		() => api.task.start(name as string),
+	const setMetasCache = meta.useCache();
+	return useMutation<Task.IMeta, unknown, string>(
+		['task', 'start', name],
+		(taskName) => api.task.start(taskName),
 		{
-			onSuccess(result) {
-				setMetasCache(result);
+			onSuccess(result, taskName) {
+				setMetasCache(result, taskName);
 			},
 		},
 	);
