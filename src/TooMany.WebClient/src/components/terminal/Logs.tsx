@@ -18,7 +18,7 @@ function Header({
 	);
 }
 
-const maxBuffer = 50; // TODO: move to user settings
+const maxBuffer = 500; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;
 
 export default function ({

@@ -29,4 +29,7 @@ export default defineConfig({
 			apiV1Url: `${apiUrl}/api/v1`,
 		}),
 	},
+	build: {
+		outDir: path.join(__dirname, '..', 'TooMany.WebServer', 'wwwroot'),
+	},
 });

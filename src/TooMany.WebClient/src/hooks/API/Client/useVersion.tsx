@@ -1,8 +1,11 @@
-import { useQuery } from 'react-query';
+const fakeRqResponse = {
+	data: env.version || '0.0.0',
+	isLoading: false,
+	isFetching: false,
+	isError: false,
+	isSuccess: true,
+};
 
 export default function () {
-	return useQuery<string>(['client', 'version'], () => env.version, {
-		suspense: false,
-		initialData: '0.0.0',
-	});
+	return fakeRqResponse;
 }
