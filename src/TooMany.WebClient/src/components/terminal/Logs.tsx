@@ -34,7 +34,7 @@ function Item({
 	return <div className={`${bg} ${className}`}>{children}</div>;
 }
 
-const maxBuffer = 1000;
+const maxBuffer = 1000; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;
 
 export default function ({
