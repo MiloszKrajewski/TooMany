@@ -15,8 +15,8 @@ function Layout({ children }: { children: ReactNode }) {
 	console.log(screenType);
 
 	return (
-		<div className="bg-white text-gray-900 dark:bg-gray-900 dark:text-white min-h-screen min-w-screen grid grid-cols-8">
-			<aside className="col-span-1 bg-gray-200 dark:bg-gray-800 border-r-2 border-gray-800 dark:border-gray-200">
+		<div className=" bg-gray-900 text-white min-h-screen min-w-screen grid grid-cols-8">
+			<aside className="col-span-1 bg-gray-800 border-r-2 border-gray-200">
 				<div className="sticky top-0">
 					<Navigation />
 				</div>
