@@ -7,6 +7,8 @@ import Navigation from '@components/navigation';
 import SignalR from '@tm/SignalR';
 import { useEffect } from 'react';
 import { useRoutes } from '@hooks/Navigation';
+import { Task } from '@hooks/API';
+import type * as Realtime from '@tm/types/realtime';
 
 function Layout({ children }: { children: ReactNode }) {
 	const screenType = useScreenType();
@@ -24,15 +26,33 @@ function Layout({ children }: { children: ReactNode }) {
 	);
 }
 
-function AppContent() {
+function useRealtime() {
+	const setMetaRealtimeCache = Task.meta.useRealtimeCache();
+	const setLogRealtimeCache = Task.log.useRealtimeCache();
+
 	useEffect(() => {
-		SignalR.start();
+		let taskMetaFn: Realtime.onMetaFn;
+		let taskLogFn: Realtime.onLogFn;
+		SignalR.start().then(() => {
+			taskMetaFn = SignalR.onTaskMeta(null, setMetaRealtimeCache);
+			taskLogFn = SignalR.onTaskLog(null, setLogRealtimeCache);
+		});
 		return () => {
+			if (typeof taskMetaFn === 'function') {
+				SignalR.offTaskMeta(taskMetaFn);
+			}
+			if (typeof taskLogFn === 'function') {
+				SignalR.offTaskLog(taskLogFn);
+			}
 			SignalR.stop();
 		};
 	}, []);
-	const routes = useRoutes();
+}
 
+function AppContent() {
+	useRealtime();
+
+	const routes = useRoutes();
 	return (
 		<Routes>
 			<Route

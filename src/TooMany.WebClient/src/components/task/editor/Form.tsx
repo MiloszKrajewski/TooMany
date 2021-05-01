@@ -11,9 +11,10 @@ const decrement = (x: number) => {
 };
 
 const Form = ({ name = '' }: { name?: string }) => {
-	const { data: allTasks = [], isLoading: isAllTasksLoading } = Task.useAll();
-	const { data, isLoading: isTaskLoading } = Task.useByName(name);
-	const isLoading = isAllTasksLoading || isTaskLoading;
+	const { data: metas = [], isLoading } = Task.meta.useMeta();
+
+	const data = metas.find((m) => m.name === name);
+
 	const {
 		executable = '',
 		arguments: args = '',
@@ -35,9 +36,9 @@ const Form = ({ name = '' }: { name?: string }) => {
 
 	const isDisabled = useMemo(() => {
 		if (isLoading || taskName === '') return true;
-		const allTaskNames = allTasks.map((t) => t.name.toLowerCase());
+		const allTaskNames = metas.map((t) => t.name.toLowerCase());
 		return allTaskNames.includes(taskName.toLowerCase());
-	}, [isLoading, taskName, allTasks]);
+	}, [isLoading, taskName, metas]);
 
 	const [environmentVariableCount, setEnvironmentVariableCount] = useState(
 		Object.keys(environmentVariables).length,

@@ -5,11 +5,8 @@ import type * as Task from '@tm/types/task';
 
 import type { TaskName } from './types';
 import { fetchLog } from './helpers';
-import useRealtime from './useRealtime';
 
 export default function (taskNames: TaskName[] = []) {
-	useRealtime(taskNames);
-
 	const api = useApi();
 	return useQueries(
 		taskNames.map((taskName) => fetchLog(api.task.logs, taskName)),

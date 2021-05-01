@@ -16,7 +16,7 @@ export default () => {
 	const isMonitor = Navigation.useIsMonitor();
 	const isDefine = Navigation.useIsDefine();
 
-	const { data: allTasks = [], isLoading } = Task.useAll();
+	const { data: metas = [], isLoading } = Task.meta.useMeta();
 
 	const tags = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
@@ -26,16 +26,16 @@ export default () => {
 			const isTag = params.type === 'tag';
 			const isTask = params.type === 'task';
 			const uniqueTagNames: Set<string> = new Set(
-				allTasks.flatMap(
+				metas.flatMap(
 					isTask
-						? (task) => {
-								for (const tag of task.tags) {
+						? (meta) => {
+								for (const tag of meta.tags) {
 									if (!tag || isTagAssociated[tag] === true) continue;
-									isTagAssociated[tag] = task.name === params.name;
+									isTagAssociated[tag] = meta.name === params.name;
 								}
-								return task.tags;
+								return meta.tags;
 						  }
-						: (task) => task.tags,
+						: (meta) => meta.tags,
 				),
 			);
 			return Array.from(uniqueTagNames).map((tagName) => ({
@@ -48,12 +48,12 @@ export default () => {
 		if (isDefine) {
 			const { params } = isDefine;
 			const uniqueTagNames: Set<string> = new Set(
-				allTasks.flatMap((task) => {
-					for (const tag of task.tags) {
+				metas.flatMap((meta) => {
+					for (const tag of meta.tags) {
 						if (!tag || isTagAssociated[tag] === true) continue;
-						isTagAssociated[tag] = task.name === params.name;
+						isTagAssociated[tag] = meta.name === params.name;
 					}
-					return task.tags;
+					return meta.tags;
 				}),
 			);
 			return Array.from(uniqueTagNames).map((tagName) => ({
@@ -64,7 +64,7 @@ export default () => {
 			}));
 		}
 		const uniqueTagNames: Set<string> = new Set(
-			allTasks.flatMap((task) => task.tags),
+			metas.flatMap((meta) => meta.tags),
 		);
 		return Array.from(uniqueTagNames).map((tagName) => ({
 			name: tagName,
@@ -72,7 +72,7 @@ export default () => {
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [allTasks, isMonitor, isDefine]);
+	}, [metas, isMonitor, isDefine]);
 
 	const sortedTags = useMemo(
 		() =>

@@ -1,7 +1,6 @@
-import { Fragment, ReactNode } from 'react';
+import { ReactNode } from 'react';
 import type * as Task from '@tm/types/task';
-import Link from '@components/link';
-import { useRoutes } from '@hooks/Navigation';
+import Row from './Row';
 
 function Header({
 	children,
@@ -18,23 +17,8 @@ function Header({
 		</div>
 	);
 }
-function Item({
-	children,
-	className,
-	index,
-}: {
-	children: ReactNode;
-	className?: string;
-	index: number;
-}) {
-	let bg = '';
-	if (index % 2 === 0) {
-		bg = 'bg-gray-800';
-	}
-	return <div className={`${bg} ${className}`}>{children}</div>;
-}
 
-const maxBuffer = 1000; // TODO: move to user settings
+const maxBuffer = 50; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;
 
 export default function ({
@@ -55,8 +39,6 @@ export default function ({
 		textClassName = 'col-start-6 col-end-13 break-words';
 	}
 
-	const routes = useRoutes();
-
 	return (
 		<div className="grid grid-cols-12">
 			<Header className={channelClassName}>Channel</Header>
@@ -64,30 +46,19 @@ export default function ({
 			<Header className={timestampClassName}>Timestamp</Header>
 			<Header className={textClassName}>Text</Header>
 			{logs.slice(spliceIndex).map((log, index) => (
-				<Fragment key={`${log.task}/${index}`}>
-					<Item index={index} className={channelClassName}>
-						{log.channel}
-					</Item>
-					{isTaskNameVisible && (
-						<Item index={index} className={taskClassName}>
-							<Link
-								className="text-purple-500"
-								to={routes.monitor({
-									type: 'task',
-									name: log.task,
-								})}
-							>
-								{log.task}
-							</Link>
-						</Item>
-					)}
-					<Item index={index} className={timestampClassName}>
-						{log.formattedTimestamp}
-					</Item>
-					<Item index={index} className={textClassName}>
-						{log.text}
-					</Item>
-				</Fragment>
+				<Row
+					key={`${log.task}/${index}`}
+					isEven={index % 2 === 0}
+					channel={log.channel}
+					task={log.task}
+					timestamp={log.formattedTimestamp}
+					text={log.text}
+					isTaskNameVisible={isTaskNameVisible}
+					channelClassName={channelClassName}
+					taskClassName={taskClassName}
+					timestampClassName={timestampClassName}
+					textClassName={textClassName}
+				/>
 			))}
 		</div>
 	);

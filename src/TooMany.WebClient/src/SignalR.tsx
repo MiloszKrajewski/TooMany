@@ -9,7 +9,7 @@ import type * as Realtime from '@tm/types/realtime';
 
 export enum Channel {
 	Log = 'Log',
-	Task = 'Task',
+	Meta = 'Task',
 }
 
 class SignalR {
@@ -55,7 +55,7 @@ class SignalR {
 		fn: Realtime.onLogFnCallback,
 	): Realtime.onLogFn {
 		const handler: Realtime.onLogFn = (task, data) => {
-			if (id === task || id === null) fn(data);
+			if (id === task || id === null) fn(task, data);
 		};
 		SignalR.connection.on(Channel.Log, handler);
 		return handler;
@@ -68,7 +68,7 @@ class SignalR {
 		const handler: Realtime.onMetaFn = (task, data) => {
 			if (id === task || id === null) fn(task, data);
 		};
-		SignalR.connection.on(Channel.Task, handler);
+		SignalR.connection.on(Channel.Meta, handler);
 		return handler;
 	}
 
@@ -80,7 +80,7 @@ class SignalR {
 
 	offTaskMeta(fn: Realtime.onMetaFn | null) {
 		if (fn === null) return;
-		SignalR.connection.off(Channel.Task, fn);
+		SignalR.connection.off(Channel.Meta, fn);
 	}
 }
 

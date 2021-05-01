@@ -25,7 +25,7 @@ export default () => {
 	const isMonitor = Navigation.useIsMonitor();
 	const isDefine = Navigation.useIsDefine();
 
-	const { data: allTasks = [], isLoading } = Task.useAll();
+	const { data: metas = [], isLoading } = Task.meta.useMeta();
 
 	const tasks = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
@@ -33,34 +33,34 @@ export default () => {
 			const { params } = isMonitor;
 			const isTag = params.type === 'tag';
 			const isTask = params.type === 'task';
-			return allTasks.map(
+			return metas.map(
 				isTag
-					? (task) => {
-							for (const tag of task.tags) {
-								if (!tag || isTaskAssociated[task.name] === true) continue;
-								isTaskAssociated[task.name] = tag === params.name;
+					? (meta) => {
+							for (const tag of meta.tags) {
+								if (!tag || isTaskAssociated[meta.name] === true) continue;
+								isTaskAssociated[meta.name] = tag === params.name;
 							}
 							return {
-								name: task.name,
-								sortKey: task.name.toLowerCase(),
+								name: meta.name,
+								sortKey: meta.name.toLowerCase(),
 								isSelected: isTask,
-								isAssociated: isTag && isTaskAssociated[task.name],
+								isAssociated: isTag && isTaskAssociated[meta.name],
 							};
 					  }
-					: (task) => TaskTypeMap(params.name, task.name),
+					: (meta) => TaskTypeMap(params.name, meta.name),
 			);
 		}
 		if (isDefine) {
 			const { params } = isDefine;
-			return allTasks.map((task) => TaskTypeMap(params.name, task.name));
+			return metas.map((meta) => TaskTypeMap(params.name, meta.name));
 		}
-		return allTasks.map((task) => ({
-			name: task.name,
-			sortKey: task.name.toLowerCase(),
+		return metas.map((meta) => ({
+			name: meta.name,
+			sortKey: meta.name.toLowerCase(),
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [allTasks, isMonitor, isDefine]);
+	}, [metas, isMonitor, isDefine]);
 
 	const sortedTasks = useMemo(
 		() =>

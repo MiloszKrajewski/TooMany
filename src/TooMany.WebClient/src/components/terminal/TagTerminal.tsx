@@ -3,18 +3,19 @@ import { useMemo } from 'react';
 import Logs from './Logs';
 
 function useTagLogs(name: string) {
-	const { data: tasks = [], isLoading: isLoadingTasks } = Task.useAll();
+	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta();
 
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
-		for (const task of tasks) {
-			if (task.tags.includes(name)) {
-				result.push(task.name);
+		for (const meta of metas) {
+			if (meta.tags.includes(name)) {
+				result.push(meta.name);
 			}
 		}
 		return result;
-	}, [name, tasks]);
-	const multipleLogs = Task.Log.useLogs(taskNames);
+	}, [name, metas]);
+
+	const multipleLogs = Task.log.useLogs(taskNames);
 	const isLogsLoading = multipleLogs.some((log) => log.isLoading);
 
 	const logs = useMemo(() => {
@@ -24,7 +25,7 @@ function useTagLogs(name: string) {
 			.sort((a, b) => a.time - b.time);
 	}, [isLogsLoading, multipleLogs]);
 
-	return { data: logs, isLoading: isLoadingTasks || isLogsLoading };
+	return { data: logs, isLoading: isLoadingMetas || isLogsLoading };
 }
 
 export default function ({ name }: { name: string }) {

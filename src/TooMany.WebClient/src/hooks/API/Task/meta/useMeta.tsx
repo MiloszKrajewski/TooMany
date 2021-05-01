@@ -1,28 +1,22 @@
 import { useQuery, useQueryClient } from 'react-query';
-import useApi from '../useApi';
+import useApi from '../../useApi';
 import type * as Task from '@tm/types/task';
-import { useByNameCache } from './useByName';
+import { getQueryKey } from './helpers';
+import type { TaskName } from './types';
 
-const getQueryKey = () => ['tasks'];
-
-export default function () {
+export default function (suspense = true) {
 	const api = useApi();
-	const setByNameCache = useByNameCache();
-	return useQuery<Task.IMeta[]>(getQueryKey(), async () => {
-		const results = await api.task.list();
-		for (const result of results) {
-			setByNameCache(result);
-		}
-		return results;
+	return useQuery<Task.IMeta[]>(getQueryKey(), api.task.list, {
+		suspense,
 	});
 }
 
-export function useAllCache(name?: string) {
+export function useCache(taskName: TaskName) {
 	const queryClient = useQueryClient();
 	return (data: Task.IMeta) => {
 		console.log('updating all cache', name, data);
 		queryClient.setQueryData<Task.IMeta[]>(getQueryKey(), (tasks = []) => {
-			if (data.name !== name) {
+			if (data.name !== taskName) {
 				return [...tasks, data];
 			}
 			const newTasks: Task.IMeta[] = [];
