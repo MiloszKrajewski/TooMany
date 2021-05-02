@@ -14,5 +14,4 @@ packages/
 *.snk
 
 *.bak
-
-TooMany.WebClientOld
+*.user

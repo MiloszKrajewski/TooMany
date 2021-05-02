@@ -51,18 +51,6 @@ Target.create "Test" (fun p ->
     else test ()
 )
 
-Target.create "Release:Nuget" (fun _ ->
-    Proj.settings |> Config.valueOrFail "nuget" "accessKey" |> publish
-)
-
-Target.create "Release:GitHub" (fun _ ->
-    let user = Proj.settings |> Config.valueOrFail "github" "user"
-    let token = Proj.settings |> Config.valueOrFail "github" "token"
-    let repository = Proj.settings |> Config.keys "Repository" |> Seq.exactlyOne
-    !! (Proj.outputFolder @@ (sprintf "*.%s.nupkg" Proj.productVersion))
-    |> Proj.publishGitHub repository user token
-)
-
 Target.create "Publish" (fun _ ->
     let outDir = "./.output/app"
     let options = "-c Release --no-self-contained -p:PublishSingleFile=true -p:RuntimeIdentifier=win-x64"
@@ -83,11 +71,18 @@ Target.create "Publish:Inno" (fun _ ->
     Shell.runAt "./inno" inno "setup.iss"
 )
 
+Target.create "Publish:GitHub" (fun _ ->
+    let user = Proj.settings |> Config.valueOrFail "github" "user"
+    let token = Proj.settings |> Config.valueOrFail "github" "token"
+    let repository = Proj.settings |> Config.keys "Repository" |> Seq.exactlyOne
+    !! (Proj.outputFolder @@ (sprintf "TooMany-%s-*-setup.exe" Proj.productVersion))
+    |> Proj.publishGitHub repository user token
+)
+
 open Fake.Core.TargetOperators
 
 "Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Test" ==> "Release"
-"Release" ==> "Publish" ==> "Publish:Inno"
-"Release" ==> "Release:GitHub" ==> "Release:Nuget"
+"Release" ==> "Publish" ==> "Publish:Inno" // ==> "Publish:GitHub"
 "Clean" ==> "Rebuild"
 
 "Clean" ?=> "Restore"

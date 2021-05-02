@@ -20,6 +20,11 @@ namespace TooMany.Cli.Utilities
 			_collection.AddSingleton(service, implementation);
 		}
 
+		public void RegisterLazy(Type service, Func<object> factory)
+		{
+			_collection.AddTransient(service, _ => factory());
+		}
+
 		public ITypeResolver Build() =>
 			new InternalTypeResolver(_collection.BuildServiceProvider());
 
