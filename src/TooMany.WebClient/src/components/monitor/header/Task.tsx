@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useStart, useStop, useRestart } from '@hooks/API/Task';
 import { useMetaByName } from '@hooks/API/Task/meta';
 import * as routes from '@tm/helpers/routes';
 import Title from './title';
@@ -29,9 +30,9 @@ export default function ({ name }: { name: string }) {
 		startedTime.current = value;
 	}, [started_time]);
 
-	const { mutateAsync: start } = Task.useStart(name);
-	const { mutateAsync: stop } = Task.useStop(name);
-	const { mutateAsync: restart } = Task.useRestart(name);
+	const { mutateAsync: start } = useStart(name);
+	const { mutateAsync: stop } = useStop(name);
+	const { mutateAsync: restart } = useRestart(name);
 	const onStart = () => start(name);
 	const onStop = () => stop(name);
 	const onRestart = () => restart(name);

@@ -1,12 +1,14 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import type { ReactNode } from 'react';
-import { Home, Define, Monitor, NotFound } from '@pages/index';
+import { Home, Define, NotFound } from '@pages/index';
+import { Tag as MonitorTag, Task as MonitorTask } from '@pages/monitor';
 import { useScreenType } from '@hooks/index';
 import Navigation from '@components/navigation';
 import SignalR from '@tm/SignalR';
 import { useEffect } from 'react';
-import { Task } from '@hooks/API';
+import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
+import { useRealtimeCache as useLogRealtimeCache } from '@hooks/API/Task/log';
 import type * as Realtime from '@tm/types/realtime';
 
 function Layout({ children }: { children?: ReactNode }) {
@@ -26,8 +28,8 @@ function Layout({ children }: { children?: ReactNode }) {
 }
 
 function useRealtime() {
-	const setMetaRealtimeCache = Task.meta.useRealtimeCache();
-	const setLogRealtimeCache = Task.log.useRealtimeCache();
+	const setMetaRealtimeCache = useMetaRealtimeCache();
+	const setLogRealtimeCache = useLogRealtimeCache();
 
 	useEffect(() => {
 		let taskMetaFn: Realtime.onMetaFn;
@@ -59,8 +61,8 @@ function AppContent() {
 					<Route path=":name" element={<Define />} />
 				</Route>
 				<Route path="monitor">
-					<Route path="tag/:name" element={<Monitor.Tag />}></Route>
-					<Route path="task/:name" element={<Monitor.Task />}></Route>
+					<Route path="tag/:name" element={<MonitorTag />}></Route>
+					<Route path="task/:name" element={<MonitorTask />}></Route>
 				</Route>
 				<Route path="/" element={<Home />} />
 				<Route path="*" element={<NotFound />} />

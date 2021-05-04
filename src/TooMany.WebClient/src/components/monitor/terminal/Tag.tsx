@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
-import { Task } from '@hooks/API';
+import { useMeta } from '@hooks/API/Task/meta';
+import { useLogs } from '@hooks/API/Task/log';
 import Terminal from '@components/terminal';
 import { useParams } from 'react-router-dom';
 
 function useTagLogs(tag: string) {
-	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta();
+	const { data: metas = [], isLoading: isLoadingMetas } = useMeta();
 
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
@@ -16,7 +17,7 @@ function useTagLogs(tag: string) {
 		return result;
 	}, [tag, metas]);
 
-	const multipleLogs = Task.log.useLogs(taskNames);
+	const multipleLogs = useLogs(taskNames);
 	const isLogsLoading = multipleLogs.some((log) => log.isLoading);
 
 	const logs = useMemo(() => {

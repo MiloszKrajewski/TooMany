@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { MouseEventHandler } from 'react';
-import { Task } from '@hooks/API';
+import { useStart, useStop, useRestart } from '@hooks/API/Task';
+import { useMeta } from '@hooks/API/Task/meta';
 import Title from './title';
 import TaskHeader from './Task';
 import { useParams } from 'react-router-dom';
@@ -9,9 +10,7 @@ import { useToggle } from '@tm/hooks';
 export default function () {
 	const { name: tag } = useParams();
 	const [isOpen, toggleOpen] = useToggle();
-	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta(
-		false,
-	);
+	const { data: metas = [], isLoading: isLoadingMetas } = useMeta(false);
 
 	const toggleIsOpen: MouseEventHandler<HTMLButtonElement> = (event) => {
 		event.preventDefault();
@@ -55,9 +54,9 @@ export default function () {
 		return { isActuallyToStarted, isExpectedToStarted, names };
 	}, [isLoadingMetas, metas]);
 
-	const { mutateAsync: start } = Task.useStart(tag);
-	const { mutateAsync: stop } = Task.useStop(tag);
-	const { mutateAsync: restart } = Task.useRestart(tag);
+	const { mutateAsync: start } = useStart(tag);
+	const { mutateAsync: stop } = useStop(tag);
+	const { mutateAsync: restart } = useRestart(tag);
 	const onStart = () => {
 		for (const name of names) {
 			start(name);

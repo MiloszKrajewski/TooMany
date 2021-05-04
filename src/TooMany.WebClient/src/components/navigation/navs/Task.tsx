@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { Task } from '@hooks/API';
+import { useMeta } from '@hooks/API/Task/meta';
 import Link from '@components/link';
 import { Header, Item } from './list';
-import * as Navigation from '@hooks/Navigation';
+import { useIsMonitor, useIsDefine } from '@hooks/Navigation';
 import * as routes from '@tm/helpers/routes';
 
 interface ITask {
@@ -22,10 +22,10 @@ function TaskTypeMap(selectedName: string, name: string) {
 }
 
 export default () => {
-	const isMonitor = Navigation.useIsMonitor();
-	const isDefine = Navigation.useIsDefine();
+	const isMonitor = useIsMonitor();
+	const isDefine = useIsDefine();
 
-	const { data: metas = [], isLoading } = Task.meta.useMeta();
+	const { data: metas = [], isLoading } = useMeta();
 
 	const tasks = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
