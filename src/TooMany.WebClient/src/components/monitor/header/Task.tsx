@@ -1,13 +1,15 @@
-import { memo, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Task } from '@hooks/API';
 import * as routes from '@tm/helpers/routes';
 import Title from './title';
 import { getCulture } from '@tm/helpers/culture';
+import { useParams } from 'react-router-dom';
 
 const culture = getCulture();
 
-function TaskHeader({ name }: { name: string }) {
+export default function () {
+	const { name } = useParams();
 	const { data: meta, isLoading: isLoadingMeta } = Task.meta.useMetaByName(
 		name,
 		false,
@@ -89,5 +91,3 @@ function TaskHeader({ name }: { name: string }) {
 		</header>
 	);
 }
-
-export default memo(TaskHeader);

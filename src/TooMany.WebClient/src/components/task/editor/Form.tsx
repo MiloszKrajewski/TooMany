@@ -1,8 +1,9 @@
-import { FormEventHandler, MouseEventHandler, useMemo, useRef } from 'react';
-import { memo, useState, useCallback } from 'react';
+import { FormEventHandler, MouseEventHandler, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { Task } from '@hooks/API';
 import EnvironmentVariables from './EnvironmentVariables';
 import Tags from './Tags';
+import { useParams } from 'react-router-dom';
 
 const increment = (x: number) => x + 1;
 const decrement = (x: number) => {
@@ -10,7 +11,8 @@ const decrement = (x: number) => {
 	return x - 1;
 };
 
-const Form = ({ name = '' }: { name?: string }) => {
+export default function () {
+	const { name } = useParams();
 	const { data: metas = [], isLoading } = Task.meta.useMeta();
 
 	const data = metas.find((m) => m.name === name);
@@ -192,6 +194,4 @@ const Form = ({ name = '' }: { name?: string }) => {
 			/>
 		</form>
 	);
-};
-
-export default memo(Form);
+}

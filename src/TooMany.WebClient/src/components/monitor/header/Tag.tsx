@@ -1,10 +1,12 @@
-import { memo, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 import { Task } from '@hooks/API';
 import Title from './title';
 import TaskHeader from './Task';
+import { useParams } from 'react-router-dom';
 
-function TagHeader({ name: tag }: { name: string }) {
+export default function () {
+	const { name: tag } = useParams();
 	const [isOpen, setIsOpen] = useState(false);
 	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta(
 		false,
@@ -118,11 +120,9 @@ function TagHeader({ name: tag }: { name: string }) {
 				`}
 			>
 				{names.map((name) => (
-					<TaskHeader key={name} name={name} />
+					<TaskHeader key={name} />
 				))}
 			</section>
 		</>
 	);
 }
-
-export default memo(TagHeader);

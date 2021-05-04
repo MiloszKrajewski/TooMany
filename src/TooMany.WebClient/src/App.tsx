@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import type { ReactNode } from 'react';
-import { Home, Define, Monitor } from '@pages/index';
+import { Home, Define, Monitor, NotFound } from '@pages/index';
 import { useScreenType } from '@hooks/index';
 import Navigation from '@components/navigation';
 import SignalR from '@tm/SignalR';
@@ -54,7 +54,6 @@ function AppContent() {
 	return (
 		<Layout>
 			<Routes>
-				<Route element={<Home />} />
 				<Route path="define">
 					<Route element={<Define />} />
 					<Route path=":name" element={<Define />} />
@@ -63,6 +62,8 @@ function AppContent() {
 					<Route path="tag/:name" element={<Monitor.Tag />}></Route>
 					<Route path="task/:name" element={<Monitor.Task />}></Route>
 				</Route>
+				<Route path="/" element={<Home />} />
+				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</Layout>
 	);
