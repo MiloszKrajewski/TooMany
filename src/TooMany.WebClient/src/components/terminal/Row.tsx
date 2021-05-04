@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import type * as Task from '@tm/types/task';
 import Link from '@components/link';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
 function Item({
 	children,
@@ -42,7 +42,6 @@ export default function ({
 	timestampClassName: string;
 	textClassName: string;
 }) {
-	const routes = useRoutes();
 	return (
 		<>
 			<Item isEven={isEven} className={channelClassName}>

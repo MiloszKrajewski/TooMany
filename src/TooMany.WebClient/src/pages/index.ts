@@ -1,3 +1,3 @@
 export { default as Home } from './Home';
 export { default as Define } from './Define';
-export { default as Monitor } from './Monitor';
+export * as Monitor from './monitor/index';

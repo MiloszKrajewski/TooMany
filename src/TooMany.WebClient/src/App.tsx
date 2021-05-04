@@ -6,11 +6,10 @@ import { useScreenType } from '@hooks/index';
 import Navigation from '@components/navigation';
 import SignalR from '@tm/SignalR';
 import { useEffect } from 'react';
-import { useRoutes } from '@hooks/Navigation';
 import { Task } from '@hooks/API';
 import type * as Realtime from '@tm/types/realtime';
 
-function Layout({ children }: { children: ReactNode }) {
+function Layout({ children }: { children?: ReactNode }) {
 	const screenType = useScreenType();
 	console.log(screenType);
 
@@ -52,42 +51,20 @@ function useRealtime() {
 function AppContent() {
 	useRealtime();
 
-	const routes = useRoutes();
 	return (
-		<Routes>
-			<Route
-				path={routes.home()}
-				element={
-					<Layout>
-						<Home />
-					</Layout>
-				}
-			/>
-			<Route
-				path={routes.define()}
-				element={
-					<Layout>
-						<Define />
-					</Layout>
-				}
-			/>
-			<Route
-				path={routes.redefine()}
-				element={
-					<Layout>
-						<Define />
-					</Layout>
-				}
-			/>
-			<Route
-				path={routes.monitor()}
-				element={
-					<Layout>
-						<Monitor />
-					</Layout>
-				}
-			/>
-		</Routes>
+		<Layout>
+			<Routes>
+				<Route element={<Home />} />
+				<Route path="define">
+					<Route element={<Define />} />
+					<Route path=":name" element={<Define />} />
+				</Route>
+				<Route path="monitor">
+					<Route path="tag/:name" element={<Monitor.Tag />}></Route>
+					<Route path="task/:name" element={<Monitor.Task />}></Route>
+				</Route>
+			</Routes>
+		</Layout>
 	);
 }
 

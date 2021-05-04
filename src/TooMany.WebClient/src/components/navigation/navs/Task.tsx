@@ -3,7 +3,7 @@ import { Task } from '@hooks/API';
 import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
 interface ITask {
 	name: string;
@@ -75,8 +75,6 @@ export default () => {
 			}),
 		[tasks],
 	);
-
-	const routes = useRoutes();
 
 	if (isLoading) return <ul></ul>;
 	if (!sortedTasks.length) return <ul></ul>;

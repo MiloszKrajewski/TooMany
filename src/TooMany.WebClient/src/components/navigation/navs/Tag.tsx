@@ -3,7 +3,7 @@ import { Task } from '@hooks/API';
 import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
 interface ITag {
 	name: string;
@@ -87,8 +87,6 @@ export default () => {
 			}),
 		[tags],
 	);
-
-	const routes = useRoutes();
 
 	if (isLoading) return <ul></ul>;
 	if (!tags.length) return <ul></ul>;
