@@ -1,20 +1,21 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { MouseEventHandler } from 'react';
 import { Task } from '@hooks/API';
 import Title from './title';
 import TaskHeader from './Task';
 import { useParams } from 'react-router-dom';
+import { useToggle } from '@tm/hooks';
 
 export default function () {
 	const { name: tag } = useParams();
-	const [isOpen, setIsOpen] = useState(false);
+	const [isOpen, toggleOpen] = useToggle();
 	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta(
 		false,
 	);
 
 	const toggleIsOpen: MouseEventHandler<HTMLButtonElement> = (event) => {
 		event.preventDefault();
-		setIsOpen((x) => !x);
+		toggleOpen();
 	};
 
 	const { isActuallyToStarted, isExpectedToStarted, names } = useMemo<{
