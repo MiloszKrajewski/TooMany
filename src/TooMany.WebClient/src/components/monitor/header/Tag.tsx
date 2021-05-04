@@ -121,7 +121,7 @@ export default function () {
 				`}
 			>
 				{names.map((name) => (
-					<TaskHeader key={name} />
+					<TaskHeader key={name} name={name} />
 				))}
 			</section>
 		</>

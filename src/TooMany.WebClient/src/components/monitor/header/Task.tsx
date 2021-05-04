@@ -1,19 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Task } from '@hooks/API';
+import { useMetaByName } from '@hooks/API/Task/meta';
 import * as routes from '@tm/helpers/routes';
 import Title from './title';
 import { getCulture } from '@tm/helpers/culture';
-import { useParams } from 'react-router-dom';
 
 const culture = getCulture();
 
-export default function () {
-	const { name } = useParams();
-	const { data: meta, isLoading: isLoadingMeta } = Task.meta.useMetaByName(
-		name,
-		false,
-	);
+export default function ({ name }: { name: string }) {
+	const { data: meta, isLoading: isLoadingMeta } = useMetaByName(name, false);
 
 	const {
 		actual_state: actualState = 'Error',
