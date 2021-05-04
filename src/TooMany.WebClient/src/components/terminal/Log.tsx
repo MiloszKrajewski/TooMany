@@ -3,7 +3,7 @@ import type * as Task from '@tm/types/task';
 import Link from '@components/link';
 import * as routes from '@tm/helpers/routes';
 
-function Item({
+function Cell({
 	children,
 	className,
 	isEven = false,
@@ -44,11 +44,11 @@ export default function ({
 }) {
 	return (
 		<>
-			<Item isEven={isEven} className={channelClassName}>
+			<Cell isEven={isEven} className={channelClassName}>
 				{channel}
-			</Item>
+			</Cell>
 			{isTaskNameVisible && (
-				<Item isEven={isEven} className={taskClassName}>
+				<Cell isEven={isEven} className={taskClassName}>
 					<Link
 						className="text-purple-500"
 						to={routes.monitor({
@@ -58,14 +58,14 @@ export default function ({
 					>
 						{task}
 					</Link>
-				</Item>
+				</Cell>
 			)}
-			<Item isEven={isEven} className={timestampClassName}>
+			<Cell isEven={isEven} className={timestampClassName}>
 				{timestamp}
-			</Item>
-			<Item isEven={isEven} className={textClassName}>
+			</Cell>
+			<Cell isEven={isEven} className={textClassName}>
 				{text}
-			</Item>
+			</Cell>
 		</>
 	);
 }

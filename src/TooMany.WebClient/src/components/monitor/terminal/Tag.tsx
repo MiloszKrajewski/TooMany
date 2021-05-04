@@ -1,6 +1,6 @@
-import { Task } from '@hooks/API';
 import { useMemo } from 'react';
-import Logs from './Logs';
+import { Task } from '@hooks/API';
+import Terminal from '@components/terminal';
 
 function useTagLogs(name: string) {
 	const { data: metas = [], isLoading: isLoadingMetas } = Task.meta.useMeta();
@@ -32,5 +32,5 @@ export default function ({ name }: { name: string }) {
 	const { data: logs, isLoading } = useTagLogs(name);
 
 	if (isLoading) return null;
-	return <Logs isTaskNameVisible logs={logs} />;
+	return <Terminal isTaskNameVisible logs={logs} />;
 }
