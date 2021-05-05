@@ -1,7 +1,6 @@
 import { useMatch } from 'react-router-dom';
-import useRoutes from './useRoutes';
+import * as routes from '@tm/helpers/routes';
 
 export default function () {
-	const routes = useRoutes();
 	return useMatch(routes.monitor());
 }

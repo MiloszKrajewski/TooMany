@@ -1,10 +1,8 @@
 import Link from '@components/link';
 import { Item } from './list';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
 export default () => {
-	const routes = useRoutes();
-
 	return (
 		<ul>
 			<Item isNoPadding>

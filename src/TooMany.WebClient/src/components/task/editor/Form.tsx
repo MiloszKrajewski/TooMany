@@ -1,8 +1,10 @@
-import { FormEventHandler, MouseEventHandler, useMemo, useRef } from 'react';
-import { memo, useState, useCallback } from 'react';
-import { Task } from '@hooks/API';
+import { FormEventHandler, MouseEventHandler, useMemo } from 'react';
+import { useState, useCallback } from 'react';
+import { useMeta } from '@hooks/API/Task/meta';
+import { useCreate } from '@hooks/API/Task';
 import EnvironmentVariables from './EnvironmentVariables';
 import Tags from './Tags';
+import { useParams } from 'react-router-dom';
 
 const increment = (x: number) => x + 1;
 const decrement = (x: number) => {
@@ -10,8 +12,9 @@ const decrement = (x: number) => {
 	return x - 1;
 };
 
-const Form = ({ name = '' }: { name?: string }) => {
-	const { data: metas = [], isLoading } = Task.meta.useMeta();
+export default function () {
+	const { name } = useParams();
+	const { data: metas = [], isLoading } = useMeta();
 
 	const data = metas.find((m) => m.name === name);
 
@@ -66,7 +69,7 @@ const Form = ({ name = '' }: { name?: string }) => {
 		setTagCount(decrement);
 	};
 
-	const { mutateAsync: createTask } = Task.useCreate(name);
+	const { mutateAsync: createTask } = useCreate(name);
 	const handleSubmit = useCallback<FormEventHandler<HTMLFormElement>>(
 		(event) => {
 			event.preventDefault();
@@ -192,6 +195,4 @@ const Form = ({ name = '' }: { name?: string }) => {
 			/>
 		</form>
 	);
-};
-
-export default memo(Form);
+}

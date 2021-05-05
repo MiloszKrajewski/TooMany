@@ -1,22 +1,6 @@
-import { ReactNode } from 'react';
 import type * as Task from '@tm/types/task';
-import Row from './Row';
-
-function Header({
-	children,
-	className,
-}: {
-	children: ReactNode;
-	className?: string;
-}) {
-	return (
-		<div
-			className={`bg-gray-200 text-gray-900 font-bold sticky top-0 ${className}`}
-		>
-			{children}
-		</div>
-	);
-}
+import Log from './Log';
+import Header from './Header';
 
 const maxBuffer = 500; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;
@@ -47,7 +31,7 @@ export default function ({
 			<Header className={timestampClassName}>Timestamp</Header>
 			<Header className={textClassName}>Text</Header>
 			{logs.slice(spliceIndex).map((log, index) => (
-				<Row
+				<Log
 					key={`${log.task}/${index}`}
 					isEven={index % 2 === 0}
 					channel={log.channel}

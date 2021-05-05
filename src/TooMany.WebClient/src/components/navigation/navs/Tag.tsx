@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
-import { Task } from '@hooks/API';
+import { useMeta } from '@hooks/API/Task/meta';
 import Link from '@components/link';
 import { Header, Item } from './list';
 import * as Navigation from '@hooks/Navigation';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
 interface ITag {
 	name: string;
@@ -16,7 +16,7 @@ export default () => {
 	const isMonitor = Navigation.useIsMonitor();
 	const isDefine = Navigation.useIsDefine();
 
-	const { data: metas = [], isLoading } = Task.meta.useMeta();
+	const { data: metas = [], isLoading } = useMeta();
 
 	const tags = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
@@ -87,8 +87,6 @@ export default () => {
 			}),
 		[tags],
 	);
-
-	const routes = useRoutes();
 
 	if (isLoading) return <ul></ul>;
 	if (!tags.length) return <ul></ul>;

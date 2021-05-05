@@ -1,9 +1,7 @@
-import { memo } from 'react';
 import Link from '@components/link';
-import { useRoutes } from '@hooks/Navigation';
+import * as routes from '@tm/helpers/routes';
 
-function HomePage() {
-	const routes = useRoutes();
+export default function () {
 	return (
 		<div className="flex min-h-screen min-w-full pl-52 pt-28">
 			<article>
@@ -23,5 +21,3 @@ function HomePage() {
 		</div>
 	);
 }
-
-export default memo(HomePage);
