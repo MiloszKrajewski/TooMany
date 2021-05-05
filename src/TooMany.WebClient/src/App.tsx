@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import type { ReactNode } from 'react';
 import { Home, Define, NotFound } from '@pages/index';
 import { Tag as MonitorTag, Task as MonitorTask } from '@pages/monitor';
-import { useScreenType } from '@hooks/index';
 import Navigation from '@components/navigation';
 import SignalR from '@tm/SignalR';
 import { useEffect } from 'react';
@@ -12,9 +11,6 @@ import { useRealtimeCache as useLogRealtimeCache } from '@hooks/API/Task/log';
 import type * as Realtime from '@tm/types/realtime';
 
 function Layout({ children }: { children?: ReactNode }) {
-	const screenType = useScreenType();
-	console.log(screenType);
-
 	return (
 		<div className=" bg-gray-900 text-white min-h-screen min-w-screen grid grid-cols-8">
 			<aside className="col-span-1 bg-gray-800 border-r-2 border-gray-200">

@@ -24,6 +24,7 @@ export default defineConfig({
 	define: {
 		env: JSON.stringify({
 			version: pkg.version,
+			dependencies: Object.keys(pkg.dependencies),
 			baseUrl: process.env.BASE_URL || 'http://localhost:3000',
 			realtimeUrl: `${apiUrl}/monitor`,
 			apiV1Url: `${apiUrl}/api/v1`,
