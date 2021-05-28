@@ -1,5 +1,6 @@
-import { HomeNav, TagNav, TaskNav } from './navs';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
+
+import { HomeNav, TagNav, TaskNav } from './navs';
 
 export default () => {
 	return (

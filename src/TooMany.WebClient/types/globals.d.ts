@@ -1,4 +1,4 @@
-declare var env: {
+declare const env: {
 	version: string;
 	baseUrl: string;
 	realtimeUrl: string;

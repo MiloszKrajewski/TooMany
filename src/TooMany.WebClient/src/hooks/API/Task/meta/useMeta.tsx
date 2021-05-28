@@ -1,6 +1,9 @@
 import { useQuery, useQueryClient } from 'react-query';
+
+import type * as Task from 'types/task';
+
 import useApi from '../../useApi';
-import type * as Task from '@tm/types/task';
+
 import { getQueryKey } from './helpers';
 import type { TaskName } from './types';
 

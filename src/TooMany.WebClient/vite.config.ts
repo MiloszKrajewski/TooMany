@@ -1,6 +1,8 @@
-import { defineConfig } from 'vite';
-import reactRefresh from '@vitejs/plugin-react-refresh';
 import path from 'path';
+
+import reactRefresh from '@vitejs/plugin-react-refresh';
+import { defineConfig } from 'vite';
+
 import pkg from './package.json';
 
 const apiUrl = process.env.API_URL || 'http://localhost:31337';
@@ -13,8 +15,8 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
+			'@types': path.resolve(__dirname, 'types'),
 			'@tm': path.resolve(__dirname, 'src'),
-			'@types': path.resolve(__dirname, 'src', 'types'),
 			'@enums': path.resolve(__dirname, 'src', 'enums'),
 			'@pages': path.resolve(__dirname, 'src', 'pages'),
 			'@components': path.resolve(__dirname, 'src', 'components'),

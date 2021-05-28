@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Suspense, memo } from 'react';
-import { QueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
+import { QueryErrorResetBoundary } from 'react-query';
 
 const SuspenseQuery = function ({
 	children,
@@ -17,8 +17,12 @@ const SuspenseQuery = function ({
 					fallbackRender={({ error, resetErrorBoundary }) => (
 						<div>
 							There was an error!{' '}
-							<button onClick={() => resetErrorBoundary()}>Try again</button>
-							<pre style={{ whiteSpace: 'normal' }}>{error.message}</pre>
+							<button onClick={() => resetErrorBoundary()}>
+								Try again
+							</button>
+							<pre style={{ whiteSpace: 'normal' }}>
+								{error.message}
+							</pre>
 						</div>
 					)}
 					onReset={reset}

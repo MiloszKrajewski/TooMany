@@ -1,8 +1,9 @@
-import SuspenseQuery from '@components/helpers/SuspenseQuery';
+import { useParams } from 'react-router-dom';
+
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
+import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import { Task as Header } from '@components/monitor/header';
 import { Task as Terminal } from '@components/monitor/terminal';
-import { useParams } from 'react-router-dom';
 
 function HeaderProxy() {
 	const { name } = useParams();

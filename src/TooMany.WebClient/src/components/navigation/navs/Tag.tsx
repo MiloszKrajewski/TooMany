@@ -1,9 +1,13 @@
 import { useMemo } from 'react';
-import { useMeta } from '@hooks/API/Task/meta';
-import Link from '@components/link';
-import { Header, Item } from './list';
-import * as Navigation from '@hooks/Navigation';
+
 import * as routes from '@tm/helpers/routes';
+
+import Link from '@components/link';
+
+import { useMeta } from '@hooks/API/Task/meta';
+import * as Navigation from '@hooks/Navigation';
+
+import { Header, Item } from './list';
 
 interface ITag {
 	name: string;
@@ -30,8 +34,10 @@ export default () => {
 					isTask
 						? (meta) => {
 								for (const tag of meta.tags) {
-									if (!tag || isTagAssociated[tag] === true) continue;
-									isTagAssociated[tag] = meta.name === params.name;
+									if (!tag || isTagAssociated[tag] === true)
+										continue;
+									isTagAssociated[tag] =
+										meta.name === params.name;
 								}
 								return meta.tags;
 						  }

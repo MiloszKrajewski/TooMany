@@ -1,7 +1,10 @@
 import { useMemo } from 'react';
 
-export default function <T>(data: T[], condition: (value: T) => boolean) {
-	return useMemo<[T[], T[]]>(() => {
+export default function <Data>(
+	data: Data[],
+	condition: (value: Data) => boolean,
+) {
+	return useMemo<[Data[], Data[]]>(() => {
 		const a = [];
 		const b = [];
 		for (const value of data) {

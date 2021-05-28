@@ -1,7 +1,9 @@
-import Link from '@components/link';
 import * as routes from '@tm/helpers/routes';
-import { useVersion as useServerVersion } from '@hooks/API/Server';
+
+import Link from '@components/link';
+
 import { useVersion as useClientVersion } from '@hooks/API/Client';
+import { useVersion as useServerVersion } from '@hooks/API/Server';
 import { useScreenType } from '@hooks/index';
 
 export default function () {
@@ -11,7 +13,7 @@ export default function () {
 
 	let layoutClassName = '';
 	let sectionClassName = '';
-	let articleClassName = 'mt-4';
+	const articleClassName = 'mt-4';
 	if (screenType.isPortrait) {
 		layoutClassName = 'flex-col align-baseline p-10';
 		sectionClassName = '';
@@ -26,8 +28,8 @@ export default function () {
 				<article className={articleClassName}>
 					<h1 className="text-2xl underline mb-4">Welcome</h1>
 					<p className="text-l">
-						TooMany is a task runner inspired by Docker but with a lighter
-						touch.
+						TooMany is a task runner inspired by Docker but with a
+						lighter touch.
 					</p>
 					<p>
 						To create a new task simply&nbsp;
@@ -94,10 +96,11 @@ export default function () {
 						.
 					</p>
 					<p>
-						A short and simple permissive license with conditions only requiring
-						preservation of copyright and license notices. Licensed works,
-						modifications, and larger works may be distributed under different
-						terms and without source code.
+						A short and simple permissive license with conditions
+						only requiring preservation of copyright and license
+						notices. Licensed works, modifications, and larger works
+						may be distributed under different terms and without
+						source code.
 					</p>
 				</article>
 			</section>

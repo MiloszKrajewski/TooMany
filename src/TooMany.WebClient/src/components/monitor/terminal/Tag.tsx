@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
-import { useMeta } from '@hooks/API/Task/meta';
-import { useLogs } from '@hooks/API/Task/log';
-import Terminal from '@components/terminal';
 import { useParams } from 'react-router-dom';
+
+import Terminal from '@components/terminal';
+
+import { useLogs } from '@hooks/API/Task/log';
+import { useMeta } from '@hooks/API/Task/meta';
 
 function useTagLogs(tag: string) {
 	const { data: metas = [], isLoading: isLoadingMetas } = useMeta();

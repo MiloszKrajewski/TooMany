@@ -1,3 +1,3 @@
-import type * as Task from '@tm/types/task';
+import type * as Task from 'types/task';
 
 type TaskName = Task.IMeta['name'] | undefined;

@@ -1,8 +1,9 @@
 import { useQueryClient } from 'react-query';
-import type * as Task from '@tm/types/task';
-import { useCache } from './useMetaByName';
+
+import type * as Task from 'types/task';
 
 import { getQueryKey } from './helpers';
+import { useCache } from './useMetaByName';
 
 export default function () {
 	const metaByNameCache = useCache();

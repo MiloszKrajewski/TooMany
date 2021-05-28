@@ -5,7 +5,7 @@ import {
 	LogLevel,
 } from '@microsoft/signalr';
 
-import type * as Realtime from '@tm/types/realtime';
+import type * as Realtime from 'types/realtime';
 
 export enum Channel {
 	Log = 'Log',

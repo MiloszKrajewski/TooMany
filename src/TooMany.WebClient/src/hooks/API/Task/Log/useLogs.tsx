@@ -1,10 +1,12 @@
 import type { UseQueryResult } from 'react-query';
 import { useQueries } from 'react-query';
-import useApi from '../../useApi';
-import type * as Task from '@tm/types/task';
 
-import type { TaskName } from './types';
+import type * as Task from 'types/task';
+
+import useApi from '../../useApi';
+
 import { fetchLog } from './helpers';
+import type { TaskName } from './types';
 
 export default function (taskNames: TaskName[] = []) {
 	const api = useApi();

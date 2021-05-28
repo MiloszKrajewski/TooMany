@@ -1,6 +1,7 @@
-import type * as Task from '@tm/types/task';
-import Log from './Log';
+import type * as Task from 'types/task';
+
 import Header from './Header';
+import Log from './Log';
 
 const maxBuffer = 500; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;
@@ -27,7 +28,9 @@ export default function ({
 		<div className="grid grid-cols-12 divide-y divide-gray-600">
 			<span tabIndex={0} />
 			<Header className={channelClassName}>Channel</Header>
-			{isTaskNameVisible && <Header className={taskClassName}>Task</Header>}
+			{isTaskNameVisible && (
+				<Header className={taskClassName}>Task</Header>
+			)}
 			<Header className={timestampClassName}>Timestamp</Header>
 			<Header className={textClassName}>Text</Header>
 			{logs.slice(spliceIndex).map((log, index) => (

@@ -1,7 +1,10 @@
-import type * as Task from '@tm/types/task';
-import useApi from '../../useApi';
-import settings from './settings';
+import type * as Task from 'types/task';
+
 import { getCulture } from '@tm/helpers/culture';
+
+import useApi from '../../useApi';
+
+import settings from './settings';
 
 const culture = getCulture();
 export const getQueryKey = (name?: string) => ['task', name, 'log'];
@@ -12,9 +15,12 @@ export function transformLog(name: string) {
 			...log,
 			task: name || '',
 			time: new Date(log.timestamp).getTime(),
-			formattedTimestamp: new Date(log.timestamp).toLocaleString(culture, {
-				hour12: false,
-			}),
+			formattedTimestamp: new Date(log.timestamp).toLocaleString(
+				culture,
+				{
+					hour12: false,
+				},
+			),
 		};
 	};
 }

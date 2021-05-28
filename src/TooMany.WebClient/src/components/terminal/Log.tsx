@@ -1,7 +1,10 @@
 import { ReactNode } from 'react';
-import type * as Task from '@tm/types/task';
-import Link from '@components/link';
+
+import type * as Task from 'types/task';
+
 import * as routes from '@tm/helpers/routes';
+
+import Link from '@components/link';
 
 function Cell({
 	children,

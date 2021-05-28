@@ -1,5 +1,4 @@
-import { Fragment } from 'react';
-import { memo, useRef } from 'react';
+import { Fragment, memo, useRef } from 'react';
 
 interface IEnvironmentVariable {
 	key: string;
@@ -37,7 +36,10 @@ const EnvironmentVariables = ({
 				const valueId = `${key}/Value`;
 				return (
 					<Fragment key={key}>
-						<label className="col-start-1 col-end-2" htmlFor={keyId}>
+						<label
+							className="col-start-1 col-end-2"
+							htmlFor={keyId}
+						>
 							key:
 							<input
 								className="text-gray-900"
@@ -46,7 +48,10 @@ const EnvironmentVariables = ({
 								type="text"
 							/>
 						</label>
-						<label className="col-start-2 col-end-3" htmlFor={valueId}>
+						<label
+							className="col-start-2 col-end-3"
+							htmlFor={valueId}
+						>
 							value:
 							<input
 								className="text-gray-900"
