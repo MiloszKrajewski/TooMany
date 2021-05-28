@@ -15,9 +15,12 @@ export function transformLog(name: string) {
 			...log,
 			task: name || '',
 			time: new Date(log.timestamp).getTime(),
-			formattedTimestamp: new Date(log.timestamp).toLocaleString(culture, {
-				hour12: false,
-			}),
+			formattedTimestamp: new Date(log.timestamp).toLocaleString(
+				culture,
+				{
+					hour12: false,
+				},
+			),
 		};
 	};
 }

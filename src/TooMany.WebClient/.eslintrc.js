@@ -14,7 +14,13 @@ module.exports = {
 		'plugin:import/recommended',
 		'plugin:import/typescript',
 	],
-	plugins: ['@typescript-eslint', 'react', 'react-hooks', 'import', 'prettier'],
+	plugins: [
+		'@typescript-eslint',
+		'react',
+		'react-hooks',
+		'import',
+		'prettier',
+	],
 	env: {
 		browser: true,
 		node: true,
@@ -32,7 +38,6 @@ module.exports = {
 		camelcase: 'off',
 
 		'import/default': 'error',
-		// 'import/export': ['error', { before: true, after: true }],
 		'import/no-unresolved': 'error',
 		'import/order': [
 			'error',

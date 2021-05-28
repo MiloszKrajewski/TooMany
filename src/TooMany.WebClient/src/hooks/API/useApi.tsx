@@ -53,11 +53,15 @@ export default function () {
 			},
 			meta(task: string) {
 				console.log('meta:', task);
-				return fetcher.getRequest<Task.IMeta>(endpoints.task.meta(task));
+				return fetcher.getRequest<Task.IMeta>(
+					endpoints.task.meta(task),
+				);
 			},
 			logs(task: string) {
 				console.log('logs:', task);
-				return fetcher.getRequest<Task.ILog[]>(endpoints.task.logs(task));
+				return fetcher.getRequest<Task.ILog[]>(
+					endpoints.task.logs(task),
+				);
 			},
 		},
 	};

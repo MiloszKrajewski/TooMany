@@ -34,8 +34,10 @@ export default () => {
 					isTask
 						? (meta) => {
 								for (const tag of meta.tags) {
-									if (!tag || isTagAssociated[tag] === true) continue;
-									isTagAssociated[tag] = meta.name === params.name;
+									if (!tag || isTagAssociated[tag] === true)
+										continue;
+									isTagAssociated[tag] =
+										meta.name === params.name;
 								}
 								return meta.tags;
 						  }

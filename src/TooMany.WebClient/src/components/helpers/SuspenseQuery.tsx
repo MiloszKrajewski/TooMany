@@ -17,8 +17,12 @@ const SuspenseQuery = function ({
 					fallbackRender={({ error, resetErrorBoundary }) => (
 						<div>
 							There was an error!{' '}
-							<button onClick={() => resetErrorBoundary()}>Try again</button>
-							<pre style={{ whiteSpace: 'normal' }}>{error.message}</pre>
+							<button onClick={() => resetErrorBoundary()}>
+								Try again
+							</button>
+							<pre style={{ whiteSpace: 'normal' }}>
+								{error.message}
+							</pre>
 						</div>
 					)}
 					onReset={reset}

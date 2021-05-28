@@ -41,14 +41,20 @@ export default () => {
 				isTag
 					? (meta) => {
 							for (const tag of meta.tags) {
-								if (!tag || isTaskAssociated[meta.name] === true) continue;
-								isTaskAssociated[meta.name] = tag === params.name;
+								if (
+									!tag ||
+									isTaskAssociated[meta.name] === true
+								)
+									continue;
+								isTaskAssociated[meta.name] =
+									tag === params.name;
 							}
 							return {
 								name: meta.name,
 								sortKey: meta.name.toLowerCase(),
 								isSelected: isTask,
-								isAssociated: isTag && isTaskAssociated[meta.name],
+								isAssociated:
+									isTag && isTaskAssociated[meta.name],
 							};
 					  }
 					: (meta) => TaskTypeMap(params.name, meta.name),

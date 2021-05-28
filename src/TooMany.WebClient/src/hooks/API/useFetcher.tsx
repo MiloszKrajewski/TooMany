@@ -58,7 +58,12 @@ export default function () {
 			url: string,
 			payload: Payload,
 		): Promise<Result> => {
-			return fetcher<Result>(url, 'POST', headers, JSON.stringify(payload));
+			return fetcher<Result>(
+				url,
+				'POST',
+				headers,
+				JSON.stringify(payload),
+			);
 		},
 		getRequest: <Result,>(url: string): Promise<Result> => {
 			return fetcher<Result>(url, 'GET');
@@ -68,7 +73,12 @@ export default function () {
 			payload?: Payload,
 		): Promise<Result> => {
 			if (payload) {
-				return fetcher<Result>(url, 'PUT', headers, JSON.stringify(payload));
+				return fetcher<Result>(
+					url,
+					'PUT',
+					headers,
+					JSON.stringify(payload),
+				);
 			}
 			return fetcher<Result>(url, 'PUT');
 		},
