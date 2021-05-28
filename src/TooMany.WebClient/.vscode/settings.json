@@ -1,15 +1,10 @@
 {
-	"cSpell.words": [
-		"Metas",
-		"camelcase",
-		"stylelint",
-		"vite"
-	],
+	"cSpell.words": ["Metas", "camelcase", "stylelint", "vite"],
 	"files.eol": "\n",
 	"editor.formatOnSave": true,
 	"editor.codeActionsOnSave": {
 		"source.fixAll": true
 	},
-	"css.validate": false, // Disable css built-in lint
-	"stylelint.enable": true // Enable sytlelint
+	"css.validate": false,
+	"stylelint.enable": true
 }

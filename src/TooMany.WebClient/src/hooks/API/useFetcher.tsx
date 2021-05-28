@@ -28,12 +28,12 @@ enum EHeaders {
 	contentType = 'Content-Type',
 }
 
-async function fetcher<T>(
+async function fetcher<Result>(
 	url: string,
 	method: string,
 	headers?: { [EHeaders.contentType]: string },
 	body?: string,
-): Promise<T> {
+): Promise<Result> {
 	const res = await fetch(url, { method, headers, body });
 	if (res.status < 200 || res.status >= 300) {
 		throw new Error(
