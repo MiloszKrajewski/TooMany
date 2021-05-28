@@ -1,9 +1,10 @@
 import * as routes from '@tm/helpers/routes';
-import { useVersion as useServerVersion } from '@hooks/API/Server';
-import { useVersion as useClientVersion } from '@hooks/API/Client';
-import { useScreenType } from '@hooks/index';
 
 import Link from '@components/link';
+
+import { useVersion as useClientVersion } from '@hooks/API/Client';
+import { useVersion as useServerVersion } from '@hooks/API/Server';
+import { useScreenType } from '@hooks/index';
 
 export default function () {
 	const screenType = useScreenType();
@@ -12,7 +13,7 @@ export default function () {
 
 	let layoutClassName = '';
 	let sectionClassName = '';
-	let articleClassName = 'mt-4';
+	const articleClassName = 'mt-4';
 	if (screenType.isPortrait) {
 		layoutClassName = 'flex-col align-baseline p-10';
 		sectionClassName = '';
