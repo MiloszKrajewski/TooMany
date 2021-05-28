@@ -54,20 +54,26 @@ async function fetcher<T>(
 const headers = { [EHeaders.contentType]: 'application/json' };
 export default function () {
 	return {
-		postRequest: <T, P>(url: string, payload: P): Promise<T> => {
-			return fetcher<T>(url, 'POST', headers, JSON.stringify(payload));
+		postRequest: <Result, Payload>(
+			url: string,
+			payload: Payload,
+		): Promise<Result> => {
+			return fetcher<Result>(url, 'POST', headers, JSON.stringify(payload));
 		},
-		getRequest: <T,>(url: string): Promise<T> => {
-			return fetcher<T>(url, 'GET');
+		getRequest: <Result,>(url: string): Promise<Result> => {
+			return fetcher<Result>(url, 'GET');
 		},
-		putRequest: <T, P = {}>(url: string, payload?: P): Promise<T> => {
+		putRequest: <Result, Payload>(
+			url: string,
+			payload?: Payload,
+		): Promise<Result> => {
 			if (payload) {
-				return fetcher<T>(url, 'PUT', headers, JSON.stringify(payload));
+				return fetcher<Result>(url, 'PUT', headers, JSON.stringify(payload));
 			}
-			return fetcher<T>(url, 'PUT');
+			return fetcher<Result>(url, 'PUT');
 		},
-		deleteRequest: <T,>(url: string): Promise<T> => {
-			return fetcher<T>(url, 'DELETE');
+		deleteRequest: <Result,>(url: string): Promise<Result> => {
+			return fetcher<Result>(url, 'DELETE');
 		},
 	};
 }

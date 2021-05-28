@@ -1,15 +1,20 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from 'react-query';
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { QueryClient, QueryClientProvider } from 'react-query';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+import type * as Realtime from 'types/realtime';
+
+import SignalR from '@tm/SignalR';
+
 import { Home, Define, NotFound } from '@pages/index';
 import { Tag as MonitorTag, Task as MonitorTask } from '@pages/monitor';
-import { useScreenType } from '@hooks/index';
+
 import Navigation from '@components/navigation';
-import SignalR from '@tm/SignalR';
-import { useEffect } from 'react';
-import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
+
 import { useRealtimeCache as useLogRealtimeCache } from '@hooks/API/Task/log';
-import type * as Realtime from '@tm/types/realtime';
+import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
+import { useScreenType } from '@hooks/index';
 
 function Layout({ children }: { children?: ReactNode }) {
 	const screenType = useScreenType();

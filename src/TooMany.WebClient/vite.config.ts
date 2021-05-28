@@ -13,8 +13,8 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
+			'@types': path.resolve(__dirname, 'types'),
 			'@tm': path.resolve(__dirname, 'src'),
-			'@types': path.resolve(__dirname, 'src', 'types'),
 			'@enums': path.resolve(__dirname, 'src', 'enums'),
 			'@pages': path.resolve(__dirname, 'src', 'pages'),
 			'@components': path.resolve(__dirname, 'src', 'components'),

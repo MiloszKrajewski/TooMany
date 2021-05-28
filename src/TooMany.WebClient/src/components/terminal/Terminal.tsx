@@ -1,6 +1,7 @@
-import type * as Task from '@tm/types/task';
-import Log from './Log';
+import type * as Task from 'types/task';
+
 import Header from './Header';
+import Log from './Log';
 
 const maxBuffer = 500; // TODO: move to user settings
 const spliceIndex = 0 - maxBuffer;

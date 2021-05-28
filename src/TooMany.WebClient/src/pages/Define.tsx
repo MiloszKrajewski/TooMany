@@ -1,4 +1,5 @@
 import { lazy } from 'react';
+
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 
 const TaskEditor = lazy(() => import('@components/task/editor'));

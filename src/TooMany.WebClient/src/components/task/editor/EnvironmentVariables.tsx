@@ -1,5 +1,4 @@
-import { Fragment } from 'react';
-import { memo, useRef } from 'react';
+import { Fragment, memo, useRef } from 'react';
 
 interface IEnvironmentVariable {
 	key: string;

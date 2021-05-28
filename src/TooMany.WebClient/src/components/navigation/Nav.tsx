@@ -1,7 +1,9 @@
-import { HomeNav, TagNav, TaskNav } from './navs';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
-import { useVersion as useServerVersion } from '@hooks/API/Server';
+
 import { useVersion as useClientVersion } from '@hooks/API/Client';
+import { useVersion as useServerVersion } from '@hooks/API/Server';
+
+import { HomeNav, TagNav, TaskNav } from './navs';
 
 export default () => {
 	const { data: serverVersion } = useServerVersion();

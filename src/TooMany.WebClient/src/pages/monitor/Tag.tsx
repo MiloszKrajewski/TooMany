@@ -1,5 +1,5 @@
-import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import ScrollToBottom from '@components/helpers/ScrollToBottom';
+import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import { Tag as Header } from '@components/monitor/header';
 import { Tag as Terminal } from '@components/monitor/terminal';
 

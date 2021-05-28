@@ -15,14 +15,15 @@
 		"isolatedModules": true,
 		"noEmit": true,
 		"jsx": "react-jsx",
+		"baseUrl": ".",
 		"paths": {
+			"@types/*": ["./types/*"],
 			"@tm/*": ["./src/*"],
-			"@types/*": ["./src/types/*"],
 			"@enums/*": ["./src/enums/*"],
 			"@pages/*": ["./src/pages/*"],
 			"@components/*": ["./src/components/*"],
 			"@hooks/*": ["./src/hooks/*"]
-		}
-	},
-	"include": ["./src"]
+		},
+		"typeRoots": ["./types/**"]
+	}
 }

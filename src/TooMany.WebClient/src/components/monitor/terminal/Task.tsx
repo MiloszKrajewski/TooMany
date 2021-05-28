@@ -1,6 +1,8 @@
-import { useLog } from '@hooks/API/Task/log';
-import Terminal from '@components/terminal';
 import { useParams } from 'react-router-dom';
+
+import Terminal from '@components/terminal';
+
+import { useLog } from '@hooks/API/Task/log';
 
 export default function () {
 	const { name } = useParams();

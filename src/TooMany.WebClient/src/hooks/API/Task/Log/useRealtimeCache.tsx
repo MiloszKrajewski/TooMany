@@ -1,8 +1,9 @@
 import { useQueryClient } from 'react-query';
-import type * as Task from '@tm/types/task';
-import settings from './settings';
+
+import type * as Task from 'types/task';
 
 import { getQueryKey, transformLog } from './helpers';
+import settings from './settings';
 
 export default function () {
 	const queryClient = useQueryClient();

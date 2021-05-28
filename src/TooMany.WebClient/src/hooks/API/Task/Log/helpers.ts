@@ -1,7 +1,10 @@
-import type * as Task from '@tm/types/task';
-import useApi from '../../useApi';
-import settings from './settings';
+import type * as Task from 'types/task';
+
 import { getCulture } from '@tm/helpers/culture';
+
+import useApi from '../../useApi';
+
+import settings from './settings';
 
 const culture = getCulture();
 export const getQueryKey = (name?: string) => ['task', name, 'log'];

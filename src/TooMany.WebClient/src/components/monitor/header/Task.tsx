@@ -1,10 +1,13 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+
+import { getCulture } from '@tm/helpers/culture';
+import * as routes from '@tm/helpers/routes';
+
 import { useStart, useStop, useRestart } from '@hooks/API/Task';
 import { useMetaByName } from '@hooks/API/Task/meta';
-import * as routes from '@tm/helpers/routes';
+
 import Title from './title';
-import { getCulture } from '@tm/helpers/culture';
 
 const culture = getCulture();
 

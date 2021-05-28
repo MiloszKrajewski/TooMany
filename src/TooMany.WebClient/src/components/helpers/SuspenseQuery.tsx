@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Suspense, memo } from 'react';
-import { QueryErrorResetBoundary } from 'react-query';
 import { ErrorBoundary } from 'react-error-boundary';
+import { QueryErrorResetBoundary } from 'react-query';
 
 const SuspenseQuery = function ({
 	children,

@@ -1,5 +1,6 @@
-import Link from '@components/link';
 import * as routes from '@tm/helpers/routes';
+
+import Link from '@components/link';
 
 export default function () {
 	return (

@@ -1,7 +1,4 @@
 {
-    "cSpell.words": [
-        "Metas",
-        "camelcase",
-        "vite"
-    ]
+	"cSpell.words": ["Metas", "camelcase", "vite"],
+	"files.eol": "\n"
 }
