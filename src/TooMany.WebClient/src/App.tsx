@@ -1,4 +1,3 @@
-import { noop } from '@helpers/general';
 import { useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
@@ -18,6 +17,8 @@ import { Home, Define, NotFound, Monitor } from '@pages/index';
 import Navigation from '@components/navigation';
 
 import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
+
+import { noop } from '@helpers/general';
 
 function Layout({ parent }: { parent?: string }) {
 	return (
@@ -42,7 +43,7 @@ function useRealtime() {
 		let taskLogFn: Realtime.onLogFn;
 		SignalR.start().then(() => {
 			taskMetaFn = SignalR.onTaskMeta(null, setMetaRealtimeCache);
-			taskLogFn = SignalR.onTaskLog(null, () => {});
+			taskLogFn = SignalR.onTaskLog(null, noop); // SR moans like crazy if there is no handler
 		});
 		return () => {
 			if (typeof taskMetaFn === 'function') {
