@@ -28,7 +28,7 @@ export function transformLog(name: string) {
 
 type UseApi = ReturnType<typeof useApi>;
 type TaskLogsFn = UseApi['task']['logs'];
-export function fetchLog(fetcher: TaskLogsFn, tag: string, name?: string) {
+export function fetchLog(fetcher: TaskLogsFn, name?: string) {
 	return {
 		queryKey: getQueryKey(name),
 		queryFn: async function (): Promise<Task.ILog[]> {
@@ -41,6 +41,6 @@ export function fetchLog(fetcher: TaskLogsFn, tag: string, name?: string) {
 		},
 		enabled: typeof name === 'string',
 		refetchOnWindowFocus: false,
-		staleTime: Infinity, // realtime will handle state after mount
+		refetchOnMount: true,
 	};
 }
