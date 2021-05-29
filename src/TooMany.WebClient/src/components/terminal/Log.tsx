@@ -1,4 +1,5 @@
-import { ReactNode } from 'react';
+import { memo } from 'react';
+import type { ReactNode } from 'react';
 
 import type * as Task from 'types/task';
 
@@ -22,17 +23,14 @@ function Cell({
 	return <div className={`${bg} ${className}`}>{children}</div>;
 }
 
-export default function ({
+const MemoCell = memo(Cell);
+
+export default memo(function ({
 	isEven = false,
-	channel,
 	task,
 	timestamp,
 	text,
 	isTaskNameVisible = false,
-	channelClassName,
-	taskClassName,
-	timestampClassName,
-	textClassName,
 }: {
 	isEven: boolean;
 	channel: Task.ILog['channel'];
@@ -40,35 +38,22 @@ export default function ({
 	timestamp: Task.ILog['timestamp'];
 	text: Task.ILog['text'];
 	isTaskNameVisible?: boolean;
-	channelClassName: string;
-	taskClassName: string;
-	timestampClassName: string;
-	textClassName: string;
 }) {
 	return (
-		<>
-			<Cell isEven={isEven} className={channelClassName}>
-				{channel}
-			</Cell>
+		<MemoCell isEven={isEven}>
 			{isTaskNameVisible && (
-				<Cell isEven={isEven} className={taskClassName}>
-					<Link
-						className="text-purple-500"
-						to={routes.monitor({
-							type: 'task',
-							name: task,
-						})}
-					>
-						{task}
-					</Link>
-				</Cell>
+				<Link
+					className="text-purple-500"
+					to={routes.monitor({
+						type: 'task',
+						name: task,
+					})}
+				>
+					{task}
+				</Link>
 			)}
-			<Cell isEven={isEven} className={timestampClassName}>
-				{timestamp}
-			</Cell>
-			<Cell isEven={isEven} className={textClassName}>
-				{text}
-			</Cell>
-		</>
+			{timestamp}
+			{text}
+		</MemoCell>
 	);
-}
+});

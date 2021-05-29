@@ -1,53 +1,93 @@
+import 'xterm/css/xterm.css';
+import { useEffect, useRef } from 'react';
+import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
+import { WebglAddon } from 'xterm-addon-webgl';
+
 import type * as Task from 'types/task';
-
-import Header from './Header';
-import Log from './Log';
-
-const maxBuffer = 500; // TODO: move to user settings
-const spliceIndex = 0 - maxBuffer;
 
 export default function ({
 	logs,
-	isTaskNameVisible = false,
+	instance,
 }: {
 	logs: Task.ILog[];
-	isTaskNameVisible?: boolean;
+	instance: Terminal;
 }) {
-	let channelClassName = 'col-start-1 col-end-2';
-	let taskClassName = '';
-	let timestampClassName = 'col-start-2 col-end-4';
-	let textClassName = 'col-start-4 col-end-13 break-words';
-	if (isTaskNameVisible) {
-		channelClassName = 'col-start-1 col-end-2';
-		taskClassName = 'col-start-2 col-end-4';
-		timestampClassName = 'col-start-4 col-end-6';
-		textClassName = 'col-start-6 col-end-13 break-words';
-	}
+	const containerRef = useRef<HTMLDivElement>(null);
 
-	return (
-		<div className="grid grid-cols-12 divide-y divide-gray-600">
-			<span tabIndex={0} />
-			<Header className={channelClassName}>Channel</Header>
-			{isTaskNameVisible && (
-				<Header className={taskClassName}>Task</Header>
-			)}
-			<Header className={timestampClassName}>Timestamp</Header>
-			<Header className={textClassName}>Text</Header>
-			{logs.slice(spliceIndex).map((log, index) => (
-				<Log
-					key={`${log.task}/${index}`}
-					isEven={index % 2 === 0}
-					channel={log.channel}
-					task={log.task}
-					timestamp={log.formattedTimestamp}
-					text={log.text}
-					isTaskNameVisible={isTaskNameVisible}
-					channelClassName={channelClassName}
-					taskClassName={taskClassName}
-					timestampClassName={timestampClassName}
-					textClassName={textClassName}
-				/>
-			))}
-		</div>
-	);
+	useEffect(() => {
+		const container = containerRef.current;
+		if (container === null) return;
+
+		if (!instance) return;
+
+		instance.open(container);
+
+		const fitAddon = new FitAddon();
+		instance.loadAddon(fitAddon);
+		const webglAddon = new WebglAddon();
+		instance.loadAddon(webglAddon);
+
+		instance.write(
+			logs.map((log) => `\r\n${log.timestamp} - ${log.text}`).join(),
+		);
+		const resizeEvent = () => fitAddon.fit();
+		resizeEvent();
+		window.addEventListener('resize', resizeEvent);
+		return function () {
+			window.removeEventListener('resize', resizeEvent);
+		};
+	}, []);
+
+	return <div style={{ flex: '1 100%' }} ref={containerRef} />;
 }
+
+// export default (function ({
+// 	logs,
+// 	isTaskNameVisible = false,
+// }: {
+// 	logs: Task.ILog[];
+// 	isTaskNameVisible?: boolean;
+// }) {
+// 	return (
+// 		<div className="divide-y divide-gray-600">
+// 			{logs.map((log, index) => (
+// 				<Log
+// 					key={`${log.task}/${index}`}
+// 					isEven={index % 2 === 0}
+// 					task={log.task}
+// 					timestamp={log.formattedTimestamp}
+// 					text={log.text}
+// 					isTaskNameVisible={isTaskNameVisible}
+// 				/>
+// 			))}
+// 		</div>
+// 	);
+// });
+// const Cell = ({ columnIndex, rowIndex, style }) => (
+// 	<div style={style}>
+// 		r{rowIndex}, c{columnIndex}
+// 	</div>
+// );
+
+// export default function ({
+// 	logs,
+// 	isTaskNameVisible = false,
+// }: {
+// 	logs: Task.ILog[];
+// 	isTaskNameVisible?: boolean;
+// }) {
+// 	return (
+// 		<Grid
+// 			className="Grid"
+// 			columnCount={isTaskNameVisible ? 4 : 3}
+// 			columnWidth={() => 200}
+// 			height={1000}
+// 			rowCount={logs.length}
+// 			rowHeight={() => 50}
+// 			width={isTaskNameVisible ? 800 : 600}
+// 		>
+// 			{Cell}
+// 		</Grid>
+// 	);
+// }

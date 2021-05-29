@@ -33,6 +33,7 @@ module.exports = {
 	globals: { env: 'readonly' },
 	rules: {
 		'prettier/prettier': 'error',
+		'@typescript-eslint/no-empty-function': 'off',
 
 		'@typescript-eslint/explicit-module-boundary-types': 'off',
 		camelcase: 'off',
@@ -83,6 +84,11 @@ module.exports = {
 					},
 					{
 						pattern: '@hooks/**',
+						group: 'internal',
+						position: 'after',
+					},
+					{
+						pattern: '@helpers/**',
 						group: 'internal',
 						position: 'after',
 					},

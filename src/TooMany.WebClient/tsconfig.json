@@ -17,11 +17,12 @@
 		"jsx": "react-jsx",
 		"baseUrl": ".",
 		"paths": {
-			"@types/*": ["./types/*"],
+			"types/*": ["./types/*"],
 			"@tm/*": ["./src/*"],
 			"@enums/*": ["./src/enums/*"],
 			"@pages/*": ["./src/pages/*"],
 			"@components/*": ["./src/components/*"],
+			"@helpers/*": ["./src/helpers/*"],
 			"@hooks/*": ["./src/hooks/*"]
 		},
 		"typeRoots": ["./types/**"]

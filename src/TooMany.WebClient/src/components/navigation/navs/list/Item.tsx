@@ -1,6 +1,7 @@
-import { ReactNode } from 'react';
+import { memo } from 'react';
+import type { ReactNode } from 'react';
 
-export default function ({
+function Item({
 	children,
 	isSelected = false,
 	isAssociated = false,
@@ -31,3 +32,5 @@ export default function ({
 		</li>
 	);
 }
+
+export default memo(Item);

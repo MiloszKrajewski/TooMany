@@ -8,9 +8,9 @@ import useApi from '../../useApi';
 import { fetchLog } from './helpers';
 import type { TaskName } from './types';
 
-export default function (taskNames: TaskName[] = []) {
+export default function (taskNames: TaskName[] = [], tag: string) {
 	const api = useApi();
 	return useQueries(
-		taskNames.map((taskName) => fetchLog(api.task.logs, taskName)),
+		taskNames.map((taskName) => fetchLog(api.task.logs, tag, taskName)),
 	) as UseQueryResult<Task.ILog[], unknown>[];
 }

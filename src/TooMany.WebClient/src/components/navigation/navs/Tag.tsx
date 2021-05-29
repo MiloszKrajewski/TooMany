@@ -1,11 +1,11 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 
 import * as routes from '@tm/helpers/routes';
 
 import Link from '@components/link';
 
 import { useMeta } from '@hooks/API/Task/meta';
-import * as Navigation from '@hooks/Navigation';
 
 import { Header, Item } from './list';
 
@@ -16,19 +16,17 @@ interface ITag {
 	isAssociated: boolean;
 }
 
-export default () => {
-	const isMonitor = Navigation.useIsMonitor();
-	const isDefine = Navigation.useIsDefine();
+export default ({ parent }: { parent?: string }) => {
+	const { type, name } = useParams();
 
 	const { data: metas = [], isLoading } = useMeta();
 
-	const tags = useMemo<ITag[]>(() => {
+	const items = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
 
-		if (isMonitor) {
-			const { params } = isMonitor;
-			const isTag = params.type === 'tag';
-			const isTask = params.type === 'task';
+		if (parent === 'monitor') {
+			const isTag = type === 'tag';
+			const isTask = type === 'task';
 			const uniqueTagNames: Set<string> = new Set(
 				metas.flatMap(
 					isTask
@@ -36,8 +34,7 @@ export default () => {
 								for (const tag of meta.tags) {
 									if (!tag || isTagAssociated[tag] === true)
 										continue;
-									isTagAssociated[tag] =
-										meta.name === params.name;
+									isTagAssociated[tag] = meta.name === name;
 								}
 								return meta.tags;
 						  }
@@ -47,17 +44,15 @@ export default () => {
 			return Array.from(uniqueTagNames).map((tagName) => ({
 				name: tagName,
 				sortKey: tagName.toLowerCase(),
-				isSelected: isTag && params.name === tagName,
+				isSelected: isTag && name === tagName,
 				isAssociated: isTask && isTagAssociated[tagName],
 			}));
-		}
-		if (isDefine) {
-			const { params } = isDefine;
+		} else if (parent === 'define') {
 			const uniqueTagNames: Set<string> = new Set(
 				metas.flatMap((meta) => {
 					for (const tag of meta.tags) {
 						if (!tag || isTagAssociated[tag] === true) continue;
-						isTagAssociated[tag] = meta.name === params.name;
+						isTagAssociated[tag] = meta.name === name;
 					}
 					return meta.tags;
 				}),
@@ -65,51 +60,58 @@ export default () => {
 			return Array.from(uniqueTagNames).map((tagName) => ({
 				name: tagName,
 				sortKey: tagName.toLowerCase(),
-				isSelected: params.name === tagName,
+				isSelected: name === tagName,
 				isAssociated: isTagAssociated[tagName],
 			}));
+		} else {
+			const uniqueTagNames: Set<string> = new Set(
+				metas.flatMap((meta) => meta.tags),
+			);
+			return Array.from(uniqueTagNames).map((tagName) => ({
+				name: tagName,
+				sortKey: tagName.toLowerCase(),
+				isSelected: false,
+				isAssociated: false,
+			}));
 		}
-		const uniqueTagNames: Set<string> = new Set(
-			metas.flatMap((meta) => meta.tags),
-		);
-		return Array.from(uniqueTagNames).map((tagName) => ({
-			name: tagName,
-			sortKey: tagName.toLowerCase(),
-			isSelected: false,
-			isAssociated: false,
-		}));
-	}, [metas, isMonitor, isDefine]);
+	}, [metas, name, type, parent]);
 
-	const sortedTags = useMemo(
-		() =>
-			tags.sort((a, b) => {
-				if (a.sortKey < b.sortKey) {
-					return -1;
-				}
-				if (a.sortKey > b.sortKey) {
-					return 1;
-				}
-				return 0;
-			}),
-		[tags],
-	);
+	const sortedItems = useMemo(() => {
+		return items.sort((a, b) => {
+			if (a.sortKey < b.sortKey) {
+				return -1;
+			}
+			if (a.sortKey > b.sortKey) {
+				return 1;
+			}
+			return 0;
+		});
+	}, [items]);
 
-	if (isLoading) return <ul></ul>;
-	if (!tags.length) return <ul></ul>;
-	return (
-		<ul>
-			<Header>Tags</Header>
-			{sortedTags.map((t) => (
-				<Item
-					key={t.name}
-					isSelected={t.isSelected}
-					isAssociated={t.isAssociated}
-				>
-					<Link to={routes.monitor({ type: 'tag', name: t.name })}>
-						{t.name}
-					</Link>
-				</Item>
-			))}
-		</ul>
-	);
+	return <Tags isLoading={isLoading} tags={sortedItems} />;
 };
+
+const Tags = memo(
+	({ isLoading, tags }: { isLoading: boolean; tags: ITag[] }) => {
+		if (isLoading) return <ul></ul>;
+		if (!tags.length) return <ul></ul>;
+		return (
+			<ul>
+				<Header>Tags</Header>
+				{tags.map((t) => (
+					<Item
+						isSelected={t.isSelected}
+						isAssociated={t.isAssociated}
+						key={t.name}
+					>
+						<Link
+							to={routes.monitor({ type: 'tags', name: t.name })}
+						>
+							{t.name}
+						</Link>
+					</Item>
+				))}
+			</ul>
+		);
+	},
+);

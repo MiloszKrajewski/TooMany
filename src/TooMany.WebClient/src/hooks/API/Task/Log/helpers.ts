@@ -8,6 +8,7 @@ import settings from './settings';
 
 const culture = getCulture();
 export const getQueryKey = (name?: string) => ['task', name, 'log'];
+export const getTagQueryKey = (name?: string) => ['tag', name, 'log'];
 
 export function transformLog(name: string) {
 	return function (log: Task.ILog) {
@@ -27,7 +28,7 @@ export function transformLog(name: string) {
 
 type UseApi = ReturnType<typeof useApi>;
 type TaskLogsFn = UseApi['task']['logs'];
-export function fetchLog(fetcher: TaskLogsFn, name?: string) {
+export function fetchLog(fetcher: TaskLogsFn, tag: string, name?: string) {
 	return {
 		queryKey: getQueryKey(name),
 		queryFn: async function (): Promise<Task.ILog[]> {
