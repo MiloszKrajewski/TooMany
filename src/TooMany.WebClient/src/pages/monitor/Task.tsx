@@ -11,7 +11,7 @@ function HeaderProxy() {
 
 export default function () {
 	return (
-		<section className="max-h-screen h-full">
+		<section className="h-screen flex flex-col">
 			<HeaderProxy />
 			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}>
 				<Terminal />
