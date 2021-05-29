@@ -62,20 +62,22 @@ function AppContent() {
 
 	return (
 		<Routes>
-			<Route path="define">
-				<Route element={<Layout />}>
-					<Route element={<Define />} />
-					<Route path=":name" element={<Define />} />
-				</Route>
+			<Route path="/define" element={<Layout parent="define" />}>
+				<Route element={<Define />} />
+			</Route>
+			<Route path="/define/:name" element={<Layout parent="define" />}>
+				<Route element={<Define />} />
 			</Route>
 			<Route
 				path="/monitor/:type/:name"
 				element={<Layout parent="monitor" />}
 			>
-				<Route element={<Monitor />} />
+				<Route path="/" element={<Monitor />} />
 			</Route>
-			<Route path="/" element={<Home />} />
-			<Route path="*" element={<NotFound />} />
+			<Route element={<Layout />}>
+				<Route path="/" element={<Home />} />
+				<Route path="*" element={<NotFound />} />
+			</Route>
 		</Routes>
 	);
 }

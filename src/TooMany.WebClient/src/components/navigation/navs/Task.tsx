@@ -7,6 +7,7 @@ import Link from '@components/link';
 
 import { useMeta } from '@hooks/API/Task/meta';
 
+import { useSortedItems } from './hooks';
 import { Header, Item } from './list';
 
 interface ITask {
@@ -25,90 +26,97 @@ function TaskTypeMap(selectedName: string, name: string) {
 	};
 }
 
-export default function TaskContainer({ parent }: { parent?: string }) {
+export default ({ parent }: { parent?: string }) => {
+	switch (parent) {
+		case 'monitor':
+			return <MonitorTasks />;
+		case 'define':
+			return <DefineTasks />;
+		default:
+			return <DefaultTasks />;
+	}
+};
+
+function MonitorTasks() {
 	const { type, name } = useParams();
 
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITask[]>(() => {
 		const isTaskAssociated: Record<string, boolean> = {};
-		switch (parent) {
-			case 'monitor': {
-				const isTag = type === 'tag';
-				const isTask = type === 'task';
+		const isTag = type === 'tag';
+		const isTask = type === 'task';
 
-				return metas.map(
-					isTag
-						? (meta) => {
-								for (const tag of meta.tags) {
-									if (
-										!tag ||
-										isTaskAssociated[meta.name] === true
-									)
-										continue;
-									isTaskAssociated[meta.name] = tag === name;
-								}
-								return {
-									name: meta.name,
-									sortKey: meta.name.toLowerCase(),
-									isSelected: isTask,
-									isAssociated:
-										isTag && isTaskAssociated[meta.name],
-								};
-						  }
-						: (meta) => TaskTypeMap(name, meta.name),
-				);
-			}
-			case 'define': {
-				return metas.map((meta) => TaskTypeMap(name, meta.name));
-			}
-			default: {
-				return metas.map((meta) => ({
-					name: meta.name,
-					sortKey: meta.name.toLowerCase(),
-					isSelected: false,
-					isAssociated: false,
-				}));
-			}
-		}
-	}, [metas, name, type, parent]);
+		return metas.map(
+			isTag
+				? (meta) => {
+						for (const tag of meta.tags) {
+							if (!tag || isTaskAssociated[meta.name] === true)
+								continue;
+							isTaskAssociated[meta.name] = tag === name;
+						}
+						return {
+							name: meta.name,
+							sortKey: meta.name.toLowerCase(),
+							isSelected: isTask,
+							isAssociated: isTag && isTaskAssociated[meta.name],
+						};
+				  }
+				: (meta) => TaskTypeMap(name, meta.name),
+		);
+	}, [metas, name, type]);
 
-	const sortedItems = useMemo(() => {
-		return items.sort((a, b) => {
-			if (a.sortKey < b.sortKey) {
-				return -1;
-			}
-			if (a.sortKey > b.sortKey) {
-				return 1;
-			}
-			return 0;
-		});
-	}, [items]);
-
-	return <Tasks isLoading={isLoading} tasks={sortedItems} />;
+	if (isLoading || !items.length) return null;
+	return <Tasks items={items} />;
 }
 
-const Tasks = memo(
-	({ isLoading, tasks }: { isLoading: boolean; tasks: ITask[] }) => {
-		if (isLoading) return <ul></ul>;
-		if (!tasks.length) return <ul></ul>;
-		return (
-			<ul>
-				<Header>Tasks</Header>
-				{tasks.map((t) => (
-					<Item
-						isSelected={t.isSelected}
-						isAssociated={t.isAssociated}
-						key={t.name}
+function DefineTasks() {
+	const { name } = useParams();
+
+	const { data: metas = [], isLoading } = useMeta();
+
+	const items = useMemo<ITask[]>(() => {
+		return metas.map((meta) => TaskTypeMap(name, meta.name));
+	}, [metas, name]);
+
+	if (isLoading || !items.length) return null;
+	return <Tasks items={items} />;
+}
+
+function DefaultTasks() {
+	const { data: metas = [], isLoading } = useMeta();
+
+	const items = useMemo<ITask[]>(() => {
+		return metas.map((meta) => ({
+			name: meta.name,
+			sortKey: meta.name.toLowerCase(),
+			isSelected: false,
+			isAssociated: false,
+		}));
+	}, [metas]);
+
+	if (isLoading || !items.length) return null;
+	return <Tasks items={items} />;
+}
+
+const Tasks = memo(({ items }: { items: ITask[] }) => {
+	const sortedItems = useSortedItems<ITask>(items);
+	return (
+		<ul>
+			<Header>Tasks</Header>
+			{sortedItems.map((item) => (
+				<Item
+					isSelected={item.isSelected}
+					isAssociated={item.isAssociated}
+					key={item.name}
+				>
+					<Link
+						to={routes.monitor({ type: 'task', name: item.name })}
 					>
-						<Link
-							to={routes.monitor({ type: 'task', name: t.name })}
-						>
-							{t.name}
-						</Link>
-					</Item>
-				))}
-			</ul>
-		);
-	},
-);
+						{item.name}
+					</Link>
+				</Item>
+			))}
+		</ul>
+	);
+});
