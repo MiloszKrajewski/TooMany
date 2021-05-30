@@ -6,11 +6,11 @@ import SignalR from '@tm/SignalR';
 import { useLog } from '@hooks/API/Task/log';
 import useTerminal from '@hooks/useTerminal';
 
-export default function ({ name: task }: { name: string }) {
-	const { data: logs = [], isLoading } = useLog(task);
+export default function ({ name }: { name: string }) {
+	const { data: logs = [], isLoading } = useLog(name);
 	const container = useRef<HTMLDivElement>(null);
 
-	const id = `task/${task}`;
+	const id = `task/${name}`;
 	const xterm = useTerminal(id, container.current, logs);
 
 	useEffect(() => {
@@ -18,7 +18,7 @@ export default function ({ name: task }: { name: string }) {
 			return;
 		}
 
-		const fn = SignalR.onTaskLog(task, (_, log) => {
+		const fn = SignalR.onTaskLog(name, (_, log) => {
 			if (!log.text) return;
 			xterm.writeln(`${log.timestamp} - ${log.text}`);
 		});

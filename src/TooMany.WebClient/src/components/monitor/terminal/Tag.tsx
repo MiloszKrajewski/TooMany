@@ -9,21 +9,21 @@ import { useLogsByTag } from '@hooks/API/Task/log';
 import { useMeta } from '@hooks/API/Task/meta';
 import useTerminal from '@hooks/useTerminal';
 
-export default function ({ name: tag }: { name: string }) {
+export default function ({ name }: { name: string }) {
 	const { data: metas = [] } = useMeta();
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
 		for (const meta of metas) {
-			if (meta.tags.includes(tag)) {
+			if (meta.tags.includes(name)) {
 				result.push(meta.name);
 			}
 		}
 		return result;
-	}, [tag, metas]);
-	const { data: logs = [], isLoading } = useLogsByTag(taskNames, tag);
+	}, [name, metas]);
+	const { data: logs = [], isLoading } = useLogsByTag(taskNames, name);
 	const container = useRef<HTMLDivElement>(null);
 
-	const id = `tag/${tag}`;
+	const id = `tag/${name}`;
 	const xterm = useTerminal(id, container.current, logs);
 
 	useEffect(() => {
