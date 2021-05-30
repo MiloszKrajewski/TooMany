@@ -1,11 +1,11 @@
 import { memo, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
 
 import * as routes from '@tm/helpers/routes';
 
 import Link from '@components/link';
 
 import { useMeta } from '@hooks/API/Task/meta';
+import { useDefineParams, useMonitorParams } from '@hooks/Navigation';
 
 import { useSortedItems } from './hooks';
 import { Header, Item } from './list';
@@ -26,20 +26,21 @@ function TaskTypeMap(selectedName: string, name: string) {
 	};
 }
 
-export default ({ parent }: { parent?: string }) => {
-	switch (parent) {
-		case 'monitor':
-			return <MonitorTasks />;
-		case 'define':
-			return <DefineTasks />;
-		default:
-			return <DefaultTasks />;
+export default () => {
+	const monitorParams = useMonitorParams();
+	const defineParams = useDefineParams();
+	if (typeof monitorParams !== 'undefined') {
+		return (
+			<MonitorTasks name={monitorParams.name} type={monitorParams.type} />
+		);
+	} else if (typeof defineParams !== 'undefined') {
+		return <DefineTasks name={defineParams.name} />;
+	} else {
+		return <DefaultTasks />;
 	}
 };
 
-function MonitorTasks() {
-	const { type, name } = useParams();
-
+function MonitorTasks({ type, name }: { type: string; name: string }) {
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITask[]>(() => {
@@ -70,9 +71,7 @@ function MonitorTasks() {
 	return <Tasks items={items} />;
 }
 
-function DefineTasks() {
-	const { name } = useParams();
-
+function DefineTasks({ name }: { name: string }) {
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITask[]>(() => {

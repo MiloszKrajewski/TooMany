@@ -1,11 +1,11 @@
 import { memo, useMemo } from 'react';
-import { useParams, useMatch } from 'react-router-dom';
 
 import * as routes from '@tm/helpers/routes';
 
 import Link from '@components/link';
 
 import { useMeta } from '@hooks/API/Task/meta';
+import { useDefineParams, useMonitorParams } from '@hooks/Navigation';
 
 import { useSortedItems } from './hooks';
 import { Header, Item } from './list';
@@ -17,19 +17,22 @@ interface ITag {
 	isAssociated: boolean;
 }
 
-export default ({ parent }: { parent?: string }) => {
-	switch (parent) {
-		case 'monitor':
-			return <MonitorTags />;
-		case 'define':
-			return <DefineTags />;
-		default:
-			return <DefaultTags />;
+export default () => {
+	const monitorParams = useMonitorParams();
+	const defineParams = useDefineParams();
+	if (typeof monitorParams !== 'undefined') {
+		return (
+			<MonitorTags name={monitorParams.name} type={monitorParams.type} />
+		);
+	} else if (typeof defineParams !== 'undefined') {
+		return <DefineTags name={defineParams.name} />;
+	} else {
+		return <DefaultTags />;
 	}
 };
 
-function MonitorTags() {
-	const { type, name } = useParams();
+function MonitorTags({ type, name }: { type: string; name: string }) {
+	console.log({ type, name });
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITag[]>(() => {
@@ -64,8 +67,7 @@ function MonitorTags() {
 	return <Tags items={items} />;
 }
 
-function DefineTags() {
-	const { name } = useParams();
+function DefineTags({ name }: { name: string }) {
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITag[]>(() => {
@@ -92,7 +94,6 @@ function DefineTags() {
 }
 
 function DefaultTags() {
-	const { name } = useParams();
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITag[]>(() => {
@@ -105,7 +106,7 @@ function DefaultTags() {
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [metas, name]);
+	}, [metas]);
 
 	if (isLoading || !items.length) return null;
 	return <Tags items={items} />;
