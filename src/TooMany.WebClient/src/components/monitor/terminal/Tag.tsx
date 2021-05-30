@@ -24,7 +24,7 @@ export default function ({ name: tag }: { name: string }) {
 	const container = useRef<HTMLDivElement>(null);
 
 	const id = `tag/${tag}`;
-	const xterm = useTerminal(id, container.current);
+	const xterm = useTerminal(id, container.current, logs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {
@@ -46,17 +46,6 @@ export default function ({ name: tag }: { name: string }) {
 			}
 		};
 	}, [xterm, id]);
-
-	useEffect(() => {
-		if (typeof xterm === 'undefined') {
-			return;
-		}
-
-		const pastLogs = logs
-			.map((log) => `${log.timestamp} - ${log.text}`)
-			.join('\r\n');
-		xterm.write(pastLogs);
-	}, [xterm, id, logs]);
 
 	if (isLoading || typeof logs === 'undefined') return null;
 	return <div style={{ flex: '1 100%' }} ref={container} />;

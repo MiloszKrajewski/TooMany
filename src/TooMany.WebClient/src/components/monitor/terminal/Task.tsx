@@ -8,11 +8,10 @@ import useTerminal from '@hooks/useTerminal';
 
 export default function ({ name: task }: { name: string }) {
 	const { data: logs = [], isLoading } = useLog(task);
-	// const initialLogs = useRef(logs || []);
 	const container = useRef<HTMLDivElement>(null);
 
 	const id = `task/${task}`;
-	const xterm = useTerminal(id, container.current);
+	const xterm = useTerminal(id, container.current, logs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {
@@ -29,17 +28,6 @@ export default function ({ name: task }: { name: string }) {
 			}
 		};
 	}, [xterm, id]);
-
-	useEffect(() => {
-		if (typeof xterm === 'undefined') {
-			return;
-		}
-
-		const pastLogs = logs
-			.map((log) => `${log.timestamp} - ${log.text}`)
-			.join('\r\n');
-		xterm.write(pastLogs);
-	}, [xterm, id, logs]);
 
 	if (isLoading) return null;
 	return (

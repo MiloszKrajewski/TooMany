@@ -3,9 +3,12 @@ import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebglAddon } from 'xterm-addon-webgl';
 
+import type { ILog } from 'types/task';
+
 export default function useTerminal(
 	id: string,
 	container: HTMLElement | null,
+	initialLogs: ILog[],
 ): Terminal {
 	const instance = useRef<Terminal>(new Terminal({ disableStdin: true }));
 	const fitAddon = useRef<FitAddon>(new FitAddon());
@@ -36,6 +39,17 @@ export default function useTerminal(
 			window.removeEventListener('resize', resizeEvent);
 		};
 	}, [id]);
+
+	useEffect(() => {
+		if (typeof instance.current === 'undefined') {
+			return;
+		}
+
+		const pastLogs = initialLogs
+			.map((log) => `${log.timestamp} - ${log.text}`)
+			.join('\r\n');
+		instance.current.write(pastLogs);
+	}, [id, initialLogs]);
 
 	return instance.current;
 }
