@@ -1,17 +1,26 @@
 import 'xterm/css/xterm.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 
 import SignalR from '@tm/SignalR';
 
 import { useLog } from '@hooks/API/Task/log';
 import useTerminal from '@hooks/useTerminal';
 
+import { formatLine } from './helpers';
+
 export default function ({ name }: { name: string }) {
 	const { data: logs = [], isLoading } = useLog(name);
 	const container = useRef<HTMLDivElement>(null);
 
 	const id = `task/${name}`;
-	const xterm = useTerminal(id, container.current, logs);
+
+	const initialLogs = useMemo(() => {
+		return logs
+			.map((log) => formatLine(log.text, log.timestamp))
+			.join('\r\n');
+	}, [id, logs]);
+
+	const xterm = useTerminal(id, container.current, initialLogs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {
@@ -20,7 +29,7 @@ export default function ({ name }: { name: string }) {
 
 		const fn = SignalR.onTaskLog(name, (_, log) => {
 			if (!log.text) return;
-			xterm.writeln(`${log.timestamp} - ${log.text}`);
+			xterm.writeln(formatLine(log.text, log.timestamp));
 		});
 		return () => {
 			if (typeof fn === 'function') {
