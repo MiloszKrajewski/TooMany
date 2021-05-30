@@ -9,22 +9,31 @@ import { useLogsByTag } from '@hooks/API/Task/log';
 import { useMeta } from '@hooks/API/Task/meta';
 import useTerminal from '@hooks/useTerminal';
 
-export default function ({ name: tag }: { name: string }) {
+import { formatLine } from './helpers';
+
+export default function ({ name }: { name: string }) {
 	const { data: metas = [] } = useMeta();
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
 		for (const meta of metas) {
-			if (meta.tags.includes(tag)) {
+			if (meta.tags.includes(name)) {
 				result.push(meta.name);
 			}
 		}
 		return result;
-	}, [tag, metas]);
-	const { data: logs = [], isLoading } = useLogsByTag(taskNames, tag);
+	}, [name, metas]);
+	const { data: logs = [], isLoading } = useLogsByTag(taskNames, name);
 	const container = useRef<HTMLDivElement>(null);
 
-	const id = `tag/${tag}`;
-	const xterm = useTerminal(id, container.current, logs);
+	const id = `tag/${name}`;
+
+	const initialLogs = useMemo(() => {
+		return logs
+			.map((log) => formatLine(log.text, log.timestamp, log.task))
+			.join('\r\n');
+	}, [id, logs]);
+
+	const xterm = useTerminal(id, container.current, initialLogs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {
@@ -35,7 +44,7 @@ export default function ({ name: tag }: { name: string }) {
 		for (const name of taskNames) {
 			fns[name] = SignalR.onTaskLog(name, (_, log) => {
 				if (!log.text) return;
-				xterm.writeln(`${log.timestamp} - ${log.text}`);
+				xterm.writeln(formatLine(log.text, log.timestamp, log.task));
 			});
 		}
 		return () => {

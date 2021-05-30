@@ -32,7 +32,6 @@ export default () => {
 };
 
 function MonitorTags({ type, name }: { type: string; name: string }) {
-	console.log({ type, name });
 	const { data: metas = [], isLoading } = useMeta();
 
 	const items = useMemo<ITag[]>(() => {

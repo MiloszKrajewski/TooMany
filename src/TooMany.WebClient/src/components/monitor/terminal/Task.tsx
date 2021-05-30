@@ -1,26 +1,35 @@
 import 'xterm/css/xterm.css';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 
 import SignalR from '@tm/SignalR';
 
 import { useLog } from '@hooks/API/Task/log';
 import useTerminal from '@hooks/useTerminal';
 
-export default function ({ name: task }: { name: string }) {
-	const { data: logs = [], isLoading } = useLog(task);
+import { formatLine } from './helpers';
+
+export default function ({ name }: { name: string }) {
+	const { data: logs = [], isLoading } = useLog(name);
 	const container = useRef<HTMLDivElement>(null);
 
-	const id = `task/${task}`;
-	const xterm = useTerminal(id, container.current, logs);
+	const id = `task/${name}`;
+
+	const initialLogs = useMemo(() => {
+		return logs
+			.map((log) => formatLine(log.text, log.timestamp))
+			.join('\r\n');
+	}, [id, logs]);
+
+	const xterm = useTerminal(id, container.current, initialLogs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {
 			return;
 		}
 
-		const fn = SignalR.onTaskLog(task, (_, log) => {
+		const fn = SignalR.onTaskLog(name, (_, log) => {
 			if (!log.text) return;
-			xterm.writeln(`${log.timestamp} - ${log.text}`);
+			xterm.writeln(formatLine(log.text, log.timestamp));
 		});
 		return () => {
 			if (typeof fn === 'function') {
@@ -30,13 +39,5 @@ export default function ({ name: task }: { name: string }) {
 	}, [xterm, id]);
 
 	if (isLoading) return null;
-	return (
-		<div
-			id={id}
-			style={{
-				flex: '1 100%',
-			}}
-			ref={container}
-		/>
-	);
+	return <div style={{ flex: '1 100%' }} ref={container} />;
 }

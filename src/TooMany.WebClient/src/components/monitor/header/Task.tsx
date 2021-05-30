@@ -78,9 +78,26 @@ export default function ({ name }: { name: string }) {
 					<dt>Directory:</dt>
 					<pre>{isLoadingMeta ? 'Loading' : directory}</pre>
 				</li>
-				<li className="mx-2">
+				<li
+					className="mx-2"
+					style={{
+						maxWidth: '15rem',
+						whiteSpace: 'nowrap',
+						overflow: 'hidden',
+						textOverflow: 'ellipsis',
+					}}
+					title={args}
+				>
 					<dt>Arguments:</dt>
-					<pre>{isLoadingMeta ? 'Loading' : args}</pre>
+					<pre
+						style={{
+							whiteSpace: 'nowrap',
+							overflow: 'hidden',
+							textOverflow: 'ellipsis',
+						}}
+					>
+						{isLoadingMeta ? 'Loading' : args}
+					</pre>
 				</li>
 				<li className="mx-2">
 					<dt>Last Start Time:</dt>
