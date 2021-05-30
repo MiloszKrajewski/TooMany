@@ -33,7 +33,7 @@ export default function ({ name }: { name: string }) {
 			.join('\r\n');
 	}, [id, logs]);
 
-	const xterm = useTerminal(id, container.current, initialLogs);
+	const [xterm] = useTerminal(id, container.current, initialLogs);
 
 	useEffect(() => {
 		if (typeof xterm === 'undefined') {

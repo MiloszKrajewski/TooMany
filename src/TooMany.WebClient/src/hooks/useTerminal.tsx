@@ -7,10 +7,17 @@ export default function useTerminal(
 	id: string,
 	container: HTMLElement | null,
 	initialLogs = '',
-): Terminal {
+): [
+	Terminal,
+	{
+		resizeTerminal: () => void;
+	},
+] {
 	const instance = useRef<Terminal>(new Terminal({ disableStdin: true }));
 	const fitAddon = useRef<FitAddon>(new FitAddon());
 	const webglAddon = useRef<WebglAddon>(new WebglAddon());
+
+	const resizeTerminal = () => fitAddon.current.fit();
 
 	useEffect(() => {
 		if (container === null) {
@@ -31,10 +38,9 @@ export default function useTerminal(
 	}, [id]);
 
 	useEffect(() => {
-		const resizeEvent = () => fitAddon.current.fit();
-		window.addEventListener('resize', resizeEvent);
+		window.addEventListener('resize', resizeTerminal);
 		return function () {
-			window.removeEventListener('resize', resizeEvent);
+			window.removeEventListener('resize', resizeTerminal);
 		};
 	}, [id]);
 
@@ -47,5 +53,10 @@ export default function useTerminal(
 		});
 	}, [id, initialLogs]);
 
-	return instance.current;
+	return [
+		instance.current,
+		{
+			resizeTerminal,
+		},
+	];
 }
