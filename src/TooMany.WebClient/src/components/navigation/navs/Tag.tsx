@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useMatch } from 'react-router-dom';
 
 import * as routes from '@tm/helpers/routes';
 
@@ -122,9 +122,7 @@ const Tags = memo(({ items }: { items: ITag[] }) => {
 					isAssociated={item.isAssociated}
 					key={item.name}
 				>
-					<Link
-						to={routes.monitor({ type: 'tags', name: item.name })}
-					>
+					<Link to={routes.monitor({ type: 'tag', name: item.name })}>
 						{item.name}
 					</Link>
 				</Item>

@@ -1,6 +1,6 @@
 import 'xterm/css/xterm.css';
 import { useEffect, useRef } from 'react';
-import { Terminal } from 'xterm';
+import { Terminal as XTerm } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import { WebglAddon } from 'xterm-addon-webgl';
 
@@ -9,9 +9,11 @@ import type * as Task from 'types/task';
 export default function ({
 	logs,
 	instance,
+	id,
 }: {
 	logs: Task.ILog[];
-	instance: Terminal;
+	instance?: XTerm;
+	id: string;
 }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 
@@ -38,8 +40,9 @@ export default function ({
 		window.addEventListener('resize', resizeEvent);
 		return function () {
 			window.removeEventListener('resize', resizeEvent);
+			instance.dispose();
 		};
-	}, []);
+	}, [id]);
 
 	return <div style={{ flex: '1 100%' }} ref={containerRef} />;
 }

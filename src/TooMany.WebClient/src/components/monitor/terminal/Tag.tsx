@@ -1,18 +1,15 @@
-import { useEffect, useRef, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
-import { Terminal as XTerm } from 'xterm';
+import 'xterm/css/xterm.css';
+import { useEffect, useMemo, useRef } from 'react';
 
 import type * as Realtime from 'types/realtime';
 
 import SignalR from '@tm/SignalR';
 
-import Terminal from '@components/terminal';
-
 import { useLogsByTag } from '@hooks/API/Task/log';
 import { useMeta } from '@hooks/API/Task/meta';
+import useTerminal from '@hooks/useTerminal';
 
-export default function () {
-	const { name: tag } = useParams();
+export default function ({ name: tag }: { name: string }) {
 	const { data: metas = [] } = useMeta();
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
@@ -23,18 +20,21 @@ export default function () {
 		}
 		return result;
 	}, [tag, metas]);
-	const { data: logs, isLoading } = useLogsByTag(taskNames, tag);
+	const { data: logs = [], isLoading } = useLogsByTag(taskNames, tag);
+	const container = useRef<HTMLDivElement>(null);
 
-	const xterm = useRef(new XTerm({ disableStdin: true }));
+	const id = `tag/${tag}`;
+	const xterm = useTerminal(id, container.current);
 
 	useEffect(() => {
-		const term = xterm.current;
-		if (!term) return;
+		if (typeof xterm === 'undefined') {
+			return;
+		}
 
 		const fns: Record<string, Realtime.onLogFn> = {};
 		for (const name of taskNames) {
 			fns[name] = SignalR.onTaskLog(name, (_, log) => {
-				term.writeln(`${log.timestamp} - ${log.text}`);
+				xterm.writeln(`${log.timestamp} - ${log.text}`);
 			});
 		}
 		return () => {
@@ -44,8 +44,20 @@ export default function () {
 				}
 			}
 		};
-	}, []);
+	}, [xterm, id]);
+
+	useEffect(() => {
+		if (typeof xterm === 'undefined') {
+			return;
+		}
+		console.log(logs);
+
+		const pastLogs = logs
+			.map((log) => `${log.timestamp} - ${log.text}\r\n`)
+			.join();
+		xterm.write(pastLogs);
+	}, [xterm, id, logs]);
 
 	if (isLoading || typeof logs === 'undefined') return null;
-	return <Terminal instance={xterm.current} logs={logs} />;
+	return <div style={{ flex: '1 100%' }} ref={container} />;
 }

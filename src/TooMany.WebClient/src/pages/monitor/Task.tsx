@@ -10,11 +10,12 @@ function HeaderProxy() {
 }
 
 export default function () {
+	const { name } = useParams();
 	return (
 		<section className="h-screen flex flex-col">
 			<HeaderProxy />
 			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}>
-				<Terminal />
+				<Terminal name={name} />
 			</SuspenseQuery>
 		</section>
 	);

@@ -12,7 +12,8 @@ import type * as Realtime from 'types/realtime';
 
 import SignalR from '@tm/SignalR';
 
-import { Home, Define, NotFound, Monitor } from '@pages/index';
+import { Home, Define, NotFound } from '@pages/index';
+import { Task as MonitorTask, Tag as MonitorTag } from '@pages/monitor';
 
 import Navigation from '@components/navigation';
 
@@ -20,12 +21,12 @@ import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
 
 import { noop } from '@helpers/general';
 
-function Layout({ parent }: { parent?: string }) {
+function Layout() {
 	return (
 		<div className=" bg-gray-900 text-white min-h-screen min-w-screen grid grid-cols-8">
 			<aside className="col-span-1 bg-gray-800 border-r-2 border-gray-200">
 				<div className="sticky top-0">
-					<Navigation parent={parent} />
+					<Navigation />
 				</div>
 			</aside>
 			<main className="col-start-2 col-end-9">
@@ -62,19 +63,11 @@ function AppContent() {
 
 	return (
 		<Routes>
-			<Route path="/define" element={<Layout parent="define" />}>
-				<Route element={<Define />} />
-			</Route>
-			<Route path="/define/:name" element={<Layout parent="define" />}>
-				<Route element={<Define />} />
-			</Route>
-			<Route
-				path="/monitor/:type/:name"
-				element={<Layout parent="monitor" />}
-			>
-				<Route path="/" element={<Monitor />} />
-			</Route>
 			<Route element={<Layout />}>
+				<Route path="/define" element={<Define />} />
+				<Route path="/define/:name" element={<Define />} />
+				<Route path="/monitor/tag/:name" element={<MonitorTag />} />
+				<Route path="/monitor/task/:name" element={<MonitorTask />} />
 				<Route path="/" element={<Home />} />
 				<Route path="*" element={<NotFound />} />
 			</Route>
