@@ -9,31 +9,32 @@ export default function useTerminal(
 ): Terminal {
 	const instance = useRef<Terminal>(new Terminal({ disableStdin: true }));
 	const fitAddon = useRef<FitAddon>(new FitAddon());
+	const webglAddon = useRef<WebglAddon>(new WebglAddon());
 
 	useEffect(() => {
 		if (container === null) {
 			return;
 		}
 
-		const xterm = instance.current;
-
-		xterm.open(container);
-
-		xterm.loadAddon(fitAddon.current);
-		const webglAddon = new WebglAddon();
-		xterm.loadAddon(webglAddon);
-
-		const resizeEvent = () => fitAddon.current.fit();
-		resizeEvent();
-		window.addEventListener('resize', resizeEvent);
-		return function () {
-			window.removeEventListener('resize', resizeEvent);
-			xterm.reset();
-		};
+		instance.current.open(container);
+		instance.current.loadAddon(webglAddon.current);
+		instance.current.loadAddon(fitAddon.current);
+		fitAddon.current.fit();
 	}, [container]);
 
 	useEffect(() => {
 		fitAddon.current.fit();
+		return function () {
+			instance.current.reset();
+		};
+	}, [id]);
+
+	useEffect(() => {
+		const resizeEvent = () => fitAddon.current.fit();
+		window.addEventListener('resize', resizeEvent);
+		return function () {
+			window.removeEventListener('resize', resizeEvent);
+		};
 	}, [id]);
 
 	return instance.current;
