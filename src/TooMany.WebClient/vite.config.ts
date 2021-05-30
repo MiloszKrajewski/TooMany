@@ -15,11 +15,12 @@ export default defineConfig({
 	},
 	resolve: {
 		alias: {
-			'@types': path.resolve(__dirname, 'types'),
+			types: path.resolve(__dirname, 'types'),
 			'@tm': path.resolve(__dirname, 'src'),
 			'@enums': path.resolve(__dirname, 'src', 'enums'),
 			'@pages': path.resolve(__dirname, 'src', 'pages'),
 			'@components': path.resolve(__dirname, 'src', 'components'),
+			'@helpers': path.resolve(__dirname, 'src', 'helpers'),
 			'@hooks': path.resolve(__dirname, 'src', 'hooks'),
 		},
 	},

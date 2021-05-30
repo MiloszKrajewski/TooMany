@@ -13,6 +13,6 @@
 			}
 		],
 		"block-no-empty": null,
-		"unit-whitelist": ["em", "rem"]
+		"unit-whitelist": ["em", "rem", "%"]
 	}
 }

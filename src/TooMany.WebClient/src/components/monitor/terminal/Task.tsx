@@ -1,12 +1,42 @@
-import { useParams } from 'react-router-dom';
+import 'xterm/css/xterm.css';
+import { useEffect, useRef } from 'react';
 
-import Terminal from '@components/terminal';
+import SignalR from '@tm/SignalR';
 
 import { useLog } from '@hooks/API/Task/log';
+import useTerminal from '@hooks/useTerminal';
 
-export default function () {
-	const { name } = useParams();
-	const { data: logs = [], isLoading } = useLog(name);
+export default function ({ name: task }: { name: string }) {
+	const { data: logs = [], isLoading } = useLog(task);
+	const container = useRef<HTMLDivElement>(null);
+
+	const id = `task/${task}`;
+	const xterm = useTerminal(id, container.current, logs);
+
+	useEffect(() => {
+		if (typeof xterm === 'undefined') {
+			return;
+		}
+
+		const fn = SignalR.onTaskLog(task, (_, log) => {
+			if (!log.text) return;
+			xterm.writeln(`${log.timestamp} - ${log.text}`);
+		});
+		return () => {
+			if (typeof fn === 'function') {
+				SignalR.offTaskLog(fn);
+			}
+		};
+	}, [xterm, id]);
+
 	if (isLoading) return null;
-	return <Terminal logs={logs} />;
+	return (
+		<div
+			id={id}
+			style={{
+				flex: '1 100%',
+			}}
+			ref={container}
+		/>
+	);
 }

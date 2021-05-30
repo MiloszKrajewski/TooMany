@@ -1,14 +1,16 @@
-import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import 'xterm/css/xterm.css';
+import { useEffect, useMemo, useRef } from 'react';
 
-import Terminal from '@components/terminal';
+import type * as Realtime from 'types/realtime';
 
-import { useLogs } from '@hooks/API/Task/log';
+import SignalR from '@tm/SignalR';
+
+import { useLogsByTag } from '@hooks/API/Task/log';
 import { useMeta } from '@hooks/API/Task/meta';
+import useTerminal from '@hooks/useTerminal';
 
-function useTagLogs(tag: string) {
-	const { data: metas = [], isLoading: isLoadingMetas } = useMeta();
-
+export default function ({ name: tag }: { name: string }) {
+	const { data: metas = [] } = useMeta();
 	const taskNames = useMemo(() => {
 		const result: string[] = [];
 		for (const meta of metas) {
@@ -18,24 +20,33 @@ function useTagLogs(tag: string) {
 		}
 		return result;
 	}, [tag, metas]);
+	const { data: logs = [], isLoading } = useLogsByTag(taskNames, tag);
+	const container = useRef<HTMLDivElement>(null);
 
-	const multipleLogs = useLogs(taskNames);
-	const isLogsLoading = multipleLogs.some((log) => log.isLoading);
+	const id = `tag/${tag}`;
+	const xterm = useTerminal(id, container.current, logs);
 
-	const logs = useMemo(() => {
-		if (isLogsLoading) return [];
-		return multipleLogs
-			.flatMap((log) => log.data || [])
-			.sort((a, b) => a.time - b.time);
-	}, [isLogsLoading, multipleLogs]);
+	useEffect(() => {
+		if (typeof xterm === 'undefined') {
+			return;
+		}
 
-	return { data: logs, isLoading: isLoadingMetas || isLogsLoading };
-}
+		const fns: Record<string, Realtime.onLogFn> = {};
+		for (const name of taskNames) {
+			fns[name] = SignalR.onTaskLog(name, (_, log) => {
+				if (!log.text) return;
+				xterm.writeln(`${log.timestamp} - ${log.text}`);
+			});
+		}
+		return () => {
+			for (const name of taskNames) {
+				if (typeof fns[name] === 'function') {
+					SignalR.offTaskLog(fns[name]);
+				}
+			}
+		};
+	}, [xterm, id]);
 
-export default function () {
-	const { name: tag } = useParams();
-	const { data: logs, isLoading } = useTagLogs(tag);
-
-	if (isLoading) return null;
-	return <Terminal isTaskNameVisible logs={logs} />;
+	if (isLoading || typeof logs === 'undefined') return null;
+	return <div style={{ flex: '1 100%' }} ref={container} />;
 }

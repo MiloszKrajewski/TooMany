@@ -19,8 +19,16 @@
 		"react-query": "~3.15.2",
 		"react-responsive": "~8.2.0",
 		"react-router-dom": "~6.0.0-beta.0",
+		"react-virtualized-auto-sizer": "^1.0.5",
+		"react-window": "^1.8.6",
 		"use-debounce": "~6.0.1",
-		"uuid": "~8.3.2"
+		"uuid": "~8.3.2",
+		"xterm": "^4.12.0",
+		"xterm-addon-fit": "^0.5.0",
+		"xterm-addon-ligatures": "^0.5.0",
+		"xterm-addon-search": "^0.8.0",
+		"xterm-addon-unicode11": "^0.2.0",
+		"xterm-addon-webgl": "^0.11.1"
 	},
 	"devDependencies": {
 		"@babel/core": "~7.14.00",
@@ -32,6 +40,7 @@
 		"@types/react": "~17.0.4",
 		"@types/react-dom": "~17.0.3",
 		"@types/react-responsive": "^8.0.2",
+		"@types/react-window": "^1.8.3",
 		"@types/uuid": "~8.3.0",
 		"@typescript-eslint/eslint-plugin": "^4.25.0",
 		"@typescript-eslint/parser": "^4.25.0",

@@ -1,12 +1,13 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import * as routes from '@tm/helpers/routes';
 
 import Link from '@components/link';
 
 import { useMeta } from '@hooks/API/Task/meta';
-import * as Navigation from '@hooks/Navigation';
+import { useDefineParams, useMonitorParams } from '@hooks/Navigation';
 
+import { useSortedItems } from './hooks';
 import { Header, Item } from './list';
 
 interface ITag {
@@ -17,58 +18,85 @@ interface ITag {
 }
 
 export default () => {
-	const isMonitor = Navigation.useIsMonitor();
-	const isDefine = Navigation.useIsDefine();
+	const monitorParams = useMonitorParams();
+	const defineParams = useDefineParams();
+	if (typeof monitorParams !== 'undefined') {
+		return (
+			<MonitorTags name={monitorParams.name} type={monitorParams.type} />
+		);
+	} else if (typeof defineParams !== 'undefined') {
+		return <DefineTags name={defineParams.name} />;
+	} else {
+		return <DefaultTags />;
+	}
+};
 
+function MonitorTags({ type, name }: { type: string; name: string }) {
+	console.log({ type, name });
 	const { data: metas = [], isLoading } = useMeta();
 
-	const tags = useMemo<ITag[]>(() => {
+	const items = useMemo<ITag[]>(() => {
 		const isTagAssociated: Record<string, boolean> = {};
+		const isTag = type === 'tag';
+		const isTask = type === 'task';
 
-		if (isMonitor) {
-			const { params } = isMonitor;
-			const isTag = params.type === 'tag';
-			const isTask = params.type === 'task';
-			const uniqueTagNames: Set<string> = new Set(
-				metas.flatMap(
-					isTask
-						? (meta) => {
-								for (const tag of meta.tags) {
-									if (!tag || isTagAssociated[tag] === true)
-										continue;
-									isTagAssociated[tag] =
-										meta.name === params.name;
-								}
-								return meta.tags;
-						  }
-						: (meta) => meta.tags,
-				),
-			);
-			return Array.from(uniqueTagNames).map((tagName) => ({
-				name: tagName,
-				sortKey: tagName.toLowerCase(),
-				isSelected: isTag && params.name === tagName,
-				isAssociated: isTask && isTagAssociated[tagName],
-			}));
+		let tagNames: string[];
+		if (isTask) {
+			tagNames = metas.flatMap((meta) => {
+				for (const tag of meta.tags) {
+					if (!tag || isTagAssociated[tag] === true) continue;
+					isTagAssociated[tag] = meta.name === name;
+				}
+				return meta.tags;
+			});
+		} else {
+			tagNames = metas.flatMap((meta) => meta.tags);
 		}
-		if (isDefine) {
-			const { params } = isDefine;
-			const uniqueTagNames: Set<string> = new Set(
-				metas.flatMap((meta) => {
-					for (const tag of meta.tags) {
-						if (!tag || isTagAssociated[tag] === true) continue;
-						isTagAssociated[tag] = meta.name === params.name;
-					}
-					return meta.tags;
-				}),
-			);
-			return Array.from(uniqueTagNames).map((tagName) => ({
-				name: tagName,
-				sortKey: tagName.toLowerCase(),
-				isSelected: params.name === tagName,
-				isAssociated: isTagAssociated[tagName],
-			}));
-		}
+
+		const uniqueTagNames = new Set(tagNames);
+
+		return Array.from(uniqueTagNames).map((tagName) => ({
+			name: tagName,
+			sortKey: tagName.toLowerCase(),
+			isSelected: isTag && name === tagName,
+			isAssociated: isTask && isTagAssociated[tagName],
+		}));
+	}, [metas, name, type]);
+
+	if (isLoading || !items.length) return null;
+	return <Tags items={items} />;
+}
+
+function DefineTags({ name }: { name: string }) {
+	const { data: metas = [], isLoading } = useMeta();
+
+	const items = useMemo<ITag[]>(() => {
+		const isTagAssociated: Record<string, boolean> = {};
+		const uniqueTagNames: Set<string> = new Set(
+			metas.flatMap((meta) => {
+				for (const tag of meta.tags) {
+					if (!tag || isTagAssociated[tag] === true) continue;
+					isTagAssociated[tag] = meta.name === name;
+				}
+				return meta.tags;
+			}),
+		);
+		return Array.from(uniqueTagNames).map((tagName) => ({
+			name: tagName,
+			sortKey: tagName.toLowerCase(),
+			isSelected: name === tagName,
+			isAssociated: isTagAssociated[tagName],
+		}));
+	}, [metas, name]);
+
+	if (isLoading || !items.length) return null;
+	return <Tags items={items} />;
+}
+
+function DefaultTags() {
+	const { data: metas = [], isLoading } = useMeta();
+
+	const items = useMemo<ITag[]>(() => {
 		const uniqueTagNames: Set<string> = new Set(
 			metas.flatMap((meta) => meta.tags),
 		);
@@ -78,38 +106,28 @@ export default () => {
 			isSelected: false,
 			isAssociated: false,
 		}));
-	}, [metas, isMonitor, isDefine]);
+	}, [metas]);
 
-	const sortedTags = useMemo(
-		() =>
-			tags.sort((a, b) => {
-				if (a.sortKey < b.sortKey) {
-					return -1;
-				}
-				if (a.sortKey > b.sortKey) {
-					return 1;
-				}
-				return 0;
-			}),
-		[tags],
-	);
+	if (isLoading || !items.length) return null;
+	return <Tags items={items} />;
+}
 
-	if (isLoading) return <ul></ul>;
-	if (!tags.length) return <ul></ul>;
+const Tags = memo(({ items }: { items: ITag[] }) => {
+	const sortedItems = useSortedItems<ITag>(items);
 	return (
 		<ul>
 			<Header>Tags</Header>
-			{sortedTags.map((t) => (
+			{sortedItems.map((item) => (
 				<Item
-					key={t.name}
-					isSelected={t.isSelected}
-					isAssociated={t.isAssociated}
+					isSelected={item.isSelected}
+					isAssociated={item.isAssociated}
+					key={item.name}
 				>
-					<Link to={routes.monitor({ type: 'tag', name: t.name })}>
-						{t.name}
+					<Link to={routes.monitor({ type: 'tag', name: item.name })}>
+						{item.name}
 					</Link>
 				</Item>
 			))}
 		</ul>
 	);
-};
+});

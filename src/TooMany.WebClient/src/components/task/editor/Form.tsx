@@ -20,7 +20,7 @@ const decrement = (x: number) => {
 };
 
 export default function () {
-	const { name } = useParams();
+	const { name = '' } = useParams();
 	const { data: metas = [], isLoading } = useMeta();
 
 	const data = metas.find((m) => m.name === name);

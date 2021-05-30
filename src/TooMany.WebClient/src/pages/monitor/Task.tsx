@@ -1,6 +1,5 @@
 import { useParams } from 'react-router-dom';
 
-import ScrollToBottom from '@components/helpers/ScrollToBottom';
 import SuspenseQuery from '@components/helpers/SuspenseQuery';
 import { Task as Header } from '@components/monitor/header';
 import { Task as Terminal } from '@components/monitor/terminal';
@@ -11,13 +10,12 @@ function HeaderProxy() {
 }
 
 export default function () {
+	const { name } = useParams();
 	return (
-		<section className="max-h-screen flex flex-col">
+		<section className="h-screen flex flex-col">
 			<HeaderProxy />
 			<SuspenseQuery fallback={<h1>Loading Terminal...</h1>}>
-				<ScrollToBottom>
-					<Terminal />
-				</ScrollToBottom>
+				<Terminal name={name} />
 			</SuspenseQuery>
 		</section>
 	);

@@ -8,6 +8,7 @@ import settings from './settings';
 
 const culture = getCulture();
 export const getQueryKey = (name?: string) => ['task', name, 'log'];
+export const getTagQueryKey = (name?: string) => ['tag', name, 'log'];
 
 export function transformLog(name: string) {
 	return function (log: Task.ILog) {
@@ -40,6 +41,6 @@ export function fetchLog(fetcher: TaskLogsFn, name?: string) {
 		},
 		enabled: typeof name === 'string',
 		refetchOnWindowFocus: false,
-		staleTime: Infinity, // realtime will handle state after mount
+		refetchOnMount: true,
 	};
 }
