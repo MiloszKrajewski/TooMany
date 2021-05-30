@@ -34,6 +34,7 @@ export default function ({ name: tag }: { name: string }) {
 		const fns: Record<string, Realtime.onLogFn> = {};
 		for (const name of taskNames) {
 			fns[name] = SignalR.onTaskLog(name, (_, log) => {
+				if (!log.text) return;
 				xterm.writeln(`${log.timestamp} - ${log.text}`);
 			});
 		}
@@ -50,11 +51,10 @@ export default function ({ name: tag }: { name: string }) {
 		if (typeof xterm === 'undefined') {
 			return;
 		}
-		console.log(logs);
 
 		const pastLogs = logs
-			.map((log) => `${log.timestamp} - ${log.text}\r\n`)
-			.join();
+			.map((log) => `${log.timestamp} - ${log.text}`)
+			.join('\r\n');
 		xterm.write(pastLogs);
 	}, [xterm, id, logs]);
 

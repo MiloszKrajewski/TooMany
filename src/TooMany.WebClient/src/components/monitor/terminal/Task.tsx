@@ -15,12 +15,12 @@ export default function ({ name: task }: { name: string }) {
 	const xterm = useTerminal(id, container.current);
 
 	useEffect(() => {
-		if (typeof xterm === 'undefined' || isLoading) {
-			console.error('no term');
+		if (typeof xterm === 'undefined') {
 			return;
 		}
 
 		const fn = SignalR.onTaskLog(task, (_, log) => {
+			if (!log.text) return;
 			xterm.writeln(`${log.timestamp} - ${log.text}`);
 		});
 		return () => {
@@ -31,11 +31,13 @@ export default function ({ name: task }: { name: string }) {
 	}, [xterm, id]);
 
 	useEffect(() => {
-		if (typeof xterm === 'undefined') return;
+		if (typeof xterm === 'undefined') {
+			return;
+		}
 
 		const pastLogs = logs
-			.map((log) => `${log.timestamp} - ${log.text}\r\n`)
-			.join();
+			.map((log) => `${log.timestamp} - ${log.text}`)
+			.join('\r\n');
 		xterm.write(pastLogs);
 	}, [xterm, id, logs]);
 
