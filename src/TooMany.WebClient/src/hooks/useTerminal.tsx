@@ -8,7 +8,7 @@ import type { ILog } from 'types/task';
 export default function useTerminal(
 	id: string,
 	container: HTMLElement | null,
-	initialLogs: ILog[],
+	initialLogs: ILog[] = [],
 ): Terminal {
 	const instance = useRef<Terminal>(new Terminal({ disableStdin: true }));
 	const fitAddon = useRef<FitAddon>(new FitAddon());
