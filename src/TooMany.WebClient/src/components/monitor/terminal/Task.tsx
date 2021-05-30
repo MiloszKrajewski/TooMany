@@ -30,13 +30,5 @@ export default function ({ name }: { name: string }) {
 	}, [xterm, id]);
 
 	if (isLoading) return null;
-	return (
-		<div
-			id={id}
-			style={{
-				flex: '1 100%',
-			}}
-			ref={container}
-		/>
-	);
+	return <div style={{ flex: '1 100%' }} ref={container} />;
 }

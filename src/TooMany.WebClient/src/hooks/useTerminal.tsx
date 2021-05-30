@@ -48,7 +48,9 @@ export default function useTerminal(
 		const pastLogs = initialLogs
 			.map((log) => `${log.timestamp} - ${log.text}`)
 			.join('\r\n');
-		instance.current.write(pastLogs);
+		instance.current.write(`${pastLogs}\r\n`, () => {
+			fitAddon.current.fit();
+		});
 	}, [id, initialLogs]);
 
 	return instance.current;
