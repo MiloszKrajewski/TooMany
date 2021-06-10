@@ -55,7 +55,6 @@ function useRealtime() {
 			if (typeof taskLogFn === 'function') {
 				SignalR.offTaskLog(taskLogFn);
 			}
-			SignalR.stop();
 		};
 	}, []);
 }

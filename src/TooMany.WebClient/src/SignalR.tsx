@@ -32,7 +32,7 @@ class SignalR {
 			await SignalR.connection.start();
 			console.log('Connected.');
 		} catch (ex) {
-			console.error('Connection exception:', ex);
+			console.warn('Connection exception:', ex);
 		}
 	}
 
@@ -42,7 +42,7 @@ class SignalR {
 			await SignalR.connection.stop();
 			console.log('Stopped.');
 		} catch (ex) {
-			console.error('Stopping exception:', ex);
+			console.warn('Stopping exception:', ex);
 		}
 	}
 
