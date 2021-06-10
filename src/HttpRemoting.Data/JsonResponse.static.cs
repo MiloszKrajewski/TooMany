@@ -14,20 +14,20 @@ namespace HttpRemoting.Data
 			GetConstructor(resultType)(result, error);
 
 		public static JsonResponse<T> FromResult<T>(T result) =>
-			new JsonResponse<T>(result, null);
+			new(result, null);
 
 		public static JsonResponseErrorOnly FromError(IHttpRemotingError error) =>
-			new JsonResponseErrorOnly(error);
+			new(error);
 
 		public static JsonResponse<T> FromError<T>(IHttpRemotingError error) =>
-			new JsonResponse<T>(default!, error);
+			new(default!, error);
 
 		private delegate IJsonResponse Constructor(object? result, IHttpRemotingError? error);
 
-		private static readonly ConcurrentDictionary<Type, Constructor> Constructors =
-			new ConcurrentDictionary<Type, Constructor>();
+		private static readonly ConcurrentDictionary<Type, Constructor> Constructors = new();
 
-		private static IJsonResponse ConstructorProxy<T>(object result, IHttpRemotingError error) =>
+		private static IJsonResponse ConstructorProxy<T>(
+			object result, IHttpRemotingError error) =>
 			new JsonResponse<T>((T) result, error);
 
 		private static Constructor GetConstructor(Type resultType) =>
@@ -46,10 +46,6 @@ namespace HttpRemoting.Data
 			var body = Expression.Call(null, actualMethod, resultArg, errorArg);
 			var lambda = Expression.Lambda<Constructor>(body, resultArg, errorArg);
 			return lambda.Compile();
-
-// #warning this can be much faster with complied lambda
-// 			return (result, error) =>
-// 				(IJsonResponse) actualMethod.Invoke(null, new[] { result, error });
 		}
 	}
 }
