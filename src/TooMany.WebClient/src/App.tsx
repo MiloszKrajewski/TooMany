@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import {
@@ -13,13 +13,15 @@ import type * as Realtime from 'types/realtime';
 import SignalR from '@tm/SignalR';
 
 import { Home, Define, NotFound } from '@pages/index';
-import { Task as MonitorTask, Tag as MonitorTag } from '@pages/monitor';
 
 import Navigation from '@components/navigation';
 
 import { useRealtimeCache as useMetaRealtimeCache } from '@hooks/API/Task/meta';
 
 import { noop } from '@helpers/general';
+
+const MonitorTag = lazy(() => import('@pages/monitor/Tag'));
+const MonitorTask = lazy(() => import('@pages/monitor/Task'));
 
 function Layout() {
 	return (
@@ -66,8 +68,22 @@ function AppContent() {
 			<Route element={<Layout />}>
 				<Route path="/define" element={<Define />} />
 				<Route path="/define/:name" element={<Define />} />
-				<Route path="/monitor/tag/:name" element={<MonitorTag />} />
-				<Route path="/monitor/task/:name" element={<MonitorTask />} />
+				<Route
+					path="/monitor/tag/:name"
+					element={
+						<Suspense fallback={<div>loading</div>}>
+							<MonitorTag />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="/monitor/task/:name"
+					element={
+						<Suspense fallback={<div>loading</div>}>
+							<MonitorTask />
+						</Suspense>
+					}
+				/>
 				<Route path="/" element={<Home />} />
 				<Route path="*" element={<NotFound />} />
 			</Route>
