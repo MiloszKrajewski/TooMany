@@ -25,6 +25,6 @@
 			"@helpers/*": ["./src/helpers/*"],
 			"@hooks/*": ["./src/hooks/*"]
 		},
-		"typeRoots": ["./types/**"]
+		"typeRoots": ["./node_modules/@types/**", "./types/**"]
 	}
 }
