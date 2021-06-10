@@ -1,9 +1,13 @@
 module.exports = {
-	extends: ['stylelint-config-standard', 'stylelint-config-prettier'],
+	extends: [
+		'stylelint-config-standard',
+		'stylelint-config-prettier',
+		'stylelint-config-recommended',
+		'stylelint-prettier/recommended',
+	],
 	// add your custom config here
 	// https://stylelint.io/user-guide/configuration
-	rules: {},
-	purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+	purge: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
 	darkMode: false, // or 'media' or 'class'
 	theme: {
 		extend: {},
@@ -11,5 +15,16 @@ module.exports = {
 	variants: {
 		extend: {},
 	},
-	plugins: [],
+	plugins: ['stylelint-prettier'],
+	rules: {
+		'prettier/prettier': true,
+		'at-rule-no-unknown': [
+			true,
+			{
+				ignoreAtRules: ['extends', 'tailwind'],
+			},
+		],
+		'block-no-empty': null,
+		'unit-whitelist': ['em', 'rem', '%'],
+	},
 };
