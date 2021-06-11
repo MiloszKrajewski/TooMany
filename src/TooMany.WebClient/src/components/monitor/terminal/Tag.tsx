@@ -5,7 +5,7 @@ import type * as Realtime from 'types/realtime';
 
 import SignalR from '@tm/SignalR';
 
-import { useLogsByTag } from '@hooks/API/Task/log';
+import { useLogsByTag } from '@hooks/API/Task/logs';
 import { useMeta } from '@hooks/API/Task/meta';
 import useTerminal from '@hooks/useTerminal';
 
