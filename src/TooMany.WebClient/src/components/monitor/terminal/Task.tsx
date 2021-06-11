@@ -3,7 +3,7 @@ import { useEffect, useRef, useMemo } from 'react';
 
 import SignalR from '@tm/SignalR';
 
-import { useLog } from '@hooks/API/Task/log';
+import { useLog } from '@hooks/API/Task/logs';
 import useTerminal from '@hooks/useTerminal';
 
 import { formatLine } from './helpers';
