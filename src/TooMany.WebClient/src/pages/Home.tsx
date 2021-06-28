@@ -51,7 +51,7 @@ export default function () {
 								height="54"
 							/>
 							<p className="pl-4">
-								Primary Developer:{' '}
+								Backend Developer:&nbsp;
 								<a
 									rel="noreferrer noopener"
 									className="text-purple-500"
