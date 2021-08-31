@@ -23,7 +23,7 @@ open Tools
 let solutions = Proj.settings |> Config.keys "Build"
 let packages = Proj.settings |> Config.keys "Pack"
 
-let clean () = !! "**/bin" ++ "**/obj" |> Shell.deleteDirs
+let clean () = !! "**/bin" ++ "**/obj" -- "**/node_modules/**" |> Shell.deleteDirs
 let build () = solutions |> Proj.buildMany
 let restore () = solutions |> Proj.restoreMany
 let test () = Proj.testAll ()
@@ -91,7 +91,7 @@ open Fake.Core.TargetOperators
 
 "Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Test" ==> "Release"
 "Release" ==> "Publish" ==> "Publish:Inno"
-"Publish:Frontend" ==> "Publish"
+"Clean" ?=> "Publish:Frontend" ==> "Publish"
 "Clean" ==> "Rebuild"
 
 "Clean" ?=> "Restore"

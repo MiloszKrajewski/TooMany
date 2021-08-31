@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TooMany"
-#define MyAppVersion "0.5.0"
+#define MyAppVersion "0.5.1"
 #define MyAppPublisher "Milosz Krajewski"
 #define MyAppURL "https://github.com/MiloszKrajewski/TooMany"
 #define MyAppExeName "2many.host.exe"
@@ -40,7 +40,7 @@ Source: "{#Staging}\2many.host.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Staging}\2many.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Staging}\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#Staging}\2many.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#Staging}\wwwroot\*"; DestDir: "{app}\wwwroot"; Flags: ignoreversion
+Source: "{#Staging}\wwwroot\*"; DestDir: "{app}\wwwroot"; Flags: ignoreversion recursesubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

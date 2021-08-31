@@ -1,4 +1,4 @@
-## 0.5.0 (2021/08/31)
+## 0.5.1 (2021/08/31)
 * WebClient is embedded into installer
 
 ## 0.4.39-beta (2021/04/30)
