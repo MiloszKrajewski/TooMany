@@ -36,7 +36,7 @@ namespace TooMany.WebServer
 		public void Empty() { }
 
 		[HttpGet("fail")]
-		public DateTime Fail() => throw new BadRequest();
+		public void Fail() => throw new BadRequest();
 
 		[HttpGet("version")]
 		public string Version() =>
