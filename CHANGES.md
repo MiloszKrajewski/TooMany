@@ -1,3 +1,6 @@
+## 0.5.0 (2021/08/31)
+* WebClient is embedded into installer
+
 ## 0.4.39-beta (2021/04/30)
 * Spectre.Console reverted to 0.37 (regression)
 
@@ -20,7 +23,7 @@
 * deferred startup (debouncing sync message)
 
 ## 0.4.26-beta (2021/02/03)
-* monitoring can filtered by task
+* monitoring can be filtered by task
 
 ## 0.4.24-beta (2021/02/02)
 * improved performance when starting processes

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -84,6 +85,8 @@ namespace TooMany.Actors.Worker.Processes
 
 			try
 			{
+				Thread.Yield();
+				
 				var proc = new Process { StartInfo = _info };
 				
 				Log.LogInformation("Starting process: '{0}'", _name);

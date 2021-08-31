@@ -1,4 +1,4 @@
-#load "build.imports.fsx"
+#load "./.fake/build.fsx/intellisense.fsx"
 
 #nowarn "52"
 
@@ -42,10 +42,10 @@ module Log =
     let error = Trace.traceErrorfn
 
 module Path =
-    let corenameOf path = Path.GetFileNameWithoutExtension(path)
-    let filenameOf path = Path.GetFileName(path)
-    let fullnameOf path = Path.GetFullPath(path)
-    let dirnameOf path = Path.GetDirectoryName(path)
+    let corenameOf path = Path.GetFileNameWithoutExtension(string path)
+    let filenameOf path = Path.GetFileName(string path)
+    let fullnameOf path = Path.GetFullPath(string path)
+    let dirnameOf path = Path.GetDirectoryName(string path)
 
 module File =
     ServicePointManager.SecurityProtocol <-

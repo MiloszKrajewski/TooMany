@@ -7,16 +7,16 @@
     nuget Fake.DotNet.MSBuild
     nuget Fake.DotNet.Cli
     nuget Fake.DotNet.Testing.XUnit2
+    nuget Octokit 0.48
 //"
 
-#load "build.imports.fsx"
-#load "build.tools.fsx"
+#load "./.fake/build.fsx/intellisense.fsx"
+#load "./build.tools.fsx"
 
 open Fake.IO
 open Fake.IO.Globbing.Operators
 open Fake.IO.FileSystemOperators
 open Fake.Core
-open Fake.Api
 
 open Tools
 
@@ -54,17 +54,24 @@ Target.create "Test" (fun p ->
 Target.create "Publish" (fun _ ->
     let outDir = "./.output/app"
     let options = "-c Release --no-self-contained -p:PublishSingleFile=true -p:RuntimeIdentifier=win-x64"
-    let publish name = Shell.run "dotnet" (sprintf "publish src/%s -o %s %s" name outDir options)
+    let publish name = Shell.run "dotnet" $"publish src/%s{name} -o %s{outDir} %s{options}"
     outDir |> Shell.cleanDir
     publish "TooMany.Cli"
     publish "TooMany.Host"
     !! (outDir @@ "*.pdb") |> Seq.iter File.delete
 )
 
+Target.create "Publish:Frontend" (fun _ ->
+    let webDir = "./src/TooMany.WebClient"
+    Shell.runAt webDir "yarn" "install"
+    Shell.runAt webDir "yarn" "build"
+)
+
 Target.create "Publish:Inno" (fun _ ->
+    let version = Proj.productVersion
     "./inno/setup.iss" |> File.update (fun filename ->
         File.loadText filename 
-        |> Regex.replace "#define MyAppVersion \".*\"" (sprintf "#define MyAppVersion \"%s\"" Proj.productVersion)
+        |> Regex.replace "#define MyAppVersion \".*\"" $"#define MyAppVersion \"%s{version}\""
         |> File.saveText filename
     )
     let inno = !! "C:/Program Files*/Inno Setup*/ISCC.exe" |> Seq.head
@@ -75,14 +82,16 @@ Target.create "Publish:GitHub" (fun _ ->
     let user = Proj.settings |> Config.valueOrFail "github" "user"
     let token = Proj.settings |> Config.valueOrFail "github" "token"
     let repository = Proj.settings |> Config.keys "Repository" |> Seq.exactlyOne
-    !! (Proj.outputFolder @@ (sprintf "TooMany-%s-*-setup.exe" Proj.productVersion))
+    let version = Proj.productVersion
+    !! (Proj.outputFolder @@ $"TooMany-%s{version}-*-setup.exe")
     |> Proj.publishGitHub repository user token
 )
 
 open Fake.Core.TargetOperators
 
 "Refresh" ==> "Restore" ==> "Build" ==> "Rebuild" ==> "Test" ==> "Release"
-"Release" ==> "Publish" ==> "Publish:Inno" // ==> "Publish:GitHub"
+"Release" ==> "Publish" ==> "Publish:Inno"
+"Publish:Frontend" ==> "Publish"
 "Clean" ==> "Rebuild"
 
 "Clean" ?=> "Restore"
