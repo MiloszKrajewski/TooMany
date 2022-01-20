@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "TooMany"
-#define MyAppVersion "0.5.1"
+#define MyAppVersion "0.5.3"
 #define MyAppPublisher "Milosz Krajewski"
 #define MyAppURL "https://github.com/MiloszKrajewski/TooMany"
 #define MyAppExeName "2many.host.exe"
