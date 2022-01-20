@@ -6,7 +6,7 @@
     <TargetFramework>net5</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <RollForward>LatestMajor</RollForward>
+    <RollForward>LatestMinor</RollForward>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\HttpRemoting.Client\HttpRemoting.Client.csproj" />

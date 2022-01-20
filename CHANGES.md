@@ -1,3 +1,6 @@
+## 0.5.2 (2021/01/20)
+* RoolForward policy set to LatestMinor
+
 ## 0.5.1 (2021/08/31)
 * WebClient is embedded into installer
 
